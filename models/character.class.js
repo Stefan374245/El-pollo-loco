@@ -1,6 +1,6 @@
 class Character extends MovableObject {
   height = 160;
-  y = 80;
+  y = 280;
   speed = 5;
   IMAGES_WALKING = [
     "img/2_character_pepe/2_walk/W-21.png",
@@ -10,7 +10,7 @@ class Character extends MovableObject {
     "img/2_character_pepe/2_walk/W-25.png",
     "img/2_character_pepe/2_walk/W-26.png",
   ];
-
+ 
   IMAGES_JUMPING = [
     'img/2_character_pepe/3_jump/J-31.png',
     'img/2_character_pepe/3_jump/J-32.png',
@@ -65,8 +65,13 @@ class Character extends MovableObject {
     setInterval(() => {
       if (this.isJumping()) {
         this.playAnimation(this.IMAGES_JUMPING);
-      } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-        this.playAnimation(this.IMAGES_WALKING);
+      } else {
+        if (!this.img.src.includes("idle/I-1.png")) {
+          this.loadImage("img/2_character_pepe/1_idle/idle/I-1.png");
+        }
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+          this.playAnimation(this.IMAGES_WALKING); 
+        }
       }
     }, 100);
   }

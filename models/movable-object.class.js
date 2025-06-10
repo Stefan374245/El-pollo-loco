@@ -13,15 +13,16 @@ class MovableObject {
   gravity = 2;
   accelaration = 2.5;
 
-  applyGravity() {
+   applyGravity() {
     setInterval(() => {
-      if (this.isJumping()) {
-        this.y -= this.speedY;
-        this.speedY -= this.accelaration;
+      if (this.y < 280) {
+        this.y += this.gravity;
+      } else {
+        this.y = 280;
       }
     }, 1000 / 25);
   }
-
+ 
   isJumping() {
     return this.y < 280; // Überprüft, ob der Charakter über dem Boden ist
   }
