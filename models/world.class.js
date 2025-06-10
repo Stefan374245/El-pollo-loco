@@ -40,7 +40,7 @@ class World {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     // Löscht das gesamte Canvas, um jedes Frame neu zu zeichnen
 
-this.ctx.translate(this.camera_x, 0);
+    this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.level.backgroundObject);
     this.addObjectsToMap(this.level.clouds);

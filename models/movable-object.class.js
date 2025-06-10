@@ -11,18 +11,19 @@ class MovableObject {
 
   speedY = 0;
   gravity = 2;
+  accelaration = 2.5;
 
   applyGravity() {
     setInterval(() => {
-      if (this.y < 80) {
+      if (this.isJumping()) {
         this.y -= this.speedY;
-        this.speedY -= this.gravity;
+        this.speedY -= this.accelaration;
       }
     }, 1000 / 25);
   }
 
   isJumping() {
-    return this.speedY < 0;
+    return this.y < 280; // Überprüft, ob der Charakter über dem Boden ist
   }
 
   loadImage(path) {
