@@ -2,7 +2,7 @@ class Character extends MovableObject {
   height = 160;
   y = 280;
   speed = 5;
-  IMAGES_WALKING_RIGHT = [
+  IMAGES_WALKING = [
     "img/2_character_pepe/2_walk/W-21.png",
     "img/2_character_pepe/2_walk/W-22.png",
     "img/2_character_pepe/2_walk/W-23.png",
@@ -10,19 +10,12 @@ class Character extends MovableObject {
     "img/2_character_pepe/2_walk/W-25.png",
     "img/2_character_pepe/2_walk/W-26.png",
   ];
-  IMAGES_WALKING_LEFT = [
-    "img/2_character_pepe/1_idle/idle/I-1.png",
-    "img/2_character_pepe/1_idle/idle/I-2.png",
-    "img/2_character_pepe/1_idle/idle/I-3.png",
-    "img/2_character_pepe/1_idle/idle/I-4.png",
-    "img/2_character_pepe/1_idle/idle/I-5.png",
-  ];
 
   currentImage = 0;
 
   constructor() {
     super().loadImage("img/2_character_pepe/1_idle/idle/I-1.png");
-    this.loadImages(this.IMAGES_WALKING_RIGHT);
+    this.loadImages(this.IMAGES_WALKING);
     this.animate();
   }
 
@@ -56,10 +49,7 @@ class Character extends MovableObject {
 
     setInterval(() => {
       if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-        let i = this.currentImage % this.IMAGES_WALKING_RIGHT.length; // Use modulo to cycle through images let = i = 7 % 6 ; =>  1, Rest 1 -- > i = 0 , 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5 ...
-        let path = this.IMAGES_WALKING_RIGHT[i];
-        this.img = this.availableImages[path];
-        this.currentImage++;
+        this.playAnimation(this.IMAGES_WALKING);
       }
       
     }, 100);

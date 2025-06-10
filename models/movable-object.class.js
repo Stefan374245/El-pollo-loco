@@ -34,4 +34,11 @@ class MovableObject {
       }
     }, 100 / 30);
   }
+
+  playAnimation(images) {
+    let i = this.currentImage % this.IMAGES_WALKING.length; // Use modulo to cycle through images let = i = 7 % 6 ; =>  1, Rest 1 -- > i = 0 , 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5 ...
+        let path = images[i];
+        this.img = this.availableImages[path];
+        this.currentImage++;
+  }
 }
