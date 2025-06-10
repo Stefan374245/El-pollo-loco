@@ -9,6 +9,22 @@ class MovableObject {
   speed = 10;
   otherDirection = false;
 
+  speedY = 0;
+  gravity = 2;
+
+  applyGravity() {
+    setInterval(() => {
+      if (this.y < 80) {
+        this.y -= this.speedY;
+        this.speedY -= this.gravity;
+      }
+    }, 1000 / 25);
+  }
+
+  isJumping() {
+    return this.speedY < 0;
+  }
+
   loadImage(path) {
     this.img = new Image(); // this.img = document.getElementbyId("image")    <img id= 'image' src>
     this.img.src = path;
@@ -37,8 +53,8 @@ class MovableObject {
 
   playAnimation(images) {
     let i = this.currentImage % this.IMAGES_WALKING.length; // Use modulo to cycle through images let = i = 7 % 6 ; =>  1, Rest 1 -- > i = 0 , 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5 ...
-        let path = images[i];
-        this.img = this.availableImages[path];
-        this.currentImage++;
+    let path = images[i];
+    this.img = this.availableImages[path];
+    this.currentImage++;
   }
 }
