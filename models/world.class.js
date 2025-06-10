@@ -1,9 +1,7 @@
 class World {
   character = new Character();
 
-  enemies = level1.enemies;
-  clouds = level1.clouds;
-  backgroundObject = level1.backgroundObject;
+ level = level1; 
 
 
   canvas;
@@ -27,13 +25,13 @@ class World {
 
     this.bottle.world = this;
     this.statusBar.world = this;
-    this.enemies.forEach((enemy) => {
+    this.level.enemies.forEach((enemy) => {
       enemy.world = this;
     });
-    this.clouds.forEach((clouds) => {
+    this.level.clouds.forEach((clouds) => {
       clouds.world = this;
     });
-    this.backgroundObject.forEach((background) => {
+    this.level.backgroundObject.forEach((background) => {
       background.world = this;
     });
   }
@@ -44,12 +42,14 @@ class World {
 
 this.ctx.translate(this.camera_x, 0);
 
-    this.addObjectsToMap(this.backgroundObject);
+    this.addObjectsToMap(this.level.backgroundObject);
+    this.addObjectsToMap(this.level.clouds);
+    this.addObjectsToMap(this.level.enemies);
+
     this.addToMap(this.character);
     this.addToMap(this.bottle);
     this.addToMap(this.statusBar);
-    this.addObjectsToMap(this.clouds);
-    this.addObjectsToMap(this.enemies);
+    
 
     this.ctx.translate(-this.camera_x, 0);
 

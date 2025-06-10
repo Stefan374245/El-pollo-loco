@@ -33,16 +33,16 @@ class Character extends MovableObject {
   
 
   movePepeLeft() {
-    this.otherDirection = true; // Richtung nach links
-    this.x -= this.speed; // Bewegung nach links
+    this.otherDirection = true;
+    this.x -= this.speed;
   }
 
   animate() {
     setInterval(() => {
-      if (this.world.keyboard.RIGHT) {
+      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_point) {
         this.moveRight();
       }
-      if (this.world.keyboard.LEFT) {
+      if (this.world.keyboard.LEFT && this.x > 0) {
         this.movePepeLeft();
       }
       if (this.world.keyboard.JUMP) {
@@ -51,7 +51,7 @@ class Character extends MovableObject {
           this.y += 50;
         }, 100);
       } 
-      this.world.camera_x = -this.x;
+      this.world.camera_x = -this.x + 100;
     }, 1000 / 30);
 
     setInterval(() => {
