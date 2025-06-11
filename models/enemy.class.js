@@ -14,15 +14,18 @@ class Enemy extends MovableObject {
 
     const maxCanvasWidth = 720;
     this.x = 200 + Math.random() * (maxCanvasWidth - 200 - this.width);
-    this.y = 387;
-    this.speed = 0.1 + Math.random() * 0.2;
+    
+    this.speed = 0.5 + Math.random() * 0.25;
     this.animate();
   }
   animate() {
-    this.moveLeft();
+    setInterval(() => {
+      this.moveLeft();
+    }, 1000 / 60);
 
     setInterval(() => {
       this.playAnimation(this.IMAGES_WALKING);
     }, 200);
   }
 }
+d
