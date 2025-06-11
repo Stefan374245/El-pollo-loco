@@ -8,10 +8,9 @@ class MovableObject {
   currentImage = 0;
   speed = 0.15;
   otherDirection = false;
-
   speedY = 0;
-
   accelaration = 2.5;
+  hp = 100;
 
   applyGravity() {
     setInterval(() => {
@@ -27,8 +26,17 @@ class MovableObject {
   }
 
   loadImage(path) {
-    this.img = new Image(); // this.img = document.getElementbyId("image")    <img id= 'image' src>
+    this.img = new Image();
     this.img.src = path;
+
+    // Fehlerbehebung: Überprüfen, ob das Bild geladen wurde
+    this.img.onload = () => {
+      console.log(`Bild erfolgreich geladen: ${path}`);
+    };
+
+    this.img.onerror = () => {
+      console.error(`Fehler beim Laden des Bildes: ${path}`);
+    };
   }
   /**
  * 
@@ -47,35 +55,22 @@ class MovableObject {
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 
-  drawFrame(ctx) {
+drawFrame(ctx) {
+  if (this instanceof Character) {
     ctx.beginPath();
     ctx.lineWidth = '5';
- 
-    if (this instanceof Enemy) {
-      ctx.strokeStyle = 'red';
-
-    } else if (this instanceof Character) {
-      ctx.strokeStyle = 'blue';
-      
-    } else {
-      ctx.strokeStyle = 'black';
-    }
+    ctx.strokeStyle = 'blue';
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.stroke();
+  } else if (this instanceof Enemy) {
+    ctx.beginPath();
+    ctx.lineWidth = '5';
+    ctx.strokeStyle = 'red';
     ctx.rect(this.x, this.y, this.width, this.height);
     ctx.stroke();
   }
+}
 
-  
-  flipImage(mo) {
-    this.ctx.save();
-    this.ctx.translate(mo.width, 0);
-    this.ctx.scale(-1, 1); 
-    mo.x = mo.x * -1;
-  }
-
-  flipImageBack(mo) {
-    mo.x = mo.x * -1;
-    this.ctx.restore(); 
-  }
 
   moveRight() {
     this.x += this.speed;
@@ -94,5 +89,40 @@ class MovableObject {
     let path = images[i];
     this.img = this.availableImages[path];
     this.currentImage++;
+  }
+
+  
+  /**
+   * character.is
+   * @param {*} mo MovableObject to check for collision
+   * Checks if this object is colliding with another movable object 
+   * @returns 
+   */
+  isColliding(mo) {
+    return this.x + this.width > mo.x &&
+      this.y + this.height > mo.y &&
+      this.x < mo.x &&
+      this.y < mo.y + mo.height;
+  } 
+  
+  hit() {
+    this.hp -= 5;
+    if(this.hp < 0 ) {
+      this.hp = 0;
+    }
+  }
+
+  isDead() {
+    return this.hp == 0;
+  }
+
+  isIdle() {
+    return (
+     !this.world.keyboard.LEFT &&
+    !this.world.keyboard.RIGHT &&
+    !this.world.keyboard.JUMP &&
+    !this.isJumping() &&
+    !this.isDead()
+    );
   }
 }
