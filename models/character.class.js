@@ -34,31 +34,20 @@ class Character extends MovableObject {
     this.animate();
   }
 
-   moveRight() {
-    this.otherDirection = false; // Richtung nach rechts
-    this.x += this.speed; // Bewegung nach rechts
-  }
-  
-
-  movePepeLeft() {
-    this.otherDirection = true;
-    this.x -= this.speed;
-  }
-
   animate() {
     setInterval(() => {
       if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_point) {
         this.moveRight();
+        this.otherDirection = false;
       }
       if (this.world.keyboard.LEFT && this.x > 0) {
-        this.movePepeLeft();
+        this.moveLeft();
+        this.otherDirection = true;
       }
-      if (this.world.keyboard.JUMP) {
-        this.y -= 50;
-        setTimeout(() => {
-          this.y += 50;
-        }, 100);
-      } 
+      if (this.world.keyboard.JUMP && !this.isJumping()) {
+        this.jump(); 
+        }
+      
       this.world.camera_x = -this.x + 100;
     }, 1000 / 30);
 

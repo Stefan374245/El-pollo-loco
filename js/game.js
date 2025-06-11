@@ -9,33 +9,59 @@ function init() {
   console.log("my Character is", world.character);
 }
 
-
 document.addEventListener("keydown", (event) => {
-  if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D')
-    keyboard.RIGHT = true;
-  if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A')
-    keyboard.LEFT = true;
-  if (event.key === 'ArrowUp' || event.key === 'w' || event.key === 'W')
-    keyboard.UP = true;
-  if (event.key === 'ArrowDown' || event.key === 's' || event.key === 'S')
-    keyboard.DOWN = true;
-  if (event.key === ' ' || event.key === 'Spacebar')
-    keyboard.JUMP = true;
-  if (event.key === 'Enter')
-    keyboard.THROW = true;
-  console.log(event);
+  switch (event.code) {
+    case "ArrowRight":
+    case "KeyD":
+      keyboard.RIGHT = true;
+      break;
+    case "ArrowLeft":
+    case "KeyA":
+      keyboard.LEFT = true;
+      break;
+    case "ArrowUp":
+    case "KeyW":
+      keyboard.UP = true;
+      break;
+    case "ArrowDown":
+    case "KeyS":
+      keyboard.DOWN = true;
+      break;
+    case "Space":
+      console.log("SPACE gedrückt!");
+      keyboard.JUMP = true;
+      break;
+    case "Enter":
+      keyboard.THROW = true;
+      break;
+  }
+  console.log(event.code);
 });
 
 document.addEventListener("keyup", (event) => {
-  if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D')
-    keyboard.RIGHT = false;
-  if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A')
-    keyboard.LEFT = false;
-  if (event.key === 'ArrowDown' || event.key === 's' || event.key === 'S')
-    keyboard.DOWN = false;
-  if (event.key === ' ' || event.key === 'Spacebar')
-    keyboard.JUMP = false;
-  if (event.key === 'Enter')
-    keyboard.THROW = false;
-  console.log(event);
+  switch (event.code) {
+    case "ArrowRight":
+    case "KeyD":
+      keyboard.RIGHT = false;
+      break;
+    case "ArrowLeft":
+    case "KeyA":
+      keyboard.LEFT = false;
+      break;
+    case "ArrowUp":
+    case "KeyW":
+      keyboard.UP = false;
+      break;
+    case "ArrowDown":
+    case "KeyS":
+      keyboard.DOWN = false;
+      break;
+    case "Space":
+      keyboard.JUMP = false;
+      break;
+    case "Enter":
+      keyboard.THROW = false;
+      break;
+  }
+  console.log(event.code);
 });
