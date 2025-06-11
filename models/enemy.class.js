@@ -28,4 +28,3 @@ class Enemy extends MovableObject {
     }, 200);
   }
 }
-d
