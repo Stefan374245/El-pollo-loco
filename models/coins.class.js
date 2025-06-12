@@ -1,0 +1,5 @@
+class Coins extends MovableObject {
+
+
+    
+}
