@@ -87,21 +87,17 @@ class Character extends MovableObject {
     }, 1000 / 30);
 
     setInterval(() => {
-      if (this.isIdle()) {
-        this.playAnimation(this.IMAGES_IDLE);
-      }
-      if (this.isHit()) {
-        this.playAnimation(this.IMAGES_DAMAGE);
-      }
-      
       if (this.isDead()) {
         this.playAnimation(this.IMAGES_DEAD);
-      }
-      if (this.isJumping()) {
+      } else if (this.isHurt()) {
+        this.playAnimation(this.IMAGES_DAMAGE);
+      } else if (this.isJumping()) {
         this.playAnimation(this.IMAGES_JUMPING);
       } else {
         if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
           this.playAnimation(this.IMAGES_WALKING);
+        } else {
+          this.playAnimation(this.IMAGES_IDLE);
         }
       }
     }, 100);
