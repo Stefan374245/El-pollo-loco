@@ -9,6 +9,8 @@ class World {
   statusBar = new StatusBar();
   statusBarCoins = new StatusBarCoins();
   statusBarBottles = new StatusBarBottles();
+  throwableObjects = [];
+  collisionHandler = new CollisionHandler(this);
 
   constructor(canvas, keyboard) {
     // Der Konstruktor wird beim Erstellen eines neuen World-Objekts aufgerufen
@@ -17,8 +19,8 @@ class World {
     this.keyboard = keyboard; // Speichert die Tastatur-Objekt als Eigenschaft
     this.setWorld(); // Setzt die Welt für die Charaktere und Objekte
 
-    this.collisionHandler = new CollisionHandler(this);
     this.startCollisionCheck();
+    setInterval(() => this.checkThrowableObjects(), 200); // Überprüft, ob Flaschen geworfen werden sollen
     this.draw(); // Startet die Zeichenfunktion (Animation)
   }
 
@@ -56,6 +58,7 @@ class World {
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
     this.addObjectsToMap(this.bottles);
+    this.addObjectsToMap(this.throwableObjects);
     this.addObjectsToMap(this.coins);
 
     this.ctx.translate(-this.camera_x, 0);
@@ -145,5 +148,17 @@ class World {
     setInterval(() => {
       this.collisionHandler.checkAll();
     }, 100);
+  }
+
+  checkThrowableObjects() {
+    if (this.keyboard.F) {
+      const direction = this.character.otherDirection;
+      const bottle = new ThrowableObject(
+        this.character.x + this.character.width / 2,
+        this.character.y + this.character.height / 2,
+        direction
+      );
+      this.throwableObjects.push(bottle);
+    }
   }
 }

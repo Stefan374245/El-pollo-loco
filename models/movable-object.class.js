@@ -16,6 +16,9 @@ class MovableObject extends DrawableObject {
   }
 
   isJumping() {
+    if(this instanceof ThrowableObject) {
+      return true;  
+    }
     return this.y < 280 - 5; // Überprüft, ob der Charakter über dem Boden ist
   }
 

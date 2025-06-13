@@ -42,4 +42,5 @@ class CollisionHandler {
     bar.percentage = Math.min(bar.percentage + amount, 100);
     bar.setPercentage(bar.percentage);
   }
+
 }
