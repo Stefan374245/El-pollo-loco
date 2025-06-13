@@ -10,6 +10,7 @@ function init() {
 }
 
 document.addEventListener("keydown", (event) => {
+
   switch (event.code) {
     case "ArrowRight":
     case "KeyD":
@@ -34,6 +35,8 @@ document.addEventListener("keydown", (event) => {
     case "Enter":
       keyboard.THROW = true;
       break;
+      case "KeyF":
+      keyboard.F = true;
   }
   console.log(event.code);
 });
@@ -62,6 +65,8 @@ document.addEventListener("keyup", (event) => {
     case "Enter":
       keyboard.THROW = false;
       break;
+      case "KeyF":
+      keyboard.F = false;
   }
   console.log(event.code);
 });
