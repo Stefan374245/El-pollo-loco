@@ -18,7 +18,7 @@ IMAGES_COINS = [
     this.y = 40;
     this.width = 160;
     this.height = 48;
-    this.setPercentage(100);
+    this.setPercentage(0);
   }
 
   setPercentage(percentage) {
