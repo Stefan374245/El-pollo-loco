@@ -10,25 +10,32 @@ class CollisionHandler {
     this.checkHitEnemies();
   }
 
-  checkEnemies() {
-    this.world.level.enemies.forEach((enemy) => {
-      if (this.world.character.isColliding(enemy)) {
+checkEnemies() {
+  this.world.level.enemies.forEach((enemy) => {
+    if (this.world.character.isColliding(enemy) && !enemy.isDead()) {
+      const isAbove = this.world.character.speedY > 0;
+
+      if (isAbove) {
+        enemy.hit();
+        this.world.character.jump(); // immer wieder springen erlaubt
+      } else {
         this.world.character.hit();
         this.world.statusBar.setPercentage(this.world.character.hp);
       }
-    });
-  }
+    }
+  });
+}
+
 
 checkHitEnemies() {
   this.world.throwableObjects.forEach((bottle) => {
-    const enemy = this.world.level.enemies.find(
-      (enemy) => bottle.isColliding(enemy) && !enemy.isDead()
-    );
-
-    if (enemy) {
-      enemy.hit(); // 💥 reduziert HP, triggert Tod
-      bottle.hitGround(); // 🧃 zerschellt
-    }
+    this.world.level.enemies.forEach((enemy) => {
+      if (!enemy.isDead() && bottle.isColliding(enemy)) {
+        enemy.hit();
+        bottle.hasHitGround = true;
+        bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+      }
+    });
   });
 }
 

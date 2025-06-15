@@ -41,16 +41,6 @@ class Enemy extends MovableObject {
     }, 200);
   }
 
-  isDead() {
-    return this.hp <= 0;
-  }
-
-  hit() {
-    this.hp--;
-    if (this.isDead()) {
-      this.die();
-    }
-  }
 
   die() {
     this.isDying = true;
