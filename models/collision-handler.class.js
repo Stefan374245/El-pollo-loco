@@ -7,7 +7,7 @@ class CollisionHandler {
     this.checkEnemies();
     this.checkBottles();
     this.checkCoins();
-    this.checkHitEnemies();
+    this.checkBottleHits();
   }
 
 checkEnemies() {
@@ -17,7 +17,8 @@ checkEnemies() {
 
       if (isAbove) {
         enemy.hit();
-        this.world.character.jump(); // immer wieder springen erlaubt
+        this.world.character.jump();
+        this.world.character.y -= 8; // Korrigiert die Verschiebung nach unten
       } else {
         this.world.character.hit();
         this.world.statusBar.setPercentage(this.world.character.hp);
@@ -27,7 +28,7 @@ checkEnemies() {
 }
 
 
-checkHitEnemies() {
+checkBottleHits() {
   this.world.throwableObjects.forEach((bottle) => {
     this.world.level.enemies.forEach((enemy) => {
       if (!enemy.isDead() && bottle.isColliding(enemy)) {
