@@ -7,6 +7,7 @@ class CollisionHandler {
     this.checkEnemies();
     this.checkBottles();
     this.checkCoins();
+    this.checkHitEnemies();
   }
 
   checkEnemies() {
@@ -18,15 +19,36 @@ class CollisionHandler {
     });
   }
 
-  checkBottles() {
-    this.world.bottles = this.world.bottles.filter((bottle) => {
-      if (this.world.character.isColliding(bottle)) {
-        this.increaseBar(this.world.statusBarBottles);
-        return false;
-      }
-      return true;
-    });
-  }
+checkHitEnemies() {
+  this.world.throwableObjects.forEach((bottle) => {
+    const enemy = this.world.level.enemies.find(
+      (enemy) => bottle.isColliding(enemy) && !enemy.isDead()
+    );
+
+    if (enemy) {
+      enemy.hit(); // 💥 reduziert HP, triggert Tod
+      bottle.hitGround(); // 🧃 zerschellt
+    }
+  });
+}
+
+checkBottles() {
+  const maxBottles = 5;
+
+  this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
+    const canPickUp = this.world.bottleCount < maxBottles;
+    const isColliding = this.world.character.isColliding(bottle);
+
+    if (isColliding && canPickUp) {
+      this.world.bottleCount++;
+      const percentage = (this.world.bottleCount / maxBottles) * 100;
+      this.world.statusBarBottles.setPercentage(percentage);
+      return false; // Bottle wird entfernt (eingesammelt)
+    }
+
+    return true; // bleibt auf der Map
+  });
+}
 
   checkCoins() {
     this.world.coins = this.world.coins.filter((coin) => {
@@ -38,9 +60,10 @@ class CollisionHandler {
     });
   }
 
-  increaseBar(bar, amount = 10) {
+  increaseBar(bar, amount = 0) {
     bar.percentage = Math.min(bar.percentage + amount, 100);
     bar.setPercentage(bar.percentage);
   }
+
 
 }
