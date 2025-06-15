@@ -4,13 +4,14 @@ class World {
   canvas;
   ctx;
   keyboard;
-  a;
+  bottleCount = 0;
   camera_x = 0;
   statusBar = new StatusBar();
   statusBarCoins = new StatusBarCoins();
   statusBarBottles = new StatusBarBottles();
   throwableObjects = [];
   collisionHandler = new CollisionHandler(this);
+  canThrow = true;
 
   constructor(canvas, keyboard) {
     // Der Konstruktor wird beim Erstellen eines neuen World-Objekts aufgerufen
@@ -20,7 +21,7 @@ class World {
     this.setWorld(); // Setzt die Welt für die Charaktere und Objekte
 
     this.startCollisionCheck();
-    setInterval(() => this.checkThrowableObjects(), 200); // Überprüft, ob Flaschen geworfen werden sollen
+    this.startThrowCheck();
     this.draw(); // Startet die Zeichenfunktion (Animation)
   }
 
@@ -28,7 +29,10 @@ class World {
     this.character.world = this;
 
     this.initCoins();
-    this.initBottles();
+
+    this.level.bottles.forEach((bottle) => {
+      bottle.world = this;
+    });
 
     this.level.enemies.forEach((enemy) => {
       enemy.world = this;
@@ -57,9 +61,9 @@ class World {
 
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
-    this.addObjectsToMap(this.bottles);
     this.addObjectsToMap(this.throwableObjects);
     this.addObjectsToMap(this.coins);
+    this.addObjectsToMap(this.level.bottles);
 
     this.ctx.translate(-this.camera_x, 0);
 
@@ -87,16 +91,6 @@ class World {
     }
   }
 
-  createObjects(ClassRef, count, spacing, offset = 0) {
-    const result = [];
-    for (let i = 0; i < count; i++) {
-      const obj = new ClassRef();
-      obj.x = offset + i * spacing;
-      result.push(obj);
-    }
-    return result;
-  }
-
   initCoins() {
     const createCoinSet = (xOffset) => {
       return this.createObjects(Coins, 5, (i, count) => ({
@@ -110,14 +104,6 @@ class World {
 
     this.coins = [...set1, ...set2];
     this.coins.forEach((c) => (c.world = this));
-  }
-
-  initBottles() {
-    this.bottles = this.createObjects(Bottle, 6, () => ({
-      x: 300 + Math.random() * 1500,
-      y: 396,
-    }));
-    this.bottles.forEach((b) => (b.world = this));
   }
 
   flipImage(mo) {
@@ -151,14 +137,32 @@ class World {
   }
 
   checkThrowableObjects() {
-    if (this.keyboard.F) {
+    if (this.keyboard.F && this.bottleCount > 0 && this.canThrow) {
       const direction = this.character.otherDirection;
+
       const bottle = new ThrowableObject(
         this.character.x + this.character.width / 2,
         this.character.y + this.character.height / 2,
         direction
       );
+
       this.throwableObjects.push(bottle);
+
+      this.bottleCount--;
+
+      const maxBottles = 5;
+      const percentage = (this.bottleCount / maxBottles) * 100;
+      this.statusBarBottles.setPercentage(percentage);
+      this.canThrow = false;
+      setTimeout(() => {
+        this.canThrow = true;
+      }, 500);
     }
+  }
+
+  startThrowCheck() {
+    this.throwInterval = setInterval(() => {
+      this.checkThrowableObjects();
+    }, 200);
   }
 }
