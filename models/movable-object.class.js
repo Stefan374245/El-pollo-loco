@@ -57,14 +57,16 @@ class MovableObject extends DrawableObject {
     );
   }
 
-  hit() {
-    this.hp -= 5;
-    if (this.hp < 0) {
-      this.hp = 0;
-    } else {
-      this.lastHit = new Date().getTime();
-    }
+hit() {
+  this.hp -= 5; // Standard-Schaden
+  if (this.hp < 0) this.hp = 0;
+
+  if (this.isDead() && this.die) {
+    this.die();
+  } else {
+    this.lastHit = new Date().getTime();
   }
+}
 
   isHurt() {
     let timepassed = new Date().getTime() - this.lastHit;
