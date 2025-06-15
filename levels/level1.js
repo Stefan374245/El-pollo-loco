@@ -1,12 +1,12 @@
 const level1 = new Level(
-    [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new SmallChicken, new SmallChicken, new SmallChicken, new SmallChicken, new (Endboss),],
-    
-    [new Clouds(), new Clouds(), new Clouds()],
-    [new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle()],
-    
-    
-    
-    [
+  [
+    new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(),
+    new Enemy2(), new Enemy2(),
+    new Endboss(),
+  ],
+  [new Clouds(), new Clouds(), new Clouds()],
+  [new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle(), new Bottle()],
+  [
     new BackgroundObject("img/5_background/layers/air.png", -719),
     new BackgroundObject("img/5_background/layers/3_third_layer/2.png", -719),
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", -719),
@@ -24,7 +24,6 @@ const level1 = new Level(
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", 719),
     new BackgroundObject("img/5_background/layers/1_first_layer/2.png", 719),
     new BackgroundObject("img/5_background/layers/1_first_layer/2.png", 719),
-
 
     new BackgroundObject("img/5_background/layers/air.png", 719 * 2),
     new BackgroundObject("img/5_background/layers/3_third_layer/1.png", 719 * 2),

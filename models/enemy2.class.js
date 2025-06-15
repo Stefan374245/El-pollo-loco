@@ -1,9 +1,11 @@
-class SmallChicken extends Enemy {
+class Enemy2 extends Enemy {
   constructor() {
     super();
     this.width = 36;
     this.height = 36;
     this.hp = 1;
+    this.y = 400;
+    
 
     this.IMAGES_WALKING = [
       "img/3_enemies_chicken/chicken_small/1_walk/1_w.png",
