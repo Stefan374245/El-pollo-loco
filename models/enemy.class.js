@@ -3,7 +3,7 @@ class Enemy extends MovableObject {
   height = 48;
   currentImage = 0;
   isDying = false;
-  hp = 1; // <- oder mehr, je nach Spielidee
+  hp = 1;
 
   IMAGES_WALKING = [
     "img/3_enemies_chicken/chicken_normal/1_walk/1_w.png",
