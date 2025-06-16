@@ -35,6 +35,11 @@ class MovableObject extends DrawableObject {
     this.speedY = -25;
   }
 
+  snapToGround() {
+  const groundLevel = 280;
+  this.y = groundLevel - this.height;
+}
+
   playAnimation(images) {
     let i = this.currentImage % images.length; // Use modulo to cycle through images let = i = 7 % 6 ; =>  1, Rest 1 -- > i = 0 , 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5 ...
     let path = images[i];
@@ -70,7 +75,7 @@ hit() {
 
   isHurt() {
     let timepassed = new Date().getTime() - this.lastHit;
-    timepassed = timepassed / 1000;
+    timepassed = timepassed / 500;
     return timepassed < 1;
   }
 

@@ -22,13 +22,16 @@ class World {
 
     this.startCollisionCheck();
     this.startThrowCheck();
-    this.draw(); // Startet die Zeichenfunktion (Animation)
+    this.draw();
   }
 
   setWorld() {
     this.character.world = this;
 
-    this.initCoins();
+    this.level.coins.forEach((coin) => {
+      coin.world = this;
+    });
+    
 
     this.level.bottles.forEach((bottle) => {
       bottle.world = this;
@@ -46,7 +49,6 @@ class World {
   }
 
   draw() {
-    
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.translate(this.camera_x, 0);
@@ -63,7 +65,7 @@ class World {
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
     this.addObjectsToMap(this.throwableObjects);
-    this.addObjectsToMap(this.coins);
+    this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
 
     this.ctx.translate(-this.camera_x, 0);
@@ -90,21 +92,6 @@ class World {
     if (mo.otherDirection) {
       this.flipImageBack(mo);
     }
-  }
-
-  initCoins() {
-    const createCoinSet = (xOffset) => {
-      return this.createObjects(Coins, 5, (i, count) => ({
-        x: xOffset + i * 40,
-        y: 200 - Math.sin((i / (count - 1)) * Math.PI) * 64,
-      }));
-    };
-
-    const set1 = createCoinSet(200);
-    const set2 = createCoinSet(1000);
-
-    this.coins = [...set1, ...set2];
-    this.coins.forEach((c) => (c.world = this));
   }
 
   flipImage(mo) {
