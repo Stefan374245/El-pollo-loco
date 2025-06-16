@@ -4,64 +4,69 @@ class CollisionHandler {
   }
 
   checkAll() {
-    this.checkEnemies();
+    this.checkEnemiesCollision();
     this.checkBottles();
     this.checkCoins();
     this.checkBottleHits();
   }
 
-checkEnemies() {
-  this.world.level.enemies.forEach((enemy) => {
-    if (this.world.character.isColliding(enemy) && !enemy.isDead()) {
-      const isAbove = this.world.character.speedY > 0;
-
-      if (isAbove) {
-        enemy.hit();
-        this.world.character.jump();
-        this.world.character.y -= 8; // Korrigiert die Verschiebung nach unten
-      } else {
-        this.world.character.hit();
-        this.world.statusBar.setPercentage(this.world.character.hp);
-      }
-    }
-  });
-}
-
-
-checkBottleHits() {
-  this.world.throwableObjects.forEach((bottle) => {
+  checkEnemiesCollision() {
     this.world.level.enemies.forEach((enemy) => {
-      if (!enemy.isDead() && bottle.isColliding(enemy)) {
-        enemy.hit();
-        bottle.hasHitGround = true;
-        bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+      if (this.world.character.isColliding(enemy) && !enemy.isDead()) {
+        
+        if (this.isStomping(enemy)) {
+          enemy.hit();
+          d
+          this.world.character.jump();
+        } else {
+          this.world.character.hit();
+          this.world.statusBar.setPercentage(this.world.character.hp);
+        }
       }
     });
-  });
-}
+  }
 
-checkBottles() {
-  const maxBottles = 5;
+  isStomping(enemy) {
+    return (
+      this.world.character.speedY > 0 &&
+      this.world.character.y + this.world.character.height / 2 <
+        enemy.y + enemy.height / 2
+    );
+  }
 
-  this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
-    const canPickUp = this.world.bottleCount < maxBottles;
-    const isColliding = this.world.character.isColliding(bottle);
+  checkBottleHits() {
+    this.world.throwableObjects.forEach((bottle) => {
+      this.world.level.enemies.forEach((enemy) => {
+        if (!enemy.isDead() && bottle.isColliding(enemy)) {
+          enemy.hit();
+          bottle.hasHitGround = true;
+          bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+        }
+      });
+    });
+  }
 
-    if (isColliding && canPickUp) {
-      this.world.bottleCount++;
-      const percentage = (this.world.bottleCount / maxBottles) * 100;
-      this.world.statusBarBottles.setPercentage(percentage);
-      return false; // Bottle wird entfernt (eingesammelt)
-    }
+  checkBottles() {
+    const maxBottles = 5;
 
-    return true; // bleibt auf der Map
-  });
-}
+    this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
+      const canPickUp = this.world.bottleCount < maxBottles;
+      const isColliding = this.world.character.isColliding(bottle);
+
+      if (isColliding && canPickUp) {
+        this.world.bottleCount++;
+        this.increaseBar(this.world.statusBarBottles, 100 / maxBottles);
+        return false;
+      }
+
+      return true;
+    });
+  }
 
   checkCoins() {
-    this.world.coins = this.world.coins.filter((coin) => {
+    this.world.level.coins = this.world.level.coins.filter((coin) => {
       if (this.world.character.isColliding(coin)) {
-        this.increaseBar(this.world.statusBarCoins);
+        this.increaseBar(this.world.statusBarCoins, 10);
         return false;
       }
       return true;
@@ -72,6 +77,4 @@ checkBottles() {
     bar.percentage = Math.min(bar.percentage + amount, 100);
     bar.setPercentage(bar.percentage);
   }
-
-
 }
