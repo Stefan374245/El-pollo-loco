@@ -19,9 +19,9 @@ class MovableObject extends DrawableObject {
     if(this instanceof ThrowableObject) {
       return true;  
     }
-    return this.y < 280 - 5; // Überprüft, ob der Charakter über dem Boden ist
+    return this.y < 280;
   }
-
+ 
 
   moveRight() {
     this.x += this.speed;
@@ -33,11 +33,12 @@ class MovableObject extends DrawableObject {
 
   jump() {
     this.speedY = -25;
+    
   }
 
   snapToGround() {
   const groundLevel = 280;
-  this.y = groundLevel - this.height;
+  this.y = groundLevel;
 }
 
   playAnimation(images) {
@@ -53,17 +54,17 @@ class MovableObject extends DrawableObject {
    * Checks if this object is colliding with another movable object
    * @returns
    */
-  isColliding(mo) {
+  isColliding(mo, offsetX = 0, offsetY = 0) {
     return (
-      this.x + this.width > mo.x &&
-      this.y + this.height > mo.y &&
-      this.x < mo.x &&
-      this.y < mo.y + mo.height
+        this.x + this.width - offsetX > mo.x + offsetX &&
+        this.y + this.height - offsetY > mo.y + offsetY &&
+        this.x + offsetX < mo.x + mo.width - offsetX &&
+        this.y + offsetY < mo.y + mo.height - offsetY
     );
-  }
+}
 
 hit() {
-  this.hp -= 5; // Standard-Schaden
+  this.hp -= 5;
   if (this.hp < 0) this.hp = 0;
 
   if (this.isDead() && this.die) {

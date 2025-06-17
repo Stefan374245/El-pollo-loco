@@ -11,12 +11,17 @@ class CollisionHandler {
   }
 
   checkEnemiesCollision() {
+    const offsetX = 10;
+    const offsetY = 10;
+
     this.world.level.enemies.forEach((enemy) => {
-      if (this.world.character.isColliding(enemy) && !enemy.isDead()) {
-        
-        if (this.isStomping(enemy)) {
+      if (this.world.character.isColliding(enemy, offsetX, offsetY) && !enemy.isDead()) {
+
+        const isAbove = this.isAboveEnemy(this.world.character, enemy);
+
+        if (isAbove) {
           enemy.hit();
-          d
+          this.world.character.snapToGround();
           this.world.character.jump();
         } else {
           this.world.character.hit();
@@ -26,18 +31,18 @@ class CollisionHandler {
     });
   }
 
-  isStomping(enemy) {
-    return (
-      this.world.character.speedY > 0 &&
-      this.world.character.y + this.world.character.height / 2 <
-        enemy.y + enemy.height / 2
-    );
+  isAboveEnemy(character, enemy) {
+  return character.speedY > 0 &&
+  character.y + character.height <= enemy.y + enemy.height;
   }
 
   checkBottleHits() {
+    const offsetX = 5;
+    const offsetY = 5;
+
     this.world.throwableObjects.forEach((bottle) => {
       this.world.level.enemies.forEach((enemy) => {
-        if (!enemy.isDead() && bottle.isColliding(enemy)) {
+        if (!enemy.isDead() && bottle.isColliding(enemy, offsetX, offsetY)) {
           enemy.hit();
           bottle.hasHitGround = true;
           bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
@@ -47,11 +52,13 @@ class CollisionHandler {
   }
 
   checkBottles() {
+    const offsetX = 10
+    const offsetY = 10;
     const maxBottles = 5;
 
     this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
       const canPickUp = this.world.bottleCount < maxBottles;
-      const isColliding = this.world.character.isColliding(bottle);
+      const isColliding = this.world.character.isColliding(bottle, offsetX, offsetY);
 
       if (isColliding && canPickUp) {
         this.world.bottleCount++;
@@ -64,8 +71,11 @@ class CollisionHandler {
   }
 
   checkCoins() {
+    const offsetX = 8;
+    const offsetY = 8;
+
     this.world.level.coins = this.world.level.coins.filter((coin) => {
-      if (this.world.character.isColliding(coin)) {
+      if (this.world.character.isColliding(coin, offsetX, offsetY)) {
         this.increaseBar(this.world.statusBarCoins, 10);
         return false;
       }

@@ -1,6 +1,6 @@
 class DrawableObject {
   x = 40;
-  y = 390;
+  y = 280;
   height = 100;
   width = 100;
   img;
@@ -31,19 +31,29 @@ class DrawableObject {
   }
 
   
-  drawFrame(ctx) {
+  drawFrame(ctx, offsetX = 0, offsetY = 0) {
     if (this instanceof Character) {
-      ctx.beginPath();
-      ctx.lineWidth = "5";
-      ctx.strokeStyle = "blue";
-      ctx.rect(this.x, this.y, this.width, this.height);
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.lineWidth = "3";
+        ctx.strokeStyle = "green";
+        ctx.rect(
+            this.x + offsetX,
+            this.y + offsetY,
+            this.width - offsetX * 2,
+            this.height - offsetY * 2
+        );
+        ctx.stroke();
     } else if (this instanceof Enemy) {
-      ctx.beginPath();
-      ctx.lineWidth = "5";
-      ctx.strokeStyle = "red";
-      ctx.rect(this.x, this.y, this.width, this.height);
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.lineWidth = "5";
+        ctx.strokeStyle = "red";
+        ctx.rect(
+            this.x + offsetX,
+            this.y + offsetY,
+            this.width - offsetX * 2,
+            this.height - offsetY * 2
+        );
+        ctx.stroke();
     }
-  }
+}
 }
