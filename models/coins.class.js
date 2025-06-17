@@ -1,5 +1,5 @@
 class Coins extends MovableObject {
-  IMAGES_ROTATING = ['img/8_coin/coin_1.png', 'img/8_coin/coin_2.png'];
+  IMAGES_ROTATING = ['assets/img/8_coin/coin_1.png', 'assets/img/8_coin/coin_2.png'];
 
   width = 72;
   height = 72;
