@@ -106,22 +106,11 @@ class World {
     this.ctx.restore();
   }
 
-  createObjects(ClassRef, count, position) {
-    const result = [];
-    for (let i = 0; i < count; i++) {
-      const obj = new ClassRef();
-      const { x, y } = position(i, count);
-      obj.x = x;
-      obj.y = y;
-      result.push(obj);
-    }
-    return result;
-  }
 
   startCollisionCheck() {
     setInterval(() => {
       this.collisionHandler.checkAll();
-    }, 100);
+    }, 10);
   }
 
   checkThrowableObjects() {
