@@ -48,6 +48,11 @@ class CollisionHandler {
           bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
         }
       });
+        if (this.world.endboss && bottle.isColliding(this.world.endboss, offsetX, offsetY) && !this.world.endboss.isDead()) {
+            this.world.endboss.hit();
+            bottle.hasHitGround = true;
+            this.world.statusBarEndboss.setPercentage(this.world.endboss.hp);
+        }
     });
   }
 

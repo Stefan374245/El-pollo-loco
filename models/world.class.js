@@ -6,19 +6,20 @@ class World {
   keyboard;
   bottleCount = 0;
   camera_x = 0;
+
   statusBar = new StatusBar();
   statusBarCoins = new StatusBarCoins();
   statusBarBottles = new StatusBarBottles();
+  statusBarEndboss = new StatusBarEndboss();
   throwableObjects = [];
   collisionHandler = new CollisionHandler(this);
   canThrow = true;
 
   constructor(canvas, keyboard) {
-    // Der Konstruktor wird beim Erstellen eines neuen World-Objekts aufgerufen
-    this.ctx = canvas.getContext("2d"); // Holt sich den 2D-Zeichenkontext vom Canvas-Element
-    this.canvas = canvas; // Speichert das Canvas-Element als Eigenschaft
-    this.keyboard = keyboard; // Speichert die Tastatur-Objekt als Eigenschaft
-    this.setWorld(); // Setzt die Welt für die Charaktere und Objekte
+    this.ctx = canvas.getContext("2d");
+    this.canvas = canvas;
+    this.keyboard = keyboard;
+    this.setWorld();
 
     this.startCollisionCheck();
     this.startThrowCheck();
@@ -27,11 +28,11 @@ class World {
 
   setWorld() {
     this.character.world = this;
-
+    this.level.endboss.world = this;
+    
     this.level.coins.forEach((coin) => {
       coin.world = this;
     });
-    
 
     this.level.bottles.forEach((bottle) => {
       bottle.world = this;
@@ -56,7 +57,8 @@ class World {
     this.addObjectsToMap(this.level.clouds);
 
     this.ctx.translate(-this.camera_x, 0); //BACK
-    // ---- space for fixed objects ----
+
+    this.addToMap(this.statusBarEndboss);
     this.addToMap(this.statusBarBottles);
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
@@ -64,6 +66,7 @@ class World {
 
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
+    this.addToMap(this.level.endboss);
     this.addObjectsToMap(this.throwableObjects);
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
@@ -105,7 +108,6 @@ class World {
     mo.x = mo.x * -1;
     this.ctx.restore();
   }
-
 
   startCollisionCheck() {
     setInterval(() => {
