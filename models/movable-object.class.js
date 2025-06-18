@@ -64,13 +64,12 @@ class MovableObject extends DrawableObject {
 }
 
 hit() {
-  this.hp -= 5;
-  if (this.hp < 0) this.hp = 0;
+  const now = new Date().getTime();
+  const timePassed = now - this.lastHit;
 
-  if (this.isDead() && this.die) {
-    this.die();
-  } else {
-    this.lastHit = new Date().getTime();
+  if (timePassed > 1000 && this.hp > 0) {
+    this.hp -= 20;
+    this.lastHit = now;
   }
 }
 

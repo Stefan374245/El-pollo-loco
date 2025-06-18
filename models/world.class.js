@@ -28,8 +28,7 @@ class World {
 
   setWorld() {
     this.character.world = this;
-    this.level.endboss.world = this;
-    
+
     this.level.coins.forEach((coin) => {
       coin.world = this;
     });
@@ -47,6 +46,8 @@ class World {
     this.level.backgroundObjects.forEach((background) => {
       background.world = this;
     });
+
+    this.level.endboss.world = this;
   }
 
   draw() {
@@ -58,7 +59,9 @@ class World {
 
     this.ctx.translate(-this.camera_x, 0); //BACK
 
-    this.addToMap(this.statusBarEndboss);
+    if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
+      this.addToMap(this.statusBarEndboss);
+    }
     this.addToMap(this.statusBarBottles);
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
@@ -72,6 +75,10 @@ class World {
     this.addObjectsToMap(this.level.bottles);
 
     this.ctx.translate(-this.camera_x, 0);
+
+  /* this.level.AUDIO_STARTGAME.play();
+    this.level.AUDIO_STARTGAME.loop = true;
+    this.level.AUDIO_STARTGAME.volume = 0.1;*/
 
     requestAnimationFrame(() => {
       this.draw();
@@ -91,6 +98,7 @@ class World {
 
     mo.draw(this.ctx);
     mo.drawFrame(this.ctx);
+
 
     if (mo.otherDirection) {
       this.flipImageBack(mo);

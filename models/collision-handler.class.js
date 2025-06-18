@@ -7,7 +7,7 @@ class CollisionHandler {
     this.checkEnemiesCollision();
     this.checkBottles();
     this.checkCoins();
-    this.checkBottleHits();
+    this.checkBottleHitEnemy();
   }
 
   checkEnemiesCollision() {
@@ -15,8 +15,10 @@ class CollisionHandler {
     const offsetY = 10;
 
     this.world.level.enemies.forEach((enemy) => {
-      if (this.world.character.isColliding(enemy, offsetX, offsetY) && !enemy.isDead()) {
-
+      if (
+        this.world.character.isColliding(enemy, offsetX, offsetY) &&
+        !enemy.isDead()
+      ) {
         const isAbove = this.isAboveEnemy(this.world.character, enemy);
 
         if (isAbove) {
@@ -29,14 +31,25 @@ class CollisionHandler {
         }
       }
     });
+    const boss = this.world.level.endboss;
+    if (
+      this.world.character.isColliding(boss, offsetX, offsetY) &&
+      !boss.isDead()
+    ) {
+     
+      this.world.character.hit();
+      this.world.statusBar.setPercentage(this.world.character.hp);
+    }
   }
 
   isAboveEnemy(character, enemy) {
-  return character.speedY > 0 &&
-  character.y + character.height <= enemy.y + enemy.height;
+    return (
+      character.speedY > 0 &&
+      character.y + character.height <= enemy.y + enemy.height
+    );
   }
 
-  checkBottleHits() {
+  checkBottleHitEnemy() {
     const offsetX = 5;
     const offsetY = 5;
 
@@ -48,26 +61,45 @@ class CollisionHandler {
           bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
         }
       });
-        if (this.world.endboss && bottle.isColliding(this.world.endboss, offsetX, offsetY) && !this.world.endboss.isDead()) {
-            this.world.endboss.hit();
-            bottle.hasHitGround = true;
-            this.world.statusBarEndboss.setPercentage(this.world.endboss.hp);
-        }
+      this.world.level.endboss.checkBottleHit(bottle);
     });
   }
 
   checkBottles() {
-    const offsetX = 10
+    const offsetX = 10;
     const offsetY = 10;
     const maxBottles = 5;
 
     this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
       const canPickUp = this.world.bottleCount < maxBottles;
-      const isColliding = this.world.character.isColliding(bottle, offsetX, offsetY);
+      const isColliding = this.world.character.isColliding(
+        bottle,
+        offsetX,
+        offsetY
+      );
 
       if (isColliding && canPickUp) {
         this.world.bottleCount++;
         this.increaseBar(this.world.statusBarBottles, 100 / maxBottles);
+
+        this.world.level.AUDIO_PICKUP.play();
+        if (this.world.bottleCount === maxBottles) {
+          this.world.level.AUDIO_FULLBAR.play();
+        }
+
+        const bar = this.world.statusBarBottles;
+        const originalWidth = bar.width;
+        const originalHeight = bar.height;
+        const scaleUp = 1.15;
+
+        bar.width = originalWidth * scaleUp;
+        bar.height = originalHeight * scaleUp;
+
+        setTimeout(() => {
+          bar.width = originalWidth;
+          bar.height = originalHeight;
+        }, 10);
+
         return false;
       }
 
@@ -82,6 +114,7 @@ class CollisionHandler {
     this.world.level.coins = this.world.level.coins.filter((coin) => {
       if (this.world.character.isColliding(coin, offsetX, offsetY)) {
         this.increaseBar(this.world.statusBarCoins, 10);
+        this.world.level.AUDIO_COIN.play();
         return false;
       }
       return true;
@@ -91,5 +124,20 @@ class CollisionHandler {
   increaseBar(bar, amount = 0) {
     bar.percentage = Math.min(bar.percentage + amount, 100);
     bar.setPercentage(bar.percentage);
+  }
+
+  /**
+   * character.is
+   * @param {*} mo MovableObject to check for collision
+   * Checks if this object is colliding with another movable object
+   * @returns
+   */
+  isColliding(mo, offsetX = 0, offsetY = 0) {
+    return (
+      this.x + this.width - offsetX > mo.x + offsetX &&
+      this.y + this.height - offsetY > mo.y + offsetY &&
+      this.x + offsetX < mo.x + mo.width - offsetX &&
+      this.y + offsetY < mo.y + mo.height - offsetY
+    );
   }
 }

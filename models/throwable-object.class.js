@@ -81,4 +81,13 @@ class ThrowableObject extends MovableObject {
       }
     }, 600);
   }
+  
+  isCollidingInner(mo, offsetX = 0, offsetY = 0) {
+    return (
+      this.x + this.width - offsetX > mo.x + offsetX &&
+      this.y + this.height - offsetY > mo.y + offsetY &&
+      this.x + offsetX < mo.x + mo.width - offsetX &&
+      this.y + offsetY < mo.y + mo.height - offsetY
+    );
+  }
 }
