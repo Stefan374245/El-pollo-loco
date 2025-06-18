@@ -112,12 +112,14 @@ lastHit = 0;
 
     } else if (this.isJumping()) {
       this.playAnimation(this.IMAGES_JUMPING);
-     /*  this.world.level.AUDIO_JUMP.play();*/
-
+      if (!this.jumpSoundPlayed) {
+        this.world.level.AUDIO_JUMP.play();
+        this.jumpSoundPlayed = true;
+      }
     } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
       this.playAnimation(this.IMAGES_WALKING);
-     /* this.world.level.AUDIO_WHISTLE.play();*/
-
+      this.world.level.AUDIO_WHISTLE.play();
+      this.jumpSoundPlayed = false;
     } else {
       const idleTime = Date.now() - this.lastActionTime;
 
@@ -126,16 +128,26 @@ lastHit = 0;
         this.lastActionTime = Date.now();
         this.world.level.AUDIO_SNORING.pause();
         this.world.level.AUDIO_SNORING.currentTime = 0;
+        this.jumpSoundPlayed = false;
       } else if (idleTime > 4000) {
         this.playAnimation(this.IMAGES_IDLE_LONG);
         if (this.world.level.AUDIO_SNORING.paused) {
-         /* this.world.level.AUDIO_SNORING.play();*/
+          this.world.level.AUDIO_SNORING.play();
         }
+        this.world.level.AUDIO_WHISTLE.pause();
+        this.world.level.AUDIO_WHISTLE.currentTime = 0;
+        this.jumpSoundPlayed = false;
       } else {
         this.playAnimation(this.IMAGES_IDLE);
         this.world.level.AUDIO_SNORING.pause();
         this.world.level.AUDIO_SNORING.currentTime = 0;
+        this.jumpSoundPlayed = false;
       }
+    }
+
+    // Reset jumpSoundPlayed when not jumping
+    if (!this.isJumping()) {
+      this.jumpSoundPlayed = false;
     }
   }
 }
