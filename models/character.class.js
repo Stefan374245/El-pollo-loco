@@ -1,8 +1,10 @@
 class Character extends MovableObject {
   height = 160;
-  
   speed = 6;
-
+  currentImage = 0;
+  hp = 100;
+lastHit = 0;
+  
   IMAGES_IDLE = [
     'assets/img/2_character_pepe/1_idle/idle/I-1.png',
     'assets/img/2_character_pepe/1_idle/idle/I-2.png',
@@ -62,7 +64,6 @@ class Character extends MovableObject {
     'assets/img/2_character_pepe/5_dead/D-57.png',
   ];
 
-  currentImage = 0;
 
   constructor() {
     super().loadImage('assets/img/2_character_pepe/1_idle/idle/I-1.png');
@@ -106,17 +107,26 @@ class Character extends MovableObject {
   handleAnimation() {
     if (this.isDead()) {
       this.playAnimation(this.IMAGES_DEAD);
+
     } else if (this.isHurt()) {
       this.playAnimation(this.IMAGES_DAMAGE);
+
     } else if (this.isJumping()) {
       this.playAnimation(this.IMAGES_JUMPING);
+     /*  this.world.level.AUDIO_JUMP.play();*/
+
     } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
       this.playAnimation(this.IMAGES_WALKING);
+     /* this.world.level.AUDIO_WHISTLE.play();*/
+
     } else {
       const idleTime = Date.now() - this.lastActionTime;
 
-      if (idleTime > 6000) {
+      if (idleTime > 5000) {
         this.playAnimation(this.IMAGES_IDLE_LONG);
+        
+      /*  this.world.level.AUDIO_SNORING.play();*/
+
       } else {
         this.playAnimation(this.IMAGES_IDLE);
       }
