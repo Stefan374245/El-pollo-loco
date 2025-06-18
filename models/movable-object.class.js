@@ -4,7 +4,7 @@ class MovableObject extends DrawableObject {
   speedY = 0;
   accelaration = 2.5;
   hp = 100;
-  lastHit = 0;
+
 
   applyGravity() {
     setInterval(() => {
@@ -63,21 +63,37 @@ class MovableObject extends DrawableObject {
     );
 }
 
-hit() {
-  const now = new Date().getTime();
-  const timePassed = now - this.lastHit;
 
-  if (timePassed > 1000 && this.hp > 0) {
-    this.hp -= 20;
-    this.lastHit = now;
+hit() {
+  this.hp -= 10;
+  if (this.hp < 0) this.hp = 0;
+
+  if (this.isDead() && this.die) {
+    this.die();
+  }
+}
+
+hitWithCooldown() {
+  const now = Date.now();
+  const timePassed = now - this.lastHit;
+  const cooldown = 1000; // 1 Sekunde
+
+  if (timePassed > cooldown && this.hp > 0) {
+    this.hp -= 10;
+    if (this.hp < 0) this.hp = 0;
+
+    if (this.isDead() && this.die) {
+      this.die();
+    } else {
+      this.lastHit = now;
+    }
   }
 }
 
   isHurt() {
-    let timepassed = new Date().getTime() - this.lastHit;
-    timepassed = timepassed / 500;
-    return timepassed < 1;
-  }
+  const timePassed = Date.now() - this.lastHit;
+  return timePassed < 500;
+}
 
   isDead() {
     return this.hp == 0;

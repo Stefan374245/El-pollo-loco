@@ -61,6 +61,8 @@ class Endboss extends Enemy {
     this.loadImages(this.IMAGES_DEAD);
     this.x = 2500;
   }
+
+  
 animate() {
   setInterval(() => {
     if (

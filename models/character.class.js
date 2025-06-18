@@ -63,8 +63,7 @@ lastHit = 0;
     'assets/img/2_character_pepe/5_dead/D-56.png',
     'assets/img/2_character_pepe/5_dead/D-57.png',
   ];
-
-
+  
   constructor() {
     super().loadImage('assets/img/2_character_pepe/1_idle/idle/I-1.png');
     this.loadImages(this.IMAGES_WALKING);
@@ -122,13 +121,20 @@ lastHit = 0;
     } else {
       const idleTime = Date.now() - this.lastActionTime;
 
-      if (idleTime > 5000) {
+      if (this.world.keyboard.F) {
+        this.playAnimation(this.IMAGES_IDLE);
+        this.lastActionTime = Date.now();
+        this.world.level.AUDIO_SNORING.pause();
+        this.world.level.AUDIO_SNORING.currentTime = 0;
+      } else if (idleTime > 4000) {
         this.playAnimation(this.IMAGES_IDLE_LONG);
-        
-      /*  this.world.level.AUDIO_SNORING.play();*/
-
+        if (this.world.level.AUDIO_SNORING.paused) {
+         /* this.world.level.AUDIO_SNORING.play();*/
+        }
       } else {
         this.playAnimation(this.IMAGES_IDLE);
+        this.world.level.AUDIO_SNORING.pause();
+        this.world.level.AUDIO_SNORING.currentTime = 0;
       }
     }
   }
