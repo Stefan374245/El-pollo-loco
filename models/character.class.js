@@ -63,8 +63,7 @@ lastHit = 0;
     'assets/img/2_character_pepe/5_dead/D-56.png',
     'assets/img/2_character_pepe/5_dead/D-57.png',
   ];
-
-
+  
   constructor() {
     super().loadImage('assets/img/2_character_pepe/1_idle/idle/I-1.png');
     this.loadImages(this.IMAGES_WALKING);
@@ -81,7 +80,7 @@ lastHit = 0;
     setInterval(() => this.handleInput(), 1000 / 30);
     setInterval(() => this.handleAnimation(), 100);
   }
-
+sd
   handleInput() {
     if (
       this.world.keyboard.RIGHT &&

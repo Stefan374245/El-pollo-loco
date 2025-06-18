@@ -26,7 +26,7 @@ class CollisionHandler {
           this.world.character.snapToGround();
           this.world.character.jump();
         } else {
-          this.world.character.hit();
+           this.world.character.hitWithCooldown(); 
           this.world.statusBar.setPercentage(this.world.character.hp);
         }
       }
@@ -36,7 +36,6 @@ class CollisionHandler {
       this.world.character.isColliding(boss, offsetX, offsetY) &&
       !boss.isDead()
     ) {
-     
       this.world.character.hit();
       this.world.statusBar.setPercentage(this.world.character.hp);
     }
@@ -87,19 +86,7 @@ class CollisionHandler {
           this.world.level.AUDIO_FULLBAR.play();
         }
 
-        const bar = this.world.statusBarBottles;
-        const originalWidth = bar.width;
-        const originalHeight = bar.height;
-        const scaleUp = 1.15;
-
-        bar.width = originalWidth * scaleUp;
-        bar.height = originalHeight * scaleUp;
-
-        setTimeout(() => {
-          bar.width = originalWidth;
-          bar.height = originalHeight;
-        }, 10);
-
+       this.animateBarScale(this.world.statusBarBottles);
         return false;
       }
 
@@ -115,6 +102,7 @@ class CollisionHandler {
       if (this.world.character.isColliding(coin, offsetX, offsetY)) {
         this.increaseBar(this.world.statusBarCoins, 10);
         this.world.level.AUDIO_COIN.play();
+        this.animateBarScale(this.world.statusBarCoins);
         return false;
       }
       return true;
@@ -125,6 +113,25 @@ class CollisionHandler {
     bar.percentage = Math.min(bar.percentage + amount, 100);
     bar.setPercentage(bar.percentage);
   }
+
+  animateBarScale(bar) {
+  if (this.barIsScaling) return;
+
+  this.barIsScaling = true;
+
+  const originalWidth = bar.width;
+  const originalHeight = bar.height;
+  const scaleUp = 1.15;
+
+  bar.width = originalWidth * scaleUp;
+  bar.height = originalHeight * scaleUp;
+
+  setTimeout(() => {
+    bar.width = originalWidth;
+    bar.height = originalHeight;
+    this.barIsScaling = false;
+  }, 150);
+}
 
   /**
    * character.is
