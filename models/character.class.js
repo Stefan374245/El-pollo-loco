@@ -80,7 +80,7 @@ lastHit = 0;
     setInterval(() => this.handleInput(), 1000 / 30);
     setInterval(() => this.handleAnimation(), 100);
   }
-sd
+
   handleInput() {
     if (
       this.world.keyboard.RIGHT &&
@@ -121,13 +121,20 @@ sd
     } else {
       const idleTime = Date.now() - this.lastActionTime;
 
-      if (idleTime > 5000) {
+      if (this.world.keyboard.F) {
+        this.playAnimation(this.IMAGES_IDLE);
+        this.lastActionTime = Date.now();
+        this.world.level.AUDIO_SNORING.pause();
+        this.world.level.AUDIO_SNORING.currentTime = 0;
+      } else if (idleTime > 4000) {
         this.playAnimation(this.IMAGES_IDLE_LONG);
-        
-      /*  this.world.level.AUDIO_SNORING.play();*/
-
+        if (this.world.level.AUDIO_SNORING.paused) {
+         /* this.world.level.AUDIO_SNORING.play();*/
+        }
       } else {
         this.playAnimation(this.IMAGES_IDLE);
+        this.world.level.AUDIO_SNORING.pause();
+        this.world.level.AUDIO_SNORING.currentTime = 0;
       }
     }
   }
