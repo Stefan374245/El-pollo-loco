@@ -76,7 +76,7 @@ hit() {
 hitWithCooldown() {
   const now = Date.now();
   const timePassed = now - this.lastHit;
-  const cooldown = 1000; // 1 Sekunde
+  const cooldown = 1000;
 
   if (timePassed > cooldown && this.hp > 0) {
     this.hp -= 10;

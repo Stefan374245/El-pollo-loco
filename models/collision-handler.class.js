@@ -36,7 +36,7 @@ class CollisionHandler {
       this.world.character.isColliding(boss, offsetX, offsetY) &&
       !boss.isDead()
     ) {
-      this.world.character.hit();
+       this.world.character.hitWithCooldown(); 
       this.world.statusBar.setPercentage(this.world.character.hp);
     }
   }
