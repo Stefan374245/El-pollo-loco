@@ -98,7 +98,6 @@ animate() {
 handlePhaseTransition() {
   switch (this.animationPhase) {
     case "alert":
-
   break;
 
     case "attack":

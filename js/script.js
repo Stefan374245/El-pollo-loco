@@ -55,8 +55,7 @@ function handleGameOver() {
   gameRunning = false;
 
   if (currentWorld) {
-    clearInterval(currentWorld.collisionInterval);
-    clearInterval(currentWorld.throwInterval);
+    
     currentWorld.level.AUDIO_STARTGAME.pause();
     currentWorld.level.AUDIO_WHISTLE.pause();
     currentWorld.level.AUDIO_SNORING.pause();
@@ -88,21 +87,37 @@ function triggerEndScreen() {
       const restart = document.getElementById('restartContainer');
       restart.innerHTML = getRestartSVG();
       restart.classList.add('slide-in');
+      addRestartHandler();
     }, 100);
   }, 2000);
 }
 
-function handleRestart() {
-  const endScreen = document.getElementById('endScreen');
-  endScreen.classList.remove('active');
-  endScreen.innerHTML = '';
-
-  document.getElementById('background').classList.remove('blur');
-  const canvas = document.getElementById('canvas');
-  canvas.style.filter = '';
-  canvas.style.opacity = 0;
-
-  init();       // Spiel zurücksetzen
-  fadeInCanvas();// sanft einblenden
+function addRestartHandler() {
+  const svgText = document.querySelector('#gameOverSVG');
+  console.log('svgText found:', svgText);
+  
+  if (svgText) {
+    console.log('Adding click event listener to svgText');
+    svgText.addEventListener('click', handleRestart);
+  }
 }
 
+function handleRestart() {
+  console.log('Restarting game...');
+  
+  
+  document.getElementById("startScreen").classList.add("active");
+  document.getElementById("playScreen").classList.remove("active");
+  document.getElementById("endScreen").classList.remove("active");
+
+
+
+  showStartScreenOverlay();
+  fadeInCanvas();
+}
+
+
+
+document.addEventListener('click', (event) => {
+  console.log('Clicked element:', event.target);
+});
