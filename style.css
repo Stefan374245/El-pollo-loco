@@ -1,9 +1,281 @@
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-family: 'Comic Sans MS', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  margin: 0;
+  height: 100vh;
 }
 
 canvas {
-    background-color: black;
+  background-color: black; /* wichtig: echte Farbe setzen */
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+  z-index: 2;
+  position: relative; /* damit z-index greift */
+}
+
+/* === Hintergrundbild === */
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+#background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#background.blur {
+  filter: blur(6px);
+  transition: filter 0.5s ease;
+}
+
+/* === Hauptbildschirme === */
+.startScreen,
+.playScreen,
+.endScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.startScreen.active,
+.playScreen.active,
+.endScreen.active {
+  display: flex;
+}
+
+/* === Overlay-Container === */
+#overlayContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+/* === Startscreen Overlay === */
+.start-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 11;
+  position: relative;
+}
+
+.start-screen-card {
+  background-color: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 80%;
+  z-index: 12;
+  text-align: center;
+}
+
+.startscreen-content p {
+  margin: 0;
+  font-size: 20px;
+  text-align: center;
+}
+
+.startscreen-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.start-game-btn,
+.show-settings-btn {
+  padding: 12px 24px;
+  border: none;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.start-game-btn {
+  background-color: #ffa500;
+  color: white;
+}
+
+.start-game-btn:hover {
+  background-color: #e69500;
+}
+
+.show-settings-btn {
+  background-color: #2a3647;
+  color: white;
+}
+
+.show-settings-btn:hover {
+  background-color: #1f2838;
+}
+
+/* === Settings Overlay === */
+.setting-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 12;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.setting-card {
+  background-color: white;
+  padding: 32px;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 80%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.setting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setting-header h1 {
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.close-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+/* === Tastenhilfe-Liste === */
+.key-list {
+  font-size: 18px;
+  list-style: none;
+  padding-left: 0;
+  margin-top: 16px;
+  line-height: 2;
+}
+
+
+/* === Endscreen Overlay === */
+.endScreen {
+    display: flex;
+    flex-direction: column;
+  display: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 5;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.endScreen.active {
+  display: flex;
+}
+
+/* === Game Over Container === */
+.game-over-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Bild "Game Over" bleibt sichtbar */
+#gameOverImg {
+  display: block;
+  max-width: 80%;
+  height: auto;
+}
+
+/* Restart-Button Container */
+#restartContainer {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+  pointer-events: auto; /* ⬅️ macht das SVG klickbar */
+  z-index: 100; /* ⬅️ sicherstellen, dass es über allem liegt */
+}
+
+/* Slide-In Animation */
+#restartContainer.slide-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* === SVG Restart Button === */
+#gameOverSVG {
+  width: 100%;
+  max-width: 400px;
+  display: block;
+  margin-top: 40px;
+}
+
+#gameOverSVG .btn {
+  font-family: 'Comic Sans MS', sans-serif;
+  font-size: 96px;
+  fill: #FFC831;
+  stroke: #FF6C00;
+  stroke-width: 2px;
+  paint-order: stroke;
+  text-anchor: middle;
+  cursor: pointer;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+  dominant-baseline: middle;
+}
+
+#gameOverSVG .btn:hover {
+  fill: #FFB000;
+  transition: fill 0.2s;
+}
+
+/* Fade-Out Klasse für Overlays */
+.fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
 }

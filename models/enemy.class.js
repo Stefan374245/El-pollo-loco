@@ -4,6 +4,7 @@ class Enemy extends MovableObject {
   currentImage = 0;
   isDying = false;
   hp = 1;
+  canJump = true;
 
   IMAGES_WALKING = [
     'assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
@@ -11,9 +12,7 @@ class Enemy extends MovableObject {
     'assets/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png',
   ];
 
-  IMAGES_DEAD = [
-    'assets/img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
-  ];
+  IMAGES_DEAD = ['assets/img/3_enemies_chicken/chicken_normal/2_dead/dead.png'];
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -41,7 +40,6 @@ class Enemy extends MovableObject {
       }
     }, 200);
   }
-
 
   die() {
     this.isDying = true;

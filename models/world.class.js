@@ -19,6 +19,7 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    
     this.setWorld();
 
     this.startCollisionCheck();
@@ -27,6 +28,7 @@ class World {
   }
 
   setWorld() {
+    console.log('level structure:', this.level);
     this.character.world = this;
 
     this.level.coins.forEach((coin) => {
@@ -51,6 +53,8 @@ class World {
   }
 
   draw() {
+    if (!gameRunning) return;
+
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.translate(this.camera_x, 0);
@@ -76,13 +80,15 @@ class World {
 
     this.ctx.translate(-this.camera_x, 0);
 
-  /* this.level.AUDIO_STARTGAME.play();
+    this.level.AUDIO_STARTGAME.play();
     this.level.AUDIO_STARTGAME.loop = true;
-    this.level.AUDIO_STARTGAME.volume = 0.1;*/
+    this.level.AUDIO_STARTGAME.volume = 0.1;
 
-    requestAnimationFrame(() => {
-      this.draw();
-    });
+    if (gameRunning) {
+      requestAnimationFrame(() => {
+        this.draw();
+      });
+    }
   }
 
   addObjectsToMap(objects) {
@@ -98,7 +104,6 @@ class World {
 
     mo.draw(this.ctx);
     mo.drawFrame(this.ctx);
-
 
     if (mo.otherDirection) {
       this.flipImageBack(mo);

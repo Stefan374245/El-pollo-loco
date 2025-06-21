@@ -1,10 +1,14 @@
 let canvas;
 let world;
+let gameRunning = false;
 let keyboard = new KeyBoard();
 
 function init() {
   canvas = document.getElementById('canvas');
+   gameRunning = true;
   world = new World(canvas, keyboard);
+  currentWorld = world;
+ 
 
   console.log('my Character is', world.character);
 }

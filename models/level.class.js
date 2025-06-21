@@ -1,29 +1,28 @@
 class Level {
-  enemies;
-  endboss;
-  clouds;
-  backgroundObjects;
-  bottles;
-  coins;
-  level_end_point = 2200;
-
   constructor(
-    audioStartscreen,
-    audioStartgame,
-    audioEndboss,
-    audioFullbar,
-    audioPickup,
-    audioCoin,
-    audioSnoring,
-    audioWhistle,
-    audioJump,
     enemies,
     endboss,
     clouds,
     bottles,
     coins,
-    backgroundObjects
+    backgroundObjects,
+    audioStartscreen = null,
+    audioStartgame = null,
+    audioEndboss = null,
+    audioFullbar = null,
+    audioPickup = null,
+    audioCoin = null,
+    audioSnoring = null,
+    audioWhistle = null,
+    audioJump = null
   ) {
+    this.enemies = enemies;
+    this.endboss = endboss;
+    this.clouds = clouds;
+    this.bottles = bottles;
+    this.coins = coins;
+    this.backgroundObjects = backgroundObjects;
+
     this.AUDIO_STARTSCREEN = audioStartscreen;
     this.AUDIO_STARTGAME = audioStartgame;
     this.AUDIO_END_BOSS = audioEndboss;
@@ -33,13 +32,7 @@ class Level {
     this.AUDIO_SNORING = audioSnoring;
     this.AUDIO_WHISTLE = audioWhistle;
     this.AUDIO_JUMP = audioJump;
-    
-    this.enemies = enemies;
-    this.endboss = endboss;
-    this.clouds = clouds;
-    this.bottles = bottles;
-    this.coins = coins;
 
-    this.backgroundObjects = backgroundObjects;
+    this.level_end_point = 2200;
   }
 }
