@@ -7,7 +7,7 @@ class Endboss extends Enemy {
   currentImage = 0;
   enemySpawned = false;
   frameCount = 0;
-  speed = 12;
+  speed = 25;
   hp = 100;
 
   attackCount = 0;
@@ -56,7 +56,7 @@ class Endboss extends Enemy {
     super();
     this.loadImage(this.animations.walk[0]);
     Object.values(this.animations).forEach((images) => this.loadImages(images));
-    this.x = 2400;
+    this.x = 1200;
     
   }
 

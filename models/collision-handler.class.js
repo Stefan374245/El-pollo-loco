@@ -39,7 +39,16 @@ class CollisionHandler {
        this.world.character.hitWithCooldown(); 
       this.world.statusBar.setPercentage(this.world.character.hp);
     }
+        this.checkCharacterHP(this.world.character);
+
   }
+
+  checkCharacterHP(character) {
+  if (character.hp <= 0 && !character.dead) {
+    character.dead = true;
+    handleGameOver(); 
+  }
+}
 
   isAboveEnemy(character, enemy) {
     return (

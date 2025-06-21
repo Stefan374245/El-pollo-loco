@@ -139,8 +139,10 @@ lastHit = 0;
         this.jumpSoundPlayed = false;
       } else {
         this.playAnimation(this.IMAGES_IDLE);
-        this.world.level.AUDIO_SNORING.pause();
-        this.world.level.AUDIO_SNORING.currentTime = 0;
+        if (this.world.level.AUDIO_SNORING) {
+          this.world.level.AUDIO_SNORING.pause();
+          this.world.level.AUDIO_SNORING.currentTime = 0;
+        }
         this.jumpSoundPlayed = false;
       }
     }
