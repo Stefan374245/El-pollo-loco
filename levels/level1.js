@@ -1,4 +1,14 @@
 const level1 = new Level(
+    AUDIO_STARTSCREEN,
+  AUDIO_STARTGAME,
+  AUDIO_END_BOSS,
+  AUDIO_FULLBAR,
+  AUDIO_PICKUP,
+  AUDIO_COIN,
+  AUDIO_SNORING,
+  AUDIO_WHISTLE,
+  AUDIO_JUMP,
+
   [
     new Enemy(),
     new Enemy(),
@@ -68,13 +78,4 @@ const level1 = new Level(
     new BackgroundObject("assets/img/5_background/layers/1_first_layer/2.png", 719 * 3),
     new BackgroundObject("assets/img/5_background/layers/1_first_layer/2.png", 719 * 3)
   ],
-  AUDIO_STARTSCREEN,
-  AUDIO_STARTGAME,
-  AUDIO_END_BOSS,
-  AUDIO_FULLBAR,
-  AUDIO_PICKUP,
-  AUDIO_COIN,
-  AUDIO_SNORING,
-  AUDIO_WHISTLE,
-  AUDIO_JUMP
 );

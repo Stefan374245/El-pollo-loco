@@ -7,12 +7,12 @@ function startScreenOverlayTemplate() {
     <div class="start-screen" id="startScreenOverlay">
       <div class="start-screen-card startscreen-card">
         <div class="task-header">
-          <h1>El Pollo Loco</h1>
+          <h1>Welcome to el pollo loco!</h1>
           
         </div>
 
         <div class="startscreen-content">
-          <p>Welcome to El pollo loco!</p>
+          <p>2D - Jump & Run - Fun</p>
           <div class="startscreen-buttons">
             <button class="start-game-btn" onclick="handleStart()">Start game</button>
             <button class="show-settings-btn" onclick="showSettings()">Settings</button>
@@ -25,7 +25,7 @@ function startScreenOverlayTemplate() {
 
 function settingsOverlayTemplate() {
   return `
-    <div class="setting-overlay" id="settingsOverlay">
+    <div class="setting-overlay start-screen-card " id="settingsOverlay">
       <div class="setting-card">
         <div class="setting-header">
           <h1>Movement</h1>
@@ -48,8 +48,8 @@ function settingsOverlayTemplate() {
 
 function getRestartSVG() {
   return `
-    <svg  onclick="handleRestart()" id="gameOverSVG" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
-      <text x="400" y="100" class="btn" onclick="handleRestart()">▶️ Restart Game</text>
+    <svg  id="gameOverSVG" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="400" y="100" class="btn">▶️ Restart Game</text>
     </svg>
-  `;;
+  `;
 }
