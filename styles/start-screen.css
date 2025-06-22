@@ -6,64 +6,51 @@
   justify-content: center;
   align-items: center;
   z-index: 11;
-  position: relative;
 }
 
 .start-screen-card {
-  background-image: url('../assets/img/2_character_pepe/3_jump/J-36.png');
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+   width: 600px;
+  max-width: 90%;
+  color: #fff8dc;
+  background-image: url("../assets/img/2_character_pepe/3_jump/J-36.png");
   background-size: cover;
   background-position: center;
   background-color: #fff;
   border: 6px solid #ffd700;
   border-radius: 30px;
-  padding: 40px;
-  width: 500px;
-  max-width: 90%;
-  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  padding: 16px;
+ 
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
   text-align: center;
   animation: pop-in 0.6s ease-out;
-  color: #fff8dc;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+  
+  z-index: 2;
 }
 
-.start-screen-card h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  color: #ffcc00;
-  text-shadow: 2px 2px #000;
+.start-screen-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
-.startscreen-content p {
-  font-size: 1.3rem;
-  margin-bottom: 20px;
-   color: #ffcc00;
-  text-shadow: 1px 1px #000;
+.start-screen-card > * {
+  position: relative;
+  z-index: 2;
 }
 
 .startscreen-buttons {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 16px;
   justify-content: center;
+  align-items: center;
   margin-top: 20px;
-}
-
-.start-game-btn,
-.show-settings-btn {
-  background-color: #ff9900;
-  color: #fff;
-  border: none;
-  border-radius: 15px;
-  padding: 15px 30px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.3s;
-}
-
-.start-game-btn:hover,
-.show-settings-btn:hover {
-  transform: scale(1.05);
-  background-color: #ffb700;
 }
 
 @keyframes pop-in {

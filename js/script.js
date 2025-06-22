@@ -2,8 +2,19 @@ let currentWorld = null;
 
 
 function showStartScreenOverlay() {
-  document.getElementById("overlayContainer").innerHTML =
-    startScreenOverlayTemplate();
+  document.getElementById("overlayContainer").innerHTML = startScreenOverlayTemplate();
+
+  document.addEventListener(
+    "click",
+    () => {
+      if (AUDIO_STARTSCREEN.paused) {
+        AUDIO_STARTSCREEN.play().catch(e => {
+          console.warn("Autoplay wurde blockiert:", e);
+        });
+      }
+    },
+    { once: true }
+  );
 }
 
 function showSettings() {
@@ -115,9 +126,3 @@ function handleRestart() {
   showStartScreenOverlay();
   fadeInCanvas();
 }
-
-
-
-document.addEventListener('click', (event) => {
-  console.log('Clicked element:', event.target);
-});

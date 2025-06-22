@@ -22,6 +22,12 @@ class World {
     
     this.setWorld();
 
+      this.level.AUDIO_STARTSCREEN.pause();
+  this.level.AUDIO_STARTGAME.currentTime = 0;
+  this.level.AUDIO_STARTGAME.loop = true;
+  this.level.AUDIO_STARTGAME.volume = 0.5;
+  this.level.AUDIO_STARTGAME.play();
+
     this.startCollisionCheck();
     this.startThrowCheck();
     this.draw();
@@ -80,9 +86,6 @@ class World {
 
     this.ctx.translate(-this.camera_x, 0);
 
-    this.level.AUDIO_STARTGAME.play();
-    this.level.AUDIO_STARTGAME.loop = true;
-    this.level.AUDIO_STARTGAME.volume = 0.1;
 
     if (gameRunning) {
       requestAnimationFrame(() => {
