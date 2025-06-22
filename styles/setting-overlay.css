@@ -1,0 +1,89 @@
+@keyframes coin-spin {
+    0% {
+        background-image: url('../assets/img/8_coin/coin_1.png');
+    }
+    50% {
+        background-image: url('../assets/img/8_coin/coin_2.png');
+    }
+    100% {
+        background-image: url('../assets/img/8_coin/coin_1.png');
+    }
+}
+
+.setting-overlay::before {
+  display: none !important;
+}
+
+.setting-overlay {
+    height: 720px;
+    color: #000;
+    animation: coin-spin 0.8s steps(2) infinite;
+    background-repeat: no-repeat;
+    background-size: 400px auto;
+    background-position: center 33%;
+    background-color: rgb(237, 237, 237)!important;
+}
+
+.setting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.setting-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0;
+    width: 100%;
+}
+
+.key-list,
+.explanation {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto 20px auto;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.key-list li,
+.explanation li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+    text-align: left;
+}
+
+.label {
+    flex: 1;
+    font-weight: bold;
+}
+
+.key {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.explanation h1 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+hr {
+    width: 80%;
+    margin: 20px auto;
+    border: 1px solid #ffd700;
+}

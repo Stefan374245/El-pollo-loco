@@ -1,0 +1,93 @@
+button {
+  width: 320px;
+  background-color: #ff9900;
+  color: black;
+  border: none;
+  border-radius: 15px;
+  padding: 15px 30px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform ease-in-out 0.2s, background-color ease-in-out 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: 2px;
+}
+
+button:not(.mute-btn, .back-btn):hover {
+  transform: scale(1.05);
+  background-color: #ffb700;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  vertical-align: middle;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+.back-btn {
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+  transition: transform 0.2s ease;
+   cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
+  transition: animation 1s ease-in-out;
+}
+
+.back-icon {
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0px 0px 3px gold);
+  transition: drop-shadow 0.2s ease, transform 0.2s ease;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.back-icon:hover {
+  animation-play-state: paused;
+   filter: drop-shadow(0px 0px 6px gold);
+}
+
+.startscreen-buttons button {
+  width: 320px;
+}
+
+.mute-btn {
+  box-shadow: none;
+  width: fit-content;
+  background: transparent;
+  border: none;
+  padding: 0;
+   cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
+}
+
+.mute-icon {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: #ff9900;
+  border-radius: 8px;
+  padding: 8px;
+  width: 32px;
+  height: 32px;
+  transition: all 0.2s;
+}
+
+.mute-icon:hover {
+  transform: scale(1.05);
+  background-color: #ffb700;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}

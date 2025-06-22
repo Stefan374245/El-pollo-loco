@@ -5,17 +5,18 @@
 function startScreenOverlayTemplate() {
   return `
     <div class="start-screen" id="startScreenOverlay">
-      <div class="start-screen-card startscreen-card">
+      <div class="start-screen-card">
         <div class="task-header">
           <h1>Welcome to el pollo loco!</h1>
-          
         </div>
-
         <div class="startscreen-content">
-          <p>2D - Jump & Run - Fun</p>
+          <h2>2D - Jump & Run - Fun</h2>
           <div class="startscreen-buttons">
-            <button class="start-game-btn" onclick="handleStart()">Start game</button>
-            <button class="show-settings-btn" onclick="showSettings()">Settings</button>
+            <button onclick="handleStart()">Start game</button>
+            <button onclick="showSettings()">Settings</button>
+            <button class="mute-btn" id="muteBtn" onclick="toggleMusic()">
+              <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/unmute.svg" alt="Mute/Unmute" />
+            </button>
           </div>
         </div>
       </div>
@@ -25,20 +26,52 @@ function startScreenOverlayTemplate() {
 
 function settingsOverlayTemplate() {
   return `
-    <div class="setting-overlay start-screen-card " id="settingsOverlay">
+    <div class="setting-overlay start-screen-card" id="settingsOverlay">
       <div class="setting-card">
-        <div class="setting-header">
-          <h1>Movement</h1>
+        
           <button class="back-btn" onclick="backToStartScreen()">
-            <img src="./assets/img/icons/close.svg" alt="back" />
+            <img class="icon back-icon" src="./assets/icons/back1.svg" alt="back" />
           </button>
-        </div>
-
+          <h1>Movement</h1>
+        
+     
         <div class="setting-content">
           <ul class="key-list">
-            <li><b>Move left/right </b> -  A / D </b></li>
-            <li><b>Jump</b> – Space</li>
-            <li><b>Throw</b> – F</li>
+            <li><span class="label"><b>Move left/right</b></span><span class="key">A / D</span></li>
+            <li><span class="label"><b>Jump</b></span><span class="key">Space</span></li>
+            <li><span class="label"><b>Throw</b></span><span class="key">F</span></li>
+            <li><span class="label"><b>Fullscreen</b></span><span class="key"><img class="icon" src="./assets/icons/fullscreen.svg" alt="Fullscreen Icon"></span></li>
+            <li><span class="label"><b>Fullscreen off</b></span><span class="key"><img class="icon" src="./assets/icons/escape.svg" alt="Escape Icon"></span></li>
+            <li>
+              <span class="label"><b>Mute/unmute</b></span>
+              <span class="key">
+                <img class="icon" src="./assets/icons/mute.svg" alt="Mute Icon" /> /
+                <img class="icon" src="./assets/icons/unmute.svg" alt="Unmute Icon" />
+              </span>
+            </li>
+          </ul>
+          <hr>
+          <ul class="explanation">
+            <h1>Game explanation</h1>
+            <li>
+              <span class="label">Collect coins & bottles</span>
+              <span class="key">
+                <img class="icon" src="./assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png" alt="Bottle Icon" />
+                <img class="icon" src="./assets/img/8_coin/coin_1.png" alt="Coin Icon" />
+              </span>
+            </li>
+            <li>
+              <span class="label">Jump or throw bottles on small chickens to kill them</span>
+              <span class="key">
+                <img class="icon" src="./assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png" alt="Chicken Icon" />
+              </span>
+            </li>
+            <li>
+              <span class="label">Throw multiple bottles on endboss to kill him</span>
+              <span class="key">
+                <img class="icon" src="./assets/img/4_enemie_boss_chicken/1_walk/G1.png" alt="Endboss Icon" />
+              </span>
+            </li>
           </ul>
         </div>
       </div>

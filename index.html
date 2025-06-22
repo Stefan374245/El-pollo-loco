@@ -6,9 +6,13 @@
     <title>El pollo loco</title>
 
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./styles/fonts.css" />
+    <link rel="stylesheet" href="./styles/assets.css" />
     <link rel="stylesheet" href="./styles/start-screen.css" />
     <link rel="stylesheet" href="./styles/end-screen.css" />
+    <link rel="stylesheet" href="./styles/setting-overlay.css" />
 
+    <script src="./js/audio.js"></script>
     <script src="./js/templates.js"></script>
     <script src="./models/drawable-object.class.js"></script>
     <script src="./models/movable-object.class.js"></script>
@@ -33,6 +37,8 @@
     <script src="./levels/level1.js"></script>
     <script src="./js/game.js"></script>
     <script src="./js/script.js"></script>
+   
+
   </head>
   <body onload="showStartScreenOverlay()">
     <div id="background">
@@ -51,5 +57,17 @@
     </div>
 
     <div id="endScreen" class="endScreen"></div>
+
+
+    <footer>
+        <div class="footerText maxContent">
+            &copy;<span id="year"></span> Stefan Helldobler - Alle Bilder von
+            <a href="https://developerakademie.com/" target="_blank">Developer Academie</a>, Icons von
+            <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>, Sounds von <a
+                href="https://freesound.org/" target="_blank">freesound<br><br>
+                <a href="https://github.com/Stefan374245" target="_blank"><img src="./assets/icons/github-logo.png"
+                        alt="github logo" title="GitHub" /></a>
+        </div>
+    </footer>
   </body>
 </html>
