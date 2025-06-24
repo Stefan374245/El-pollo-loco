@@ -1,16 +1,11 @@
 let canvas;
-let world;
-let gameRunning = false;
-let keyboard = new KeyBoard();
 
 function init() {
   canvas = document.getElementById('canvas');
-   gameRunning = true;
-  world = new World(canvas, keyboard);
-  currentWorld = world;
- 
+   gameManager.canvas = canvas;
+  gameManager.gameRunning = true;
+  gameManager.currentWorld = new World(canvas, gameManager.keyboard);
 
-  console.log('my Character is', world.character);
 }
 
 document.addEventListener('keydown', (event) => {
@@ -18,29 +13,29 @@ document.addEventListener('keydown', (event) => {
   switch (event.code) {
     case 'ArrowRight':
     case 'KeyD':
-      keyboard.RIGHT = true;
+      gameManager.keyboard.RIGHT = true;
       break;
     case 'ArrowLeft':
     case 'KeyA':
-      keyboard.LEFT = true;
+      gameManager.keyboard.LEFT = true;
       break;
     case 'ArrowUp':
     case 'KeyW':
-      keyboard.UP = true;
+      gameManager.keyboard.UP = true;
       break;
     case 'ArrowDown':
     case 'KeyS':
-      keyboard.DOWN = true;
+      gameManager.keyboard.DOWN = true;
       break;
     case 'Space':
       console.log('SPACE gedrückt!');
-      keyboard.JUMP = true;
+      gameManager.keyboard.JUMP = true;
       break;
     case 'Enter':
-      keyboard.F = true;
+      gameManager.keyboard.F = true;
       break;
     case 'KeyF':
-      keyboard.F = true;
+      gameManager.keyboard.F = true;
   }
   console.log(event.code);
 });
@@ -49,28 +44,28 @@ document.addEventListener('keyup', (event) => {
   switch (event.code) {
     case 'ArrowRight':
     case 'KeyD':
-      keyboard.RIGHT = false;
+      gameManager.keyboard.RIGHT = false;
       break;
     case 'ArrowLeft':
     case 'KeyA':
-      keyboard.LEFT = false;
+      gameManager.keyboard.LEFT = false;
       break;
     case 'ArrowUp':
     case 'KeyW':
-      keyboard.UP = false;
+      gameManager.keyboard.UP = false;
       break;
     case 'ArrowDown':
     case 'KeyS':
-      keyboard.DOWN = false;
+      gameManager.keyboard.DOWN = false;
       break;
     case 'Space':
-      keyboard.JUMP = false;
+      gameManager.keyboard.JUMP = false;
       break;
     case 'Enter':
-      keyboard.THROW = false;
+      gameManager.keyboard.THROW = false;
       break;
     case 'KeyF':
-      keyboard.F = false;
+      gameManager.keyboard.F = false;
   }
   console.log(event.code);
 });

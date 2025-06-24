@@ -73,13 +73,20 @@ lastHit = 0;
     this.loadImages(this.IMAGES_IDLE_LONG);
     this.loadImages(this.IMAGES_DEAD);
     this.applyGravity();
-    this.animate();
+   
+    this.lastActionTime = Date.now();
   }
 
-  animate() {
-    setInterval(() => this.handleInput(), 1000 / 30);
-    setInterval(() => this.handleAnimation(), 100);
-  }
+animate() {
+  this.inputInterval = setInterval(() => {
+    if (gameManager.gameRunning) this.handleInput();
+  }, 1000 / 30);
+
+  this.animationInterval = setInterval(() => {
+    if (gameManager.gameRunning) this.handleAnimation();
+  }, 100);
+}
+
 
   handleInput() {
     if (

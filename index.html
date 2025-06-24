@@ -35,12 +35,14 @@
     <script src="./models/level.class.js"></script>
     <script src="./js/db.js"></script>
     <script src="./levels/level1.js"></script>
+    <script src="./levels/level-manager.class.js"></script>
+    <script src="./models/game-manager.class.js"></script>
     <script src="./js/game.js"></script>
-    <script src="./js/script.js"></script>
+   
    
 
   </head>
-  <body onload="showStartScreenOverlay()">
+  <body>
     <div id="background">
       <img
         src="./assets/img/9_intro_outro_screens/start/startscreen_1.png"
@@ -53,7 +55,7 @@
     </div>
 
     <div id="playScreen" class="playScreen">
-      <canvas id="canvas" width="720px" height="480px"> </canvas>
+      <canvas id="canvas" width="720" height="480"> </canvas>
     </div>
 
     <div id="endScreen" class="endScreen"></div>

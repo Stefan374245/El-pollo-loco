@@ -8,6 +8,8 @@ class CollisionHandler {
     this.checkBottles();
     this.checkCoins();
     this.checkBottleHitEnemy();
+    this.checkCharacterHP(this.world.character);
+    this.checkEndBossHP(this.world.level.endboss); 
   }
 
   checkEnemiesCollision() {
@@ -26,7 +28,7 @@ class CollisionHandler {
           this.world.character.snapToGround();
           this.world.character.jump();
         } else {
-           this.world.character.hitWithCooldown(); 
+          this.world.character.hitWithCooldown();
           this.world.statusBar.setPercentage(this.world.character.hp);
         }
       }
@@ -36,19 +38,25 @@ class CollisionHandler {
       this.world.character.isColliding(boss, offsetX, offsetY) &&
       !boss.isDead()
     ) {
-       this.world.character.hitWithCooldown(); 
+      this.world.character.hitWithCooldown();
       this.world.statusBar.setPercentage(this.world.character.hp);
     }
-        this.checkCharacterHP(this.world.character);
-
+    this.checkCharacterHP(this.world.character);
   }
 
   checkCharacterHP(character) {
-  if (character.hp <= 0 && !character.dead) {
-    character.dead = true;
-    handleGameOver(); 
+    if (character.hp <= 0 && !character.dead) {
+      character.dead = true;
+      gameManager.triggerEndScreen(false);
+    }
   }
-}
+
+  checkEndBossHP(endboss) {
+    if (endboss.hp <= 0 && !endboss.dead) {
+      endboss.dead = true;
+     gameManager.triggerEndScreen(true);
+    }
+  }
 
   isAboveEnemy(character, enemy) {
     return (
@@ -95,7 +103,7 @@ class CollisionHandler {
           this.world.level.AUDIO_FULLBAR.play();
         }
 
-       this.animateBarScale(this.world.statusBarBottles);
+        this.animateBarScale(this.world.statusBarBottles);
         return false;
       }
 
@@ -124,23 +132,23 @@ class CollisionHandler {
   }
 
   animateBarScale(bar) {
-  if (this.barIsScaling) return;
+    if (this.barIsScaling) return;
 
-  this.barIsScaling = true;
+    this.barIsScaling = true;
 
-  const originalWidth = bar.width;
-  const originalHeight = bar.height;
-  const scaleUp = 1.15;
+    const originalWidth = bar.width;
+    const originalHeight = bar.height;
+    const scaleUp = 1.15;
 
-  bar.width = originalWidth * scaleUp;
-  bar.height = originalHeight * scaleUp;
+    bar.width = originalWidth * scaleUp;
+    bar.height = originalHeight * scaleUp;
 
-  setTimeout(() => {
-    bar.width = originalWidth;
-    bar.height = originalHeight;
-    this.barIsScaling = false;
-  }, 150);
-}
+    setTimeout(() => {
+      bar.width = originalWidth;
+      bar.height = originalHeight;
+      this.barIsScaling = false;
+    }, 150);
+  }
 
   /**
    * character.is

@@ -12,7 +12,7 @@ function startScreenOverlayTemplate() {
         <div class="startscreen-content">
           <h2>2D - Jump & Run - Fun</h2>
           <div class="startscreen-buttons">
-            <button onclick="handleStart()">Start game</button>
+            <button onclick="gameManager.handleStart()"">Start game</button>
             <button onclick="showSettings()">Settings</button>
             <button class="mute-btn" id="muteBtn" onclick="toggleMusic()">
               <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/unmute.svg" alt="Mute/Unmute" />
@@ -84,5 +84,28 @@ function getRestartSVG() {
     <svg  id="gameOverSVG" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
       <text x="400" y="100" class="btn">▶️ Restart Game</text>
     </svg>
+  `;
+}
+
+function getFirstEndScreenTemplate(isWin) {
+  return `
+    <div class="win-over-container">
+      <img class="${isWin ? 'win-img' : 'lose-img'} stay-visible" src="${isWin
+        ? 'assets/img/You won, you lost/You Win A.png'
+        : 'assets/img/9_intro_outro_screens/game_over/oh no you lost!.png'}" 
+        alt="${isWin ? 'You Win!' : 'Oh Nooo! You Lost'}">
+    </div>
+  `;
+}
+
+function getFinalEndScreenTemplate(isWin) {
+  return `
+    <div class="game-over-container">
+      <div id="restartContainer" class="restart-container"></div>
+      <img class="${isWin ? 'win-img' : 'lose-img'} stay-visible" src="${isWin
+        ? 'assets/img/You won, you lost/You Won B.png'
+        : 'assets/img/9_intro_outro_screens/game_over/game over!.png'}" 
+        alt="${isWin ? 'Victory!' : 'Game Over'}">
+    </div>
   `;
 }

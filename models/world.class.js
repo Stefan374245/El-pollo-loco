@@ -1,41 +1,60 @@
 class World {
-  character = new Character();
-  level = level1;
+  character;
+  level;
   canvas;
   ctx;
   keyboard;
-  bottleCount = 0;
-  camera_x = 0;
+  bottleCount;
+  camera_x;
 
-  statusBar = new StatusBar();
-  statusBarCoins = new StatusBarCoins();
-  statusBarBottles = new StatusBarBottles();
-  statusBarEndboss = new StatusBarEndboss();
-  throwableObjects = [];
-  collisionHandler = new CollisionHandler(this);
-  canThrow = true;
+  statusBar;
+  statusBarCoins;
+  statusBarBottles;
+  statusBarEndboss;
+  throwableObjects;
+  collisionHandler;
+  canThrow;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
-    
-    this.setWorld();
 
-      this.level.AUDIO_STARTSCREEN.pause();
-  this.level.AUDIO_STARTGAME.currentTime = 0;
-  this.level.AUDIO_STARTGAME.loop = true;
-  this.level.AUDIO_STARTGAME.volume = 0.5;
-  this.level.AUDIO_STARTGAME.play();
-
+    this.init();        // 👈 Struktur + Instanzen
+    this.setWorld();    // 👈 Objekte mit world verbinden
+    this.initAudio();   // 👈 Musik starten
     this.startCollisionCheck();
     this.startThrowCheck();
     this.draw();
   }
 
+
+  init() {
+    this.level = LevelManager.createLevel1();
+    this.character = new Character();
+    this.statusBar = new StatusBar();
+    this.statusBarCoins = new StatusBarCoins();
+    this.statusBarBottles = new StatusBarBottles();
+    this.statusBarEndboss = new StatusBarEndboss();
+    this.throwableObjects = [];
+    this.collisionHandler = new CollisionHandler(this);
+    this.bottleCount = 0;
+    this.camera_x = 0;
+    this.canThrow = true;
+  }
+
+  initAudio() {
+    this.level.AUDIO_STARTSCREEN.pause();
+    this.level.AUDIO_STARTGAME.currentTime = 0;
+    this.level.AUDIO_STARTGAME.loop = true;
+    this.level.AUDIO_STARTGAME.volume = 0.5;
+    this.level.AUDIO_STARTGAME.play();
+  }
+
   setWorld() {
-    console.log('level structure:', this.level);
+    
     this.character.world = this;
+    this.character.animate();
 
     this.level.coins.forEach((coin) => {
       coin.world = this;
@@ -59,7 +78,7 @@ class World {
   }
 
   draw() {
-    if (!gameRunning) return;
+     if (!gameManager.gameRunning) return;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -86,8 +105,7 @@ class World {
 
     this.ctx.translate(-this.camera_x, 0);
 
-
-    if (gameRunning) {
+      if (gameManager.gameRunning)  {
       requestAnimationFrame(() => {
         this.draw();
       });
@@ -125,11 +143,16 @@ class World {
     this.ctx.restore();
   }
 
-  startCollisionCheck() {
-    setInterval(() => {
-      this.collisionHandler.checkAll();
-    }, 10);
+startCollisionCheck() {
+  if (this.collisionInterval) {
+    clearInterval(this.collisionInterval);
   }
+  this.collisionInterval = setInterval(() => {
+     if (gameManager.gameRunning) {
+      this.collisionHandler.checkAll();
+    }
+  }, 10);
+}
 
   checkThrowableObjects() {
     if (this.keyboard.F && this.bottleCount > 0 && this.canThrow) {
@@ -154,10 +177,14 @@ class World {
       }, 500);
     }
   }
-
-  startThrowCheck() {
-    this.throwInterval = setInterval(() => {
-      this.checkThrowableObjects();
-    }, 200);
+startThrowCheck() {
+  if (this.throwInterval) {
+    clearInterval(this.throwInterval);
   }
+  this.throwInterval = setInterval(() => {
+     if (gameManager.gameRunning)  {
+      this.checkThrowableObjects();
+    }
+  }, 200);
+}
 }
