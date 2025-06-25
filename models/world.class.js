@@ -42,18 +42,14 @@ class World {
     this.camera_x = 0;
     this.canThrow = true;
   }
-
   initAudio() {
-    this.level.AUDIO_STARTSCREEN.pause();
-    this.level.AUDIO_STARTGAME.currentTime = 0;
-    this.level.AUDIO_STARTGAME.loop = true;
-    this.level.AUDIO_STARTGAME.volume = 0.5;
-    this.level.AUDIO_STARTGAME.play();
+    audioManager.pause('startScreen');
+    audioManager.play('startGame', true, 0.5);
   }
-
   setWorld() {
     
     this.character.world = this;
+    this.character.setAudioManager(audioManager);
     this.character.animate();
 
     this.level.coins.forEach((coin) => {

@@ -1,5 +1,5 @@
 // === gameManager.class.js ===
-
+const audioManager = new AudioManager();
 let gameManager;
 
 window.onload = () => {
@@ -16,30 +16,35 @@ class GameManager {
     this.playStartScreenAudio();
   }
 
-  playStartScreenAudio() {
-    AUDIO_STARTSCREEN.loop = true;
-    AUDIO_STARTSCREEN.volume = 0.5;
-    AUDIO_STARTSCREEN.play().catch(e => {
-      console.warn("Autoplay blockiert, klicke irgendwo aufs Fenster", e);
-    });
-  }
+playStartScreenAudio() {
+  const startscreen = audioManager.tracks['startscreen'];
+  startscreen.loop = true;
+  startscreen.volume = 0.5;
+  startscreen.play().catch(e => {
+    console.warn("Autoplay blockiert, klicke irgendwo aufs Fenster", e);
+  });
+}
 
   showStartScreenOverlay() {
     document.getElementById("overlayContainer").innerHTML = startScreenOverlayTemplate();
   }
 
-  handleStart() {
-    AUDIO_STARTSCREEN.pause();
-    AUDIO_START_BTN.currentTime = 0;
-    AUDIO_START_BTN.volume = 0.6;
-    AUDIO_START_BTN.play();
+handleStart() {
+  const startscreen = audioManager.tracks['startscreen'];
+  const startBtn = audioManager.tracks['startgame']; // oder: audioManager.tracks['startbtn'] wenn du getrennte hast
 
-    setTimeout(() => {
-      this.closeOverlay();
-      this.startGame();
-      this.fadeInCanvas();
-    }, 500);
-  }
+  startscreen.pause();
+
+  startBtn.currentTime = 0;
+  startBtn.volume = 0.6;
+  startBtn.play();
+
+  setTimeout(() => {
+    this.closeOverlay();
+    this.startGame();
+    this.fadeInCanvas();
+  }, 500);
+}
 
   startGame() {
     this.clearWorld();
@@ -111,15 +116,9 @@ class GameManager {
     canvas.style.filter = '';
   }
 
-  stopAllSounds() {
-    const lvl = this.currentWorld?.level;
-    [lvl?.AUDIO_STARTGAME, lvl?.AUDIO_SNORING, lvl?.AUDIO_WHISTLE, lvl?.AUDIO_JUMP, AUDIO_STARTSCREEN]
-      .filter(Boolean)
-      .forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-      });
-  }
+stopAllSounds() {
+  audioManager.stopAll();
+}
 
   clearWorld() {
     if (this.currentWorld) {

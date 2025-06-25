@@ -10,37 +10,65 @@ class CollisionHandler {
     this.checkBottleHitEnemy();
     this.checkCharacterHP(this.world.character);
     this.checkEndBossHP(this.world.level.endboss); 
-  }
-
+  } 
   checkEnemiesCollision() {
     const offsetX = 10;
     const offsetY = 10;
+    const now = Date.now();
+    let jumpAttackHappened = false;
 
+    // Sprung-Angriffe prüfen
     this.world.level.enemies.forEach((enemy) => {
       if (
         this.world.character.isColliding(enemy, offsetX, offsetY) &&
         !enemy.isDead()
       ) {
         const isAbove = this.isAboveEnemy(this.world.character, enemy);
-
-        if (isAbove) {
+        const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+        
+        if (isAbove && !isImmuneToThisEnemy) {
+       
+          enemy.immuneUntil = Date.now() + 200; 
+          jumpAttackHappened = true;
+          
           enemy.hit();
           this.world.character.snapToGround();
           this.world.character.jump();
-        } else {
-          this.world.character.hitWithCooldown();
-          this.world.statusBar.setPercentage(this.world.character.hp);
+          
+         
+          audioManager.play('jumpOnEnemy');
         }
       }
     });
-    const boss = this.world.level.endboss;
-    if (
-      this.world.character.isColliding(boss, offsetX, offsetY) &&
-      !boss.isDead()
-    ) {
-      this.world.character.hitWithCooldown();
-      this.world.statusBar.setPercentage(this.world.character.hp);
+
+ 
+    if (!jumpAttackHappened) {
+      this.world.level.enemies.forEach((enemy) => {
+        if (
+          this.world.character.isColliding(enemy, offsetX, offsetY) &&
+          !enemy.isDead()
+        ) {
+          const isAbove = this.isAboveEnemy(this.world.character, enemy);
+          const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+          
+          if (!isAbove && !isImmuneToThisEnemy) {
+            this.world.character.hitWithCooldown(enemy);
+            this.world.statusBar.setPercentage(this.world.character.hp);
+          }
+        }
+      });
+      
+   
+      const boss = this.world.level.endboss;
+      if (
+        this.world.character.isColliding(boss, offsetX, offsetY) &&
+        !boss.isDead()
+      ) {
+        this.world.character.hitWithCooldown(boss);
+        this.world.statusBar.setPercentage(this.world.character.hp);
+      }
     }
+    
     this.checkCharacterHP(this.world.character);
   }
 
@@ -57,11 +85,10 @@ class CollisionHandler {
      gameManager.triggerEndScreen(true);
     }
   }
-
   isAboveEnemy(character, enemy) {
     return (
       character.speedY > 0 &&
-      character.y + character.height <= enemy.y + enemy.height
+      character.y + character.height - 20 <= enemy.y + 20
     );
   }
 
@@ -80,7 +107,6 @@ class CollisionHandler {
       this.world.level.endboss.checkBottleHit(bottle);
     });
   }
-
   checkBottles() {
     const offsetX = 10;
     const offsetY = 10;
@@ -98,9 +124,9 @@ class CollisionHandler {
         this.world.bottleCount++;
         this.increaseBar(this.world.statusBarBottles, 100 / maxBottles);
 
-        this.world.level.AUDIO_PICKUP.play();
+        audioManager.play('takeBottle');
         if (this.world.bottleCount === maxBottles) {
-          this.world.level.AUDIO_FULLBAR.play();
+          audioManager.play('fullBottleBar');
         }
 
         this.animateBarScale(this.world.statusBarBottles);
@@ -109,8 +135,8 @@ class CollisionHandler {
 
       return true;
     });
+   
   }
-
   checkCoins() {
     const offsetX = 8;
     const offsetY = 8;
@@ -118,7 +144,7 @@ class CollisionHandler {
     this.world.level.coins = this.world.level.coins.filter((coin) => {
       if (this.world.character.isColliding(coin, offsetX, offsetY)) {
         this.increaseBar(this.world.statusBarCoins, 10);
-        this.world.level.AUDIO_COIN.play();
+        audioManager.play('coins');
         this.animateBarScale(this.world.statusBarCoins);
         return false;
       }

@@ -62,9 +62,7 @@ lastHit = 0;
     'assets/img/2_character_pepe/5_dead/D-55.png',
     'assets/img/2_character_pepe/5_dead/D-56.png',
     'assets/img/2_character_pepe/5_dead/D-57.png',
-  ];
-  
-  constructor() {
+  ];  constructor() {
     super().loadImage('assets/img/2_character_pepe/1_idle/idle/I-1.png');
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
@@ -73,8 +71,17 @@ lastHit = 0;
     this.loadImages(this.IMAGES_IDLE_LONG);
     this.loadImages(this.IMAGES_DEAD);
     this.applyGravity();
-   
+    this.initializeProperties();
+  }
+
+  initializeProperties() {
     this.lastActionTime = Date.now();
+    this.jumpSoundPlayed = false;
+    this.whistlePosition = 0;
+    this.isWhistlePlaying = false;
+    this.isSnoringPlaying = false;
+    
+    this.audioManager = null;
   }
 
 animate() {
@@ -87,8 +94,16 @@ animate() {
   }, 100);
 }
 
-
   handleInput() {
+
+    const now = Date.now();
+    const isInKnockback = this.knockbackUntil && now < this.knockbackUntil;
+    
+    if (isInKnockback) {
+      this.world.camera_x = -this.x + 100;
+      return;
+    }
+    
     if (
       this.world.keyboard.RIGHT &&
       this.x < this.world.level.level_end_point
@@ -110,53 +125,146 @@ animate() {
     this.world.camera_x = -this.x + 100;
   }
 
+
   handleAnimation() {
     if (this.isDead()) {
+      this.stopAllAudio();
       this.playAnimation(this.IMAGES_DEAD);
+      return;
+    }
 
-    } else if (this.isHurt()) {
+
+    if (this.isHurt()) {
+      this.stopAllAudio();
       this.playAnimation(this.IMAGES_DAMAGE);
+      this.resetIdleTimer();
+      return;
+    }
 
-    } else if (this.isJumping()) {
-      this.playAnimation(this.IMAGES_JUMPING);
-      if (!this.jumpSoundPlayed) {
-        this.world.level.AUDIO_JUMP.play();
-        this.jumpSoundPlayed = true;
-      }
-    } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-      this.playAnimation(this.IMAGES_WALKING);
-      this.world.level.AUDIO_WHISTLE.play();
-      this.jumpSoundPlayed = false;
+    if (this.isJumping()) {
+      this.handleJumpAnimation();
+      return;
+    }
+
+    if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+      this.handleWalkAnimation();
+      return;
+    }
+
+    if (this.world.keyboard.F) {
+      this.handleWakeUpAction();
+      return;
+    }
+
+    const idleTime = Date.now() - this.lastActionTime;
+
+    if (idleTime > 4000) {
+      this.handleLongIdleAnimation();
     } else {
-      const idleTime = Date.now() - this.lastActionTime;
-
-      if (this.world.keyboard.F) {
-        this.playAnimation(this.IMAGES_IDLE);
-        this.lastActionTime = Date.now();
-        this.world.level.AUDIO_SNORING.pause();
-        this.world.level.AUDIO_SNORING.currentTime = 0;
-        this.jumpSoundPlayed = false;
-      } else if (idleTime > 4000) {
-        this.playAnimation(this.IMAGES_IDLE_LONG);
-        if (this.world.level.AUDIO_SNORING.paused) {
-          this.world.level.AUDIO_SNORING.play();
-        }
-        this.world.level.AUDIO_WHISTLE.pause();
-        this.world.level.AUDIO_WHISTLE.currentTime = 0;
-        this.jumpSoundPlayed = false;
+      this.handleNormalIdleAnimation();
+    }
+  }
+  handleJumpAnimation() {
+    this.playAnimation(this.IMAGES_JUMPING);
+    this.pauseWhistleAndSavePosition();
+    this.stopSnoring();
+    
+    if (!this.jumpSoundPlayed) {
+      if (this.audioManager) {
+        this.audioManager.play('jump');
       } else {
-        this.playAnimation(this.IMAGES_IDLE);
-        if (this.world.level.AUDIO_SNORING) {
-          this.world.level.AUDIO_SNORING.pause();
-          this.world.level.AUDIO_SNORING.currentTime = 0;
-        }
-        this.jumpSoundPlayed = false;
+        console.warn('AudioManager nicht verfügbar für Jump-Sound');
       }
+      this.jumpSoundPlayed = true;
     }
+  }
 
-    // Reset jumpSoundPlayed when not jumping
-    if (!this.isJumping()) {
-      this.jumpSoundPlayed = false;
+  handleWalkAnimation() {
+    this.playAnimation(this.IMAGES_WALKING);
+    this.stopSnoring();
+    this.resumeWhistleFromPosition();
+    this.jumpSoundPlayed = false;
+    this.resetIdleTimer();
+  }
+
+  // 11. Hilfsfunktion: Aufwach-Aktion verwalten
+  handleWakeUpAction() {
+    this.playAnimation(this.IMAGES_IDLE);
+    this.stopSnoring();
+    this.stopWhistle();
+    this.jumpSoundPlayed = false;
+    this.resetIdleTimer();
+  }
+
+  // 12. Hilfsfunktion: Long-Idle-Animation verwalten
+  handleLongIdleAnimation() {
+    this.playAnimation(this.IMAGES_IDLE_LONG);
+    this.stopWhistle();
+    this.startSnoring();
+    this.jumpSoundPlayed = false;
+  }
+
+  // 13. Hilfsfunktion: Normal-Idle-Animation verwalten
+  handleNormalIdleAnimation() {
+    this.playAnimation(this.IMAGES_IDLE);
+    this.stopSnoring();
+    this.stopWhistle();
+    this.jumpSoundPlayed = false;  }
+  
+  // 14. Hilfsfunktionen für Audio-Verwaltung mit AudioManager
+  pauseWhistleAndSavePosition() {
+    if (this.audioManager) {
+      if (this.audioManager.isPlaying('whistle')) {
+        this.whistlePosition = this.audioManager.pauseAndGetPosition('whistle');
+        this.isWhistlePlaying = false;
+      }
+    } else {
+      console.warn('AudioManager nicht verfügbar für Whistle-Pause');
     }
+  }  resumeWhistleFromPosition() {
+    if (this.audioManager) {
+      if (!this.audioManager.isPlaying('whistle')) {
+        this.audioManager.playWithPosition('whistle', this.whistlePosition);
+        this.isWhistlePlaying = true;
+      }
+    } else {
+      console.warn('AudioManager nicht verfügbar für Whistle-Resume');
+    }
+  }
+  stopWhistle() {
+    if (this.audioManager) {
+      this.audioManager.stopAndReset('whistle');
+      this.whistlePosition = 0;
+      this.isWhistlePlaying = false;
+    }
+  }  startSnoring() {
+    if (this.audioManager) {
+      if (!this.audioManager.isPlaying('snoring')) {
+        this.audioManager.play('snoring');
+        this.isSnoringPlaying = true;
+      }
+    } else {
+      console.warn('AudioManager nicht verfügbar für Snoring');
+    }
+  }
+  stopSnoring() {
+    if (this.audioManager) {
+      this.audioManager.stopAndReset('snoring');
+      this.isSnoringPlaying = false;
+    }
+  }
+
+  stopAllAudio() {
+    this.stopWhistle();
+    this.stopSnoring();
+  }
+
+  resetIdleTimer() {
+    this.lastActionTime = Date.now();
+  }
+
+  // Methode um AudioManager zu setzen (wird von der World-Klasse aufgerufen)
+  setAudioManager(audioManager) {
+    this.audioManager = audioManager;
   }
 }
