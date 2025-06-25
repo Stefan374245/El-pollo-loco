@@ -10,37 +10,65 @@ class CollisionHandler {
     this.checkBottleHitEnemy();
     this.checkCharacterHP(this.world.character);
     this.checkEndBossHP(this.world.level.endboss); 
-  }
-
+  } 
   checkEnemiesCollision() {
     const offsetX = 10;
     const offsetY = 10;
+    const now = Date.now();
+    let jumpAttackHappened = false;
 
+    // Sprung-Angriffe prüfen
     this.world.level.enemies.forEach((enemy) => {
       if (
         this.world.character.isColliding(enemy, offsetX, offsetY) &&
         !enemy.isDead()
       ) {
         const isAbove = this.isAboveEnemy(this.world.character, enemy);
-
-        if (isAbove) {
+        const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+        
+        if (isAbove && !isImmuneToThisEnemy) {
+          // Sofort Immunität setzen - BEVOR alles andere passiert
+          enemy.immuneUntil = Date.now() + 200; // Nur 200ms, sehr kurz
+          jumpAttackHappened = true; // Verhindert Schadens-Check komplett
+          
           enemy.hit();
           this.world.character.snapToGround();
           this.world.character.jump();
-        } else {
-          this.world.character.hitWithCooldown();
-          this.world.statusBar.setPercentage(this.world.character.hp);
+          
+          // Sound für das Springen auf Gegner abspielen
+          audioManager.play('jumpOnEnemy');
         }
       }
     });
-    const boss = this.world.level.endboss;
-    if (
-      this.world.character.isColliding(boss, offsetX, offsetY) &&
-      !boss.isDead()
-    ) {
-      this.world.character.hitWithCooldown();
-      this.world.statusBar.setPercentage(this.world.character.hp);
+
+    // Schaden-Kollisionen nur wenn KEIN Sprung-Angriff passiert ist
+    if (!jumpAttackHappened) {
+      this.world.level.enemies.forEach((enemy) => {
+        if (
+          this.world.character.isColliding(enemy, offsetX, offsetY) &&
+          !enemy.isDead()
+        ) {
+          const isAbove = this.isAboveEnemy(this.world.character, enemy);
+          const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+          
+          if (!isAbove && !isImmuneToThisEnemy) {
+            this.world.character.hitWithCooldown(enemy);
+            this.world.statusBar.setPercentage(this.world.character.hp);
+          }
+        }
+      });
+      
+      // Boss-Kollision
+      const boss = this.world.level.endboss;
+      if (
+        this.world.character.isColliding(boss, offsetX, offsetY) &&
+        !boss.isDead()
+      ) {
+        this.world.character.hitWithCooldown(boss);
+        this.world.statusBar.setPercentage(this.world.character.hp);
+      }
     }
+    
     this.checkCharacterHP(this.world.character);
   }
 
@@ -57,11 +85,10 @@ class CollisionHandler {
      gameManager.triggerEndScreen(true);
     }
   }
-
   isAboveEnemy(character, enemy) {
     return (
       character.speedY > 0 &&
-      character.y + character.height <= enemy.y + enemy.height
+      character.y + character.height - 20 <= enemy.y + 20
     );
   }
 
