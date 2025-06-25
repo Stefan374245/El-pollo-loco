@@ -1,24 +1,16 @@
 const level1 = new Level(
-    AUDIO_STARTSCREEN,
-  AUDIO_STARTGAME,
-  AUDIO_END_BOSS,
-  AUDIO_FULLBAR,
-  AUDIO_PICKUP,
-  AUDIO_COIN,
-  AUDIO_SNORING,
-  AUDIO_WHISTLE,
-  AUDIO_JUMP,
+
   [
-    new Enemy(300),      // Position 300
-    new Enemy(400),      // Position 400 (100px Abstand)
-    new Enemy(500),      // Position 500 (100px Abstand)
-    new Enemy(700),      // Position 700 (200px Abstand)
-    new Enemy(900),      // Position 900 (200px Abstand)
-    new Enemy(1200),     // Position 1200 (300px Abstand)
-    new Enemy2(350),     // Position 350 (zwischen den anderen)
-    new Enemy2(600),     // Position 600
-    new Enemy2(800),     // Position 800
-    new Enemy2(1100)     // Position 1100
+    new Enemy(),
+    new Enemy(),
+    new Enemy(),
+    new Enemy(),
+    new Enemy(),
+    new Enemy(),
+    new Enemy2(),
+    new Enemy2(),
+    new Enemy2(),
+    new Enemy2()
   ],
   new Endboss(),
   [

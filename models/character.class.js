@@ -81,7 +81,6 @@ lastHit = 0;
     this.isWhistlePlaying = false;
     this.isSnoringPlaying = false;
     
-    // AudioManager-Referenz (wird über world.audioManager verfügbar sein)
     this.audioManager = null;
   }
 
@@ -165,19 +164,16 @@ animate() {
       this.handleNormalIdleAnimation();
     }
   }
-
-
   handleJumpAnimation() {
     this.playAnimation(this.IMAGES_JUMPING);
     this.pauseWhistleAndSavePosition();
     this.stopSnoring();
     
     if (!this.jumpSoundPlayed) {
-      // Verwende AudioManager anstatt direkt auf Audio zuzugreifen
       if (this.audioManager) {
         this.audioManager.play('jump');
       } else {
-        this.world.level.AUDIO_JUMP.play();
+        console.warn('AudioManager nicht verfügbar für Jump-Sound');
       }
       this.jumpSoundPlayed = true;
     }
@@ -213,8 +209,8 @@ animate() {
     this.playAnimation(this.IMAGES_IDLE);
     this.stopSnoring();
     this.stopWhistle();
-    this.jumpSoundPlayed = false;
-  }
+    this.jumpSoundPlayed = false;  }
+  
   // 14. Hilfsfunktionen für Audio-Verwaltung mit AudioManager
   pauseWhistleAndSavePosition() {
     if (this.audioManager) {
@@ -223,73 +219,38 @@ animate() {
         this.isWhistlePlaying = false;
       }
     } else {
-      // Fallback für alte Implementierung
-      if (this.isWhistlePlaying) {
-        this.whistlePosition = this.world.level.AUDIO_WHISTLE.currentTime;
-        this.world.level.AUDIO_WHISTLE.pause();
-        this.isWhistlePlaying = false;
-      }
+      console.warn('AudioManager nicht verfügbar für Whistle-Pause');
     }
-  }
-
-  resumeWhistleFromPosition() {
+  }  resumeWhistleFromPosition() {
     if (this.audioManager) {
       if (!this.audioManager.isPlaying('whistle')) {
         this.audioManager.playWithPosition('whistle', this.whistlePosition);
         this.isWhistlePlaying = true;
       }
     } else {
-      // Fallback für alte Implementierung
-      if (!this.isWhistlePlaying) {
-        this.world.level.AUDIO_WHISTLE.currentTime = this.whistlePosition;
-        this.world.level.AUDIO_WHISTLE.play();
-        this.isWhistlePlaying = true;
-      }
+      console.warn('AudioManager nicht verfügbar für Whistle-Resume');
     }
   }
-
   stopWhistle() {
     if (this.audioManager) {
       this.audioManager.stopAndReset('whistle');
       this.whistlePosition = 0;
       this.isWhistlePlaying = false;
-    } else {
-      // Fallback für alte Implementierung
-      if (this.isWhistlePlaying) {
-        this.world.level.AUDIO_WHISTLE.pause();
-        this.world.level.AUDIO_WHISTLE.currentTime = 0;
-        this.whistlePosition = 0;
-        this.isWhistlePlaying = false;
-      }
     }
-  }
-
-  startSnoring() {
+  }  startSnoring() {
     if (this.audioManager) {
       if (!this.audioManager.isPlaying('snoring')) {
         this.audioManager.play('snoring');
         this.isSnoringPlaying = true;
       }
     } else {
-      // Fallback für alte Implementierung
-      if (!this.isSnoringPlaying && this.world.level.AUDIO_SNORING.paused) {
-        this.world.level.AUDIO_SNORING.play();
-        this.isSnoringPlaying = true;
-      }
+      console.warn('AudioManager nicht verfügbar für Snoring');
     }
   }
-
   stopSnoring() {
     if (this.audioManager) {
       this.audioManager.stopAndReset('snoring');
       this.isSnoringPlaying = false;
-    } else {
-      // Fallback für alte Implementierung
-      if (this.isSnoringPlaying) {
-        this.world.level.AUDIO_SNORING.pause();
-        this.world.level.AUDIO_SNORING.currentTime = 0;
-        this.isSnoringPlaying = false;
-      }
     }
   }
 
