@@ -13,6 +13,7 @@ class GameManager {
     this.currentWorld = null;
     this.keyboard = new KeyBoard(); 
     this.canvas = document.getElementById('canvas');
+    this.currentLevel = 1; // Level-Tracking hinzufügen
     this.playStartScreenAudio();
   }
 
@@ -46,15 +47,16 @@ handleStart() {
   }, 500);
 }
 
-  startGame() {
+  startGame(levelNumber = 1) {
     this.clearWorld();
     this.gameRunning = true;
+    this.currentLevel = levelNumber;
 
     document.getElementById("startScreen").classList.remove("active");
     document.getElementById("playScreen").classList.add("active");
     document.getElementById("endScreen").classList.remove("active");
 
-    this.currentWorld = new World(this.canvas, this.keyboard);
+    this.currentWorld = new World(this.canvas, this.keyboard, levelNumber);
   }
 
   triggerEndScreen(isWin) {
@@ -134,6 +136,58 @@ stopAllSounds() {
 
   fadeInCanvas() {
     document.getElementById("canvas").style.opacity = 1;
+  }
+
+  /**
+   * Behandelt Level-Abschluss
+   */
+  completeLevel() {
+    if (this.currentLevel === 1) {
+      // Nach Level 1 kommt Level 2
+      this.showLevelComplete();
+    } else {
+      // Nach Level 2 ist das Spiel gewonnen
+      this.triggerEndScreen(true);
+    }
+  }
+
+  /**
+   * Zeigt Level-Complete-Screen
+   */
+  showLevelComplete() {
+    this.stopGame();
+    
+    const canvas = document.getElementById('canvas');
+    const endScreen = document.getElementById('endScreen');
+
+    canvas.style.filter = 'blur(5px)';
+    endScreen.classList.add('active');
+    endScreen.innerHTML = getLevelCompleteTemplate();
+
+    // Level 2 nach 3 Sekunden starten
+    setTimeout(() => {
+      this.closeLevelComplete();
+      this.startLevel2();
+    }, 3000);
+  }
+
+  /**
+   * Schließt Level-Complete-Screen
+   */
+  closeLevelComplete() {
+    const canvas = document.getElementById('canvas');
+    const endScreen = document.getElementById('endScreen');
+    
+    canvas.style.filter = '';
+    endScreen.classList.remove('active');
+  }
+
+  /**
+   * Startet Level 2
+   */
+  startLevel2() {
+    this.currentLevel = 2;
+    this.startGame(2);
   }
 }
 

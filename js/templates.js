@@ -109,3 +109,23 @@ function getFinalEndScreenTemplate(isWin) {
     </div>
   `;
 }
+
+/**
+ * Generiert das HTML für das Level-Complete-Overlay
+ * @returns {string} HTML-String
+ */
+function getLevelCompleteTemplate() {
+  return `
+    <div class="level-complete-container">
+      <div class="level-complete-content">
+        <h1 class="level-complete-title">LEVEL 1 COMPLETE!</h1>
+        <h2 class="level-complete-subtitle">Preparing Level 2...</h2>
+        <div class="level-complete-progress">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}

@@ -15,10 +15,11 @@ class World {
   collisionHandler;
   canThrow;
 
-  constructor(canvas, keyboard) {
+  constructor(canvas, keyboard, levelNumber = 1) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    this.levelNumber = levelNumber;
 
     this.init();        // 👈 Struktur + Instanzen
     this.setWorld();    // 👈 Objekte mit world verbinden
@@ -30,12 +31,22 @@ class World {
 
 
   init() {
-    this.level = LevelManager.createLevel1();
+    // Level-abhängige Level-Erstellung mit dem neuen LevelManager
+    if (this.levelNumber === 2) {
+      this.level = NewLevelManager.createLevel2();
+    } else {
+      this.level = NewLevelManager.createLevel1();
+    }
+    
     this.character = new Character();
     this.statusBar = new StatusBar();
     this.statusBarCoins = new StatusBarCoins();
     this.statusBarBottles = new StatusBarBottles();
-    this.statusBarEndboss = new StatusBarEndboss();
+    
+    // StatusBar für Endboss mit entsprechender MaxHP initialisieren
+    const endbossMaxHp = this.level.endboss.maxHp;
+    this.statusBarEndboss = new StatusBarEndboss(endbossMaxHp);
+    
     this.throwableObjects = [];
     this.collisionHandler = new CollisionHandler(this);
     this.bottleCount = 0;
@@ -71,6 +82,21 @@ class World {
     });
 
     this.level.endboss.world = this;
+    this.level.endboss.animate();
+
+    // StatusBar mit Endboss-HP initialisieren
+    const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
+    this.statusBarEndboss.setPercentage(initialPercentage);
+    console.log(`Endboss StatusBar initialisiert: ${this.level.endboss.hp}/${this.level.endboss.maxHp} (${Math.round(initialPercentage)}%) - Level ${this.levelNumber}`);
+
+    // Mini-Endbosse wie andere Objekte behandeln
+    if (this.level.miniEndbosses) {
+      this.level.miniEndbosses.forEach((miniEndboss, index) => {
+        miniEndboss.world = this;
+        miniEndboss.id = `miniEndboss_${index}_${Date.now()}`; // Eindeutige ID mit Timestamp
+        miniEndboss.animate();
+      });
+    }
   }
 
   draw() {
@@ -82,7 +108,7 @@ class World {
     this.addObjectsToMap(this.level.backgroundObjects);
     this.addObjectsToMap(this.level.clouds);
 
-    this.ctx.translate(-this.camera_x, 0); //BACK
+    this.ctx.translate(-this.camera_x, 0);
 
     if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
       this.addToMap(this.statusBarEndboss);
@@ -90,7 +116,7 @@ class World {
     this.addToMap(this.statusBarBottles);
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
-    this.ctx.translate(this.camera_x, 0); //FORWARD
+    this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
@@ -98,6 +124,11 @@ class World {
     this.addObjectsToMap(this.throwableObjects);
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
+
+    // Mini-Endbosse zeichnen
+    if (this.level.miniEndbosses) {
+      this.addObjectsToMap(this.level.miniEndbosses);
+    }
 
     this.ctx.translate(-this.camera_x, 0);
 
@@ -161,6 +192,9 @@ startCollisionCheck() {
       );
 
       this.throwableObjects.push(bottle);
+
+      // Spiele Throw Bottle Sound ab
+      audioManager.play('throwBottle');
 
       this.bottleCount--;
 

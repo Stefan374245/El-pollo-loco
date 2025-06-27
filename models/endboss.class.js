@@ -7,8 +7,26 @@ class Endboss extends Enemy {
   currentImage = 0;
   enemySpawned = false;
   frameCount = 0;
-  speed = 25;
-  hp = 100;
+  
+  aggressionLevel = 1;
+  
+  aggressionLevel1 = {
+    speed: 20,
+    hp: 100,
+    maxHp: 100,
+    spawnEnemiesOnAttack: false,
+    alertDuration: 1500,
+    damagePerHit: 20
+  };
+  
+  aggressionLevel2 = {
+    speed: 35,
+    hp: 140,
+    maxHp: 140,
+    spawnEnemiesOnAttack: true,
+    alertDuration: 1500,
+    damagePerHit: 20
+  };
 
   attackCount = 0;
   phaseStep = 0;
@@ -52,12 +70,28 @@ class Endboss extends Enemy {
     ],
   };
 
-  constructor() {
+  constructor(aggressionLevel = 1) {
     super();
     this.loadImage(this.animations.walk[0]);
     Object.values(this.animations).forEach((images) => this.loadImages(images));
-    this.x = 1200;
-    
+    this.x = 2200;
+    this.aggressionLevel = aggressionLevel;
+    this.applyAggressionLevel(aggressionLevel);
+    this.alertTriggered = false;
+  }
+
+  applyAggressionLevel(level) {
+    if (level === 2) {
+      this.speed = this.aggressionLevel2.speed;
+      this.hp = this.aggressionLevel2.hp;
+      this.maxHp = this.aggressionLevel2.maxHp;
+      this.damagePerHit = this.aggressionLevel2.damagePerHit;
+    } else {
+      this.speed = this.aggressionLevel1.speed;
+      this.hp = this.aggressionLevel1.hp;
+      this.maxHp = this.aggressionLevel1.maxHp;
+      this.damagePerHit = this.aggressionLevel1.damagePerHit;
+    }
   }
 
 animate() {
@@ -66,6 +100,16 @@ animate() {
       this.world &&
       this.x + this.width / 2 < -this.world.camera_x + this.world.canvas.width
     ) {
+      if (!this.alertTriggered && this.world.character.x >= this.x - 600) {
+        this.alertTriggered = true;
+        this.changePhase("alert");
+        this.initializeStatusBar();
+        if (this.world.character.audioManager) {
+          this.world.character.audioManager.play('endboss');
+          this.world.character.audioManager.stopAndReset('startgame');
+        }
+      }
+      
       if (this.animationPhase === "walk") {
         this.moveLeft();
       }
@@ -73,13 +117,21 @@ animate() {
         this.alertFinished = true;
         setTimeout(() => {
           this.changePhase("attack");
-        }, 1500);
+        }, this.getCurrentAggressionSettings().alertDuration);
       }
 
       this.handleAnimation();
     }
   }, 200);
 }
+
+  initializeStatusBar() {
+    if (this.world && this.world.statusBarEndboss) {
+      const percentage = (this.hp / this.maxHp) * 100;
+      this.world.statusBarEndboss.setPercentage(percentage);
+      console.log(`StatusBar initialisiert: ${this.hp}/${this.maxHp} (${Math.round(percentage)}%) - Level ${this.aggressionLevel}`);
+    }
+  }
 
   handleAnimation() {
     if (this.isDead()) {
@@ -102,10 +154,9 @@ handlePhaseTransition() {
 
     case "attack":
       this.attackCount++;
-      if (this.attackCount % 2 === 0) {
+      if (this.getCurrentAggressionSettings().spawnEnemiesOnAttack && this.attackCount % 2 === 0) {
         this.spawnEnemyBehind();
       }
-
       this.phaseStep++;
       this.changePhase("walk");
       break;
@@ -123,6 +174,10 @@ handlePhaseTransition() {
   }
 }
 
+  getCurrentAggressionSettings() {
+    return this.aggressionLevel === 2 ? this.aggressionLevel2 : this.aggressionLevel1;
+  }
+
   changePhase(newPhase) {
     this.previousPhase = this.animationPhase;
     this.animationPhase = newPhase;
@@ -137,9 +192,7 @@ spawnEnemyBehind() {
   newEnemy.x = this.x + this.width - 70;
   newEnemy.y = 390;
   newEnemy.world = this.world;
-
-  newEnemy.speed = 2.0;
-
+  newEnemy.speed = 3.5;
   this.world.level.enemies.push(newEnemy);
 }
 
@@ -159,25 +212,23 @@ spawnEnemyBehind() {
     }
   }
 
+  hit() {
+    this.hitBoss();
+  }
+
   hitBoss() {
     if (this.animationPhase === "hurt" || this.isDead()) return;
-
-    this.hp -= 20;
+    const damage = 20;
+    this.hp -= damage;
     if (this.hp < 0) this.hp = 0;
-
     this.lastHit = new Date().getTime();
-    this.animationPhase = "hurt";
-
-    this.world.statusBarEndboss.setPercentage(this.hp);
-
-    if (this.hp === 0 && this.die) {
-      this.die();
-    } else {
-      setTimeout(() => {
-        if (this.animationPhase === "hurt") {
-          this.changePhase("attack");
-        }
-      }, 500);
+    console.log(`Endboss getroffen! HP: ${this.hp}/${this.maxHp} (Level ${this.aggressionLevel})`);
+    this.changePhase("hurt");
+    const percentage = (this.hp / this.maxHp) * 100;
+    this.world.statusBarEndboss.setPercentage(percentage);
+    if (this.hp === 0) {
+      this.changePhase("dead");
+      this.deathProcessed = false;
     }
   }
 }
