@@ -80,6 +80,7 @@ lastHit = 0;
     this.whistlePosition = 0;
     this.isWhistlePlaying = false;
     this.isSnoringPlaying = false;
+    this.damageSoundPlaying = false;
     
     this.audioManager = null;
   }
@@ -133,10 +134,19 @@ animate() {
       return;
     }
 
-
     if (this.isHurt()) {
       this.stopAllAudio();
       this.playAnimation(this.IMAGES_DAMAGE);
+      
+      // Spiele Damage Sound ab
+      if (this.audioManager && !this.damageSoundPlaying) {
+        this.audioManager.play('damage');
+        this.damageSoundPlaying = true;
+        setTimeout(() => {
+          this.damageSoundPlaying = false;
+        }, 1000);
+      }
+      
       this.resetIdleTimer();
       return;
     }

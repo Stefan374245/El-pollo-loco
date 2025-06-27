@@ -25,6 +25,7 @@
     <script src="./models/bottle.class.js"></script>
     <script src="./models/throwable-object.class.js"></script>
     <script src="./models/endboss.class.js"></script>
+    <script src="./models/mini-endboss.class.js"></script>
     <script src="./models/status-bar-hp.class.js"></script>
     <script src="./models/status-bar-coins.class.js"></script>
     <script src="./models/status-bar-bottle.class.js"></script>
@@ -35,8 +36,9 @@
     <script src="./models/world.class.js"></script>
     <script src="./models/level.class.js"></script>
   
-    <script src="./levels/level1.js"></script>
+  
     <script src="./levels/level-manager.class.js"></script>
+  
     <script src="./models/game-manager.class.js"></script>
     <script src="./js/game.js"></script>
    
@@ -57,6 +59,9 @@
 
     <div id="playScreen" class="playScreen">
       <canvas id="canvas" width="720" height="480"> </canvas>
+      <button class="mute-btn game-mute-btn" id="gameMuteBtn" onclick="toggleMusicButton(event)">
+        <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/unmute.svg" alt="Mute/Unmute" />
+      </button>
     </div>
 
     <div id="endScreen" class="endScreen"></div>

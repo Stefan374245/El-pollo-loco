@@ -11,13 +11,15 @@ class AudioManager {
       startBtn: new Audio("assets/audio/start-btn.mp3"),
       endboss: new Audio("assets/audio/endboss.mp3"),
       fullbar: new Audio("assets/audio/full-bottle-bar.mp3"),
-     /* pickup: new Audio("assets/audio/pickup.mp3"),*/
+      takeBottle: new Audio("assets/audio/take-bottle.mp3"),
+      throwBottle: new Audio("assets/audio/throw-bottle.mp3"),
+      smashBottle: new Audio("assets/audio/smash-bottle.mp3"),
+      damage: new Audio("assets/audio/damage.mp3"),
       coin: new Audio("assets/audio/coins.mp3"), 
-    snoring: new Audio("assets/audio/snoring.mp3"),
+      snoring: new Audio("assets/audio/snoring.mp3"),
       whistle: new Audio("assets/audio/whistle.mp3"),
       jump: new Audio("assets/audio/jump.mp3"),
       jumpOnEnemy: new Audio("assets/audio/jump-on-enemy.mp3"),
-    
     };
 
     this.tracks.startscreen.loop = true;

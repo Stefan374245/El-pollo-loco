@@ -5,6 +5,8 @@ class Enemy extends MovableObject {
   isDying = false;
   hp = 1;
   canJump = true;
+  hasStartedMoving = false;
+  static availablePositions = [];
 
   IMAGES_WALKING = [
     'assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
@@ -19,8 +21,16 @@ class Enemy extends MovableObject {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_DEAD);
 
-    const maxCanvasWidth = 2200;
-    this.x = 200 + Math.random() * (maxCanvasWidth - 200 - this.width);
+    if (Enemy.availablePositions.length === 0) {
+      for (let x = 650; x <= 2200 - this.width; x += 70) {
+        Enemy.availablePositions.push(x);
+      }
+    }
+
+    const randomIndex = Math.floor(Math.random() * Enemy.availablePositions.length);
+    this.x = Enemy.availablePositions[randomIndex];
+    Enemy.availablePositions.splice(randomIndex, 1);
+
     this.speed = 0.5 + Math.random() * 0.25;
     this.y = 390;
 
@@ -29,16 +39,30 @@ class Enemy extends MovableObject {
 
   animate() {
     this.movingInterval = setInterval(() => {
-      if (!this.isDead()) {
+      if (!this.isDead() && this.shouldStartMoving()) {
+        this.hasStartedMoving = true;
+      }
+      
+      if (!this.isDead() && this.hasStartedMoving) {
         this.moveLeft();
       }
     }, 1000 / 60);
 
     this.walkingInterval = setInterval(() => {
-      if (!this.isDead()) {
+      if (!this.isDead() && this.hasStartedMoving) {
         this.playAnimation(this.IMAGES_WALKING);
       }
     }, 200);
+  }
+
+  shouldStartMoving() {
+    if (this.hasStartedMoving) return true;
+    
+    if (this.world && this.world.character) {
+      const distance = Math.abs(this.world.character.x - this.x);
+      return distance < 650;
+    }
+    return false;
   }
 
   die() {

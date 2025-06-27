@@ -1,0 +1,27 @@
+@media only screen and (max-width: 780px) {
+  canvas {
+    width: 100%;
+  }
+  .start-screen-card {
+    width: 90%;
+    max-width: 100%;
+    padding: 16px;
+    border-radius: 20px;
+  }
+  
+  .game-mute-btn {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+@media only screen and (max-height: 480px) {
+  canvas {
+    height: 100vh;
+  }
+  
+  .game-mute-btn {
+    top: 10px;
+    right: 10px;
+  }
+}
