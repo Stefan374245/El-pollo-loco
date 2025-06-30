@@ -15,7 +15,7 @@ function startScreenOverlayTemplate() {
             <button onclick="gameManager.handleStart()"">Start game</button>
             <button onclick="showSettings()">Settings</button>
             <button class="mute-btn" id="muteBtn" onclick="toggleGlobalMute()">
-              <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/unmute.svg" alt="Mute/Unmute" />
+              <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/mute.svg" alt="Mute/Unmute" />
             </button>
           </div>
         </div>

@@ -99,7 +99,7 @@ class NewLevelManager {
         new Enemy2(),
         new Enemy2()
       ],
-      new Endboss(2), // Aggressionslevel 2 für Level 2
+      new Endboss(2), 
       [
         new Clouds(),
         new Clouds(),

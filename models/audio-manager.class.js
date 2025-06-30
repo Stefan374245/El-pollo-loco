@@ -1,19 +1,14 @@
-// audio-manager.class.js
 class AudioManager {
   constructor() {
     this.soundMuted = false;
     this.musicMuted = false;
-    this.globalMuted = false; // Neue globale Mute-Eigenschaft
+    this.globalMuted = true;
     this.currentTrackIndex = 0;
-    
-    // Mute-Button Eigenschaften
     this.buttonX = 0;
     this.buttonY = 0;
     this.buttonWidth = 40;
     this.buttonHeight = 40;
     this.isButtonHovered = false;
-    
-    // Lade die Icons
     this.unmuteIcon = new Image();
     this.muteIcon = new Image();
     this.unmuteIcon.src = "assets/icons/unmute.svg";
@@ -70,10 +65,7 @@ class AudioManager {
 
   unmuteAll() {
     this.globalMuted = false;
-    
-    // Starte die entsprechende Hintergrundmusik wieder, je nach Spielstatus
     if (!this.musicMuted) {
-      // Prüfe ob das Spiel läuft oder der Startscreen aktiv ist
       if (typeof gameManager !== 'undefined' && gameManager.gameRunning) {
         this.tracks.startgame.play();
       } else {
@@ -82,7 +74,6 @@ class AudioManager {
     }
   }
 
-  // Toggle für den Canvas-Mute-Button
   toggleGlobalMute() {
     if (this.globalMuted) {
       this.unmuteAll();
@@ -92,7 +83,6 @@ class AudioManager {
     return this.globalMuted;
   }
 
-  // Erweiterte Funktionen für Character-Audio-Management
   playWithPosition(name, position = 0) {
     if (this.globalMuted) return;
     const audio = this.tracks[name];
@@ -137,34 +127,41 @@ class AudioManager {
     }
   }
 
-  // Mute-Button Funktionalität
   setupMuteButton(canvasWidth, canvasHeight) {
-    this.buttonX = canvasWidth - 60;
-    this.buttonY = 10;
+    this.buttonX = (canvasWidth - this.buttonWidth) / 2;
+    this.buttonY = 20;
   }
 
   drawMuteButton(ctx) {
-    // Zeichne Button-Hintergrund
     ctx.save();
-    
-    // Button-Hintergrund mit Hover-Effekt
-    ctx.fillStyle = this.isButtonHovered ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.3)';
-    ctx.fillRect(this.buttonX, this.buttonY, this.buttonWidth, this.buttonHeight);
-    
-    // Button-Rahmen
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillStyle = this.isButtonHovered ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.4)';
+    ctx.beginPath();
+    ctx.arc(
+      this.buttonX + this.buttonWidth / 2,
+      this.buttonY + this.buttonHeight / 2,
+      this.buttonWidth / 2,
+      0,
+      2 * Math.PI
+    );
+    ctx.fill();
+    ctx.strokeStyle = this.isButtonHovered ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 2;
-    ctx.strokeRect(this.buttonX, this.buttonY, this.buttonWidth, this.buttonHeight);
-    
-    // Zeichne das entsprechende Icon
+    ctx.beginPath();
+    ctx.arc(
+      this.buttonX + this.buttonWidth / 2,
+      this.buttonY + this.buttonHeight / 2,
+      this.buttonWidth / 2 - 1,
+      0,
+      2 * Math.PI
+    );
+    ctx.stroke();
     const icon = this.globalMuted ? this.muteIcon : this.unmuteIcon;
     if (icon.complete) {
-      const iconSize = this.buttonWidth * 0.7;
+      const iconSize = this.buttonWidth * 0.6;
       const iconX = this.buttonX + (this.buttonWidth - iconSize) / 2;
       const iconY = this.buttonY + (this.buttonHeight - iconSize) / 2;
       ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
     }
-    
     ctx.restore();
   }
 
@@ -185,7 +182,6 @@ class AudioManager {
 
 function toggleGlobalMute() {
   audioManager.toggleGlobalMute();
-
   const icon = document.getElementById("music-toggle-icon");
   if (icon) {
     icon.src = audioManager.globalMuted
@@ -193,4 +189,3 @@ function toggleGlobalMute() {
       : "assets/icons/unmute.svg";
   }
 }
-

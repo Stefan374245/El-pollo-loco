@@ -14,17 +14,7 @@ class GameManager {
     this.keyboard = new KeyBoard(); 
     this.canvas = document.getElementById('canvas');
     this.currentLevel = 1;
-    this.playStartScreenAudio();
   }
-
-playStartScreenAudio() {
-  const startscreen = audioManager.tracks['startscreen'];
-  startscreen.loop = true;
-  startscreen.volume = 0.5;
-  startscreen.play().catch(e => {
-    console.warn("Autoplay blockiert, klicke irgendwo aufs Fenster", e);
-  });
-}
 
   showStartScreenOverlay() {
     document.getElementById("overlayContainer").innerHTML = startScreenOverlayTemplate();
@@ -155,10 +145,8 @@ stopAllSounds() {
    */
   completeLevel() {
     if (this.currentLevel === 1) {
-      // Nach Level 1 kommt Level 2
       this.showLevelComplete();
     } else {
-      // Nach Level 2 ist das Spiel gewonnen
       this.triggerEndScreen(true);
     }
   }

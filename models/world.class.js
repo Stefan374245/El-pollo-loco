@@ -21,18 +21,17 @@ class World {
     this.keyboard = keyboard;
     this.levelNumber = levelNumber;
 
-    this.init();        // 👈 Struktur + Instanzen
-    this.setWorld();    // 👈 Objekte mit world verbinden
-    this.initAudio();   // 👈 Musik starten
+    this.init();
+    this.setWorld();
+    this.initAudio();
     this.startCollisionCheck();
     this.startThrowCheck();
-    this.setupMuteButton(); // 👈 Mute-Button initialisieren
+    this.setupMuteButton();
     this.draw();
   }
 
 
   init() {
-    // Level-abhängige Level-Erstellung mit dem neuen LevelManager
     if (this.levelNumber === 2) {
       this.level = NewLevelManager.createLevel2();
     } else {
@@ -44,7 +43,6 @@ class World {
     this.statusBarCoins = new StatusBarCoins();
     this.statusBarBottles = new StatusBarBottles();
     
-    // StatusBar für Endboss mit entsprechender MaxHP initialisieren
     const endbossMaxHp = this.level.endboss.maxHp;
     this.statusBarEndboss = new StatusBarEndboss(endbossMaxHp);
     
@@ -56,14 +54,11 @@ class World {
   }
 
   setupMuteButton() {
-    // Positioniere den Mute-Button oben rechts im Canvas
     audioManager.setupMuteButton(this.canvas.width, this.canvas.height);
     
-    // Entferne bestehende Event-Listener um Duplikate zu vermeiden
     this.canvas.removeEventListener('click', this.handleCanvasClick);
     this.canvas.removeEventListener('mousemove', this.handleCanvasMouseMove);
     
-    // Vereinfachter Click-Handler ohne camera_x
     this.handleCanvasClick = (event) => {
       const rect = this.canvas.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
@@ -89,17 +84,26 @@ class World {
       const isHovered = audioManager.isButtonClicked(mouseX, mouseY);
       audioManager.setButtonHovered(isHovered);
       
-      // Cursor ändern bei Hover
       this.canvas.style.cursor = isHovered ? 'pointer' : 'default';
     };
     
-    // Event-Listener hinzufügen
     this.canvas.addEventListener('click', this.handleCanvasClick);
     this.canvas.addEventListener('mousemove', this.handleCanvasMouseMove);
   }
   initAudio() {
-    audioManager.pause('startscreen');
-    audioManager.play('startgame', true, 0.5);
+    if (!audioManager.globalMuted) {
+      audioManager.pause('startscreen');
+      audioManager.play('startgame', true, 0.5);
+    } else {
+      audioManager.unmuteAll();
+      
+      const icon = document.getElementById("music-toggle-icon");
+      if (icon) {
+        icon.src = audioManager.globalMuted
+          ? "assets/icons/mute.svg"
+          : "assets/icons/unmute.svg";
+      }
+    }
   }
   setWorld() {
     
@@ -128,16 +132,14 @@ class World {
     this.level.endboss.world = this;
     this.level.endboss.animate();
 
-    // StatusBar mit Endboss-HP initialisieren
     const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
     this.statusBarEndboss.setPercentage(initialPercentage);
     console.log(`Endboss StatusBar initialisiert: ${this.level.endboss.hp}/${this.level.endboss.maxHp} (${Math.round(initialPercentage)}%) - Level ${this.levelNumber}`);
 
-    // Mini-Endbosse wie andere Objekte behandeln
     if (this.level.miniEndbosses) {
       this.level.miniEndbosses.forEach((miniEndboss, index) => {
         miniEndboss.world = this;
-        miniEndboss.id = `miniEndboss_${index}_${Date.now()}`; // Eindeutige ID mit Timestamp
+        miniEndboss.id = `miniEndboss_${index}_${Date.now()}`;
         miniEndboss.animate();
       });
     }
@@ -159,12 +161,10 @@ class World {
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
 
-    // Mini-Endbosse zeichnen
     if (this.level.miniEndbosses) {
       this.addObjectsToMap(this.level.miniEndbosses);
     }
 
-    // Zeichne HUD (ohne camera_x)
     this.ctx.translate(-this.camera_x, 0);
     
     if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
@@ -174,7 +174,6 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
     
-    // Mute-Button über UI
     audioManager.drawMuteButton(this.ctx);
 
       if (gameManager.gameRunning)  {
@@ -238,7 +237,6 @@ startCollisionCheck() {
 
       this.throwableObjects.push(bottle);
 
-      // Spiele Throw Bottle Sound ab
       audioManager.play('throwBottle');
 
       this.bottleCount--;
