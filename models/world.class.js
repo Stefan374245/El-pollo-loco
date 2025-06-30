@@ -134,7 +134,6 @@ class World {
 
     const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
     this.statusBarEndboss.setPercentage(initialPercentage);
-    console.log(`Endboss StatusBar initialisiert: ${this.level.endboss.hp}/${this.level.endboss.maxHp} (${Math.round(initialPercentage)}%) - Level ${this.levelNumber}`);
 
     if (this.level.miniEndbosses) {
       this.level.miniEndbosses.forEach((miniEndboss, index) => {

@@ -66,9 +66,10 @@ class MovableObject extends DrawableObject {
   }
 
   snapToGround() {
-  const groundLevel = 280;
-  this.y = groundLevel;
-}
+    const groundLevel = 280;
+    this.y = groundLevel;
+    this.speedY = 0; // Stoppe die Fallgeschwindigkeit
+  }
 
   playAnimation(images) {
     let i = this.currentImage % images.length;

@@ -14,7 +14,7 @@ class AudioManager {
     this.unmuteIcon.src = "assets/icons/unmute.svg";
     this.muteIcon.src = "assets/icons/mute.svg";
 
-    this.tracks = {
+    this.sounds = {
       startscreen: new Audio("assets/audio/start-screen.mp3"),
       startgame: new Audio("assets/audio/start-game.mp3"),
       startBtn: new Audio("assets/audio/start-btn.mp3"),
@@ -24,38 +24,69 @@ class AudioManager {
       throwBottle: new Audio("assets/audio/throw-bottle.mp3"),
       smashBottle: new Audio("assets/audio/smash-bottle.mp3"),
       damage: new Audio("assets/audio/damage.mp3"),
-      coin: new Audio("assets/audio/coins.mp3"), 
+      coins: new Audio("assets/audio/coins.mp3"), 
       snoring: new Audio("assets/audio/snoring.mp3"),
       whistle: new Audio("assets/audio/whistle.mp3"),
       jump: new Audio("assets/audio/jump.mp3"),
       jumpOnEnemy: new Audio("assets/audio/jump-on-enemy.mp3"),
     };
 
-    this.tracks.startscreen.loop = true;
-    this.tracks.startscreen.volume = 0.3;
+    // Kompatibilität für alte tracks Referenz
+    this.tracks = this.sounds;
 
-    this.tracks.startgame.loop = true;
-    this.tracks.startgame.volume = 0.2;
-}
+    this.sounds.startscreen.loop = true;
+    this.sounds.startscreen.volume = 0.3;
 
-  play(name, loop = false, volume = 1) {
-    if (this.globalMuted) return;
-    const audio = this.tracks[name];
-    if (audio) {
+    this.sounds.startgame.loop = true;
+    this.sounds.startgame.volume = 0.2;
+
+    this.settings = {
+      soundEnabled: true
+    };
+  }
+
+  async play(soundName, loop = false, volume = 1) {
+    if (this.globalMuted || !this.settings.soundEnabled) return;
+    
+    const audio = this.sounds[soundName];
+    if (!audio) {
+      console.warn(`Sound "${soundName}" not found`);
+      return;
+    }
+
+    try {
+      // Stoppe vorherige Wiedergabe sanft wenn sie läuft
+      if (!audio.paused) {
+        audio.pause();
+      }
+      
+      // Reset audio position
       audio.currentTime = 0;
       audio.volume = volume;
       audio.loop = loop;
-      audio.play();
+      
+      // Kurze Verzögerung um Audio-Konflikte zu vermeiden
+      await new Promise(resolve => setTimeout(resolve, 10));
+      
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+      }
+    } catch (error) {
+      console.warn(`Audio playback error for ${soundName}:`, error);
     }
   }
 
   pause(name) {
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     if (audio) audio.pause();
   }
 
   stopAll() {
-    Object.values(this.tracks).forEach(audio => audio.pause());
+    Object.values(this.sounds).forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
   }
 
   muteAll() {
@@ -67,9 +98,9 @@ class AudioManager {
     this.globalMuted = false;
     if (!this.musicMuted) {
       if (typeof gameManager !== 'undefined' && gameManager.gameRunning) {
-        this.tracks.startgame.play();
+        this.sounds.startgame.play();
       } else {
-        this.tracks.startscreen.play();
+        this.sounds.startscreen.play();
       }
     }
   }
@@ -85,7 +116,7 @@ class AudioManager {
 
   playWithPosition(name, position = 0) {
     if (this.globalMuted) return;
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     if (audio) {
       audio.currentTime = position;
       audio.play();
@@ -93,7 +124,7 @@ class AudioManager {
   }
 
   pauseAndGetPosition(name) {
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     if (audio && !audio.paused) {
       const position = audio.currentTime;
       audio.pause();
@@ -103,7 +134,7 @@ class AudioManager {
   }
 
   stopAndReset(name) {
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
@@ -111,17 +142,17 @@ class AudioManager {
   }
 
   isPlaying(name) {
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     return audio && !audio.paused;
   }
 
   getCurrentTime(name) {
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     return audio ? audio.currentTime : 0;
   }
 
   setCurrentTime(name, time) {
-    const audio = this.tracks[name];
+    const audio = this.sounds[name];
     if (audio) {
       audio.currentTime = time;
     }

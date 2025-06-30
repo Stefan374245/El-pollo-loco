@@ -1,0 +1,130 @@
+/* Icon Animations */
+
+/* Preload images to prevent flickering */
+.bottle-rotate::before,
+.coin-animate::before,
+.chicken-walk::before,
+.endboss-walk::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-image: 
+    url('../assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png'),
+    url('../assets/img/8_coin/coin_1.png'),
+    url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png'),
+    url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png'),
+    url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'),
+    url('../assets/img/4_enemie_boss_chicken/1_walk/G1.png'),
+    url('../assets/img/4_enemie_boss_chicken/1_walk/G2.png'),
+    url('../assets/img/4_enemie_boss_chicken/1_walk/G3.png'),
+    url('../assets/img/4_enemie_boss_chicken/1_walk/G4.png');
+}
+
+/* Bottle rotation animation */
+.bottle-rotate {
+  animation: rotate 2s linear infinite;
+  background-image: url('../assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Coin background animation (similar to game background) */
+.coin-animate {
+  animation: coinFloat 3s ease-in-out infinite;
+  background-image: url('../assets/img/8_coin/coin_1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+
+@keyframes coinFloat {
+  0%, 100% {
+    transform: translateY(0px);
+    filter: brightness(1);
+  }
+  50% {
+    transform: translateY(-10px);
+    filter: brightness(1.2);
+  }
+}
+
+/* Chicken walk animation */
+.chicken-walk {
+  animation: chickenWalk 1.2s infinite;
+  animation-timing-function: steps(3, end);
+  background-image: url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+
+@keyframes chickenWalk {
+  0% { 
+    background-image: url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png');
+  }
+  33.33% { 
+    background-image: url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png');
+  }
+  66.66% { 
+    background-image: url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png');
+  }
+  100% { 
+    background-image: url('../assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png');
+  }
+}
+
+/* Endboss walk animation */
+.endboss-walk {
+  animation: endbossWalk 1.6s infinite;
+  animation-timing-function: steps(4, end);
+  background-image: url('../assets/img/4_enemie_boss_chicken/1_walk/G1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+
+@keyframes endbossWalk {
+  0% { 
+    background-image: url('../assets/img/4_enemie_boss_chicken/1_walk/G1.png');
+  }
+  25% { 
+    background-image: url('../assets/img/4_enemie_boss_chicken/1_walk/G2.png');
+  }
+  50% { 
+    background-image: url('../assets/img/4_enemie_boss_chicken/1_walk/G3.png');
+  }
+  75% { 
+    background-image: url('../assets/img/4_enemie_boss_chicken/1_walk/G4.png');
+  }
+  100% { 
+    background-image: url('../assets/img/4_enemie_boss_chicken/1_walk/G1.png');
+  }
+}
+
+/* Additional hover effects */
+.icon:hover {
+  transition: transform 0.3s ease;
+}
+
+.bottle-rotate:hover {
+  animation-duration: 0.7s;
+}
+
+.coin-animate:hover {
+  animation-duration: 1s;
+}

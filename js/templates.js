@@ -56,21 +56,27 @@ function settingsOverlayTemplate() {
             <li>
               <span class="label">Collect coins & bottles</span>
               <span class="key">
-                <img class="icon" src="./assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png" alt="Bottle Icon" />
-                <img class="icon" src="./assets/img/8_coin/coin_1.png" alt="Coin Icon" />
+                <div class="icon bottle-rotate"></div>
+                <div class="icon coin-animate"></div>
               </span>
             </li>
             <li>
               <span class="label">Jump or throw bottles on small chickens to kill them</span>
               <span class="key">
-                <img class="icon" src="./assets/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png" alt="Chicken Icon" />
+                <div class="icon chicken-walk"></div>
               </span>
             </li>
             <li>
               <span class="label">Throw multiple bottles on endboss to kill him</span>
               <span class="key">
-                <img class="icon" src="./assets/img/4_enemie_boss_chicken/1_walk/G1.png" alt="Endboss Icon" />
+                <div class="icon endboss-walk"></div>
               </span>
+            </li>
+            <li>
+              <span class="label">You only can jump once on mini-endboss</span>
+               <span class="key">
+                  Finish level 1
+                </span>
             </li>
           </ul>
         </div>
@@ -90,10 +96,12 @@ function getRestartSVG() {
 function getFirstEndScreenTemplate(isWin) {
   return `
     <div class="win-over-container">
-      <img class="${isWin ? 'win-img' : 'lose-img'} stay-visible" src="${isWin
-        ? 'assets/img/You won, you lost/You Win A.png'
-        : 'assets/img/9_intro_outro_screens/game_over/oh no you lost!.png'}" 
-        alt="${isWin ? 'You Win!' : 'Oh Nooo! You Lost'}">
+      <img class="${isWin ? "win-img" : "lose-img"} stay-visible" src="${
+    isWin
+      ? "assets/img/You won, you lost/You Win A.png"
+      : "assets/img/9_intro_outro_screens/game_over/oh no you lost!.png"
+  }" 
+        alt="${isWin ? "You Win!" : "Oh Nooo! You Lost"}">
     </div>
   `;
 }
@@ -102,10 +110,12 @@ function getFinalEndScreenTemplate(isWin) {
   return `
     <div class="game-over-container">
       <div id="restartContainer" class="restart-container"></div>
-      <img class="${isWin ? 'win-img' : 'lose-img'} stay-visible" src="${isWin
-        ? 'assets/img/You won, you lost/You Won B.png'
-        : 'assets/img/9_intro_outro_screens/game_over/game over!.png'}" 
-        alt="${isWin ? 'Victory!' : 'Game Over'}">
+      <img class="${isWin ? "win-img" : "lose-img"} stay-visible" src="${
+    isWin
+      ? "assets/img/You won, you lost/You Won B.png"
+      : "assets/img/9_intro_outro_screens/game_over/game over!.png"
+  }" 
+        alt="${isWin ? "Victory!" : "Game Over"}">
     </div>
   `;
 }
