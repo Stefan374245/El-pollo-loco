@@ -9,7 +9,7 @@ IMAGES_HP_BAR = [
 ];
 
   percentage = 100;
-  maxHp = 100; // Standard für Level 1
+  maxHp = 100;
   currentHp = 100;
 
   constructor(maxHp = 100) {
@@ -33,14 +33,12 @@ IMAGES_HP_BAR = [
   setPercentage(percentage) {
     this.percentage = percentage;
     
-    // Stelle sicher, dass Percentage zwischen 0 und 100 liegt
     if (this.percentage < 0) this.percentage = 0;
     if (this.percentage > 100) this.percentage = 100;
     
     let path = this.IMAGES_HP_BAR[this.resolveImageIndex()];
     this.img = this.availableImages[path];
     
-    // Debug-Information für beide Level
     const currentHp = Math.round((this.percentage / 100) * this.maxHp);
     const hitsToKill = Math.ceil(currentHp / 20);
     const imageIndex = this.resolveImageIndex();
@@ -48,23 +46,22 @@ IMAGES_HP_BAR = [
   }
 
   resolveImageIndex() {
-    // Normale Prozentberechnung für beide Level
+
     if (this.percentage >= 100) {
-      return 5; // Voll
+      return 5;
     } else if (this.percentage >= 80) {
-      return 4; // 80%+
+      return 4;
     } else if (this.percentage >= 60) {
-      return 3; // 60%+
+      return 3;
     } else if (this.percentage >= 40) {
-      return 2; // 40%+
+      return 2;
     } else if (this.percentage >= 20) {
-      return 1; // 20%+
+      return 1;
     } else {
-      return 0; // <20% oder 0
+      return 0;
     }
   }
 
-  // Hilfsmethode für Debug-Informationen
   getHealthInfo() {
     const currentHp = Math.round((this.percentage / 100) * this.maxHp);
     return {

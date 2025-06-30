@@ -30,6 +30,8 @@ class DrawableObject {
   }
 
   drawFrame(ctx, offsetX = 0, offsetY = 0) {
+    // Frames are now invisible - all drawing operations commented out
+    /*
     if (this instanceof Character) {
       ctx.beginPath();
       ctx.lineWidth = "3";
@@ -59,18 +61,6 @@ class DrawableObject {
         this.drawInnerFrame(ctx, offsetX * 2, offsetY * 2);
       }
     }
-  }
-
-  drawInnerFrame(ctx, offsetX = 0, offsetY = 0) {
-    ctx.beginPath();
-    ctx.lineWidth = "2";
-    ctx.strokeStyle ="purple";
-    ctx.rect(
-      this.x + offsetX,
-      this.y + offsetY,
-      this.width - offsetX * 4,
-      this.height - offsetY * 4,
-    );
-    ctx.stroke();
+    */
   }
 }

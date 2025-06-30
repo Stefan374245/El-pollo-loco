@@ -15,16 +15,16 @@ class Endboss extends Enemy {
     hp: 100,
     maxHp: 100,
     spawnEnemiesOnAttack: false,
-    alertDuration: 1500,
+    alertDuration: 1700,
     damagePerHit: 20
   };
   
   aggressionLevel2 = {
-    speed: 35,
+    speed: 30,
     hp: 140,
     maxHp: 140,
     spawnEnemiesOnAttack: true,
-    alertDuration: 1500,
+    alertDuration: 1700,
     damagePerHit: 20
   };
 
@@ -198,17 +198,26 @@ spawnEnemyBehind() {
 
 
   checkBottleHit(bottle) {
-    const offsetX = 40;
-    const offsetY = 40;
+    const config = CollisionConfig.getOffsets();
+    const endbossOffsets = config.endboss.precise;
+    const bottleOffsets = config.throwableBottle.hit;
 
     if (
       !this.isDead() &&
-      bottle.isCollidingInner(this, offsetX, offsetY) &&
+      CollisionConfig.isPreciseCollision(
+        bottle,
+        this,
+        bottleOffsets,
+        endbossOffsets
+      ) &&
       !bottle.hasHitGround
     ) {
+      console.log('Endboss hit by bottle!');
       this.hitBoss();
       bottle.hasHitGround = true;
       bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+      
+      audioManager.play('smashBottle');
     }
   }
 
@@ -222,7 +231,6 @@ spawnEnemyBehind() {
     this.hp -= damage;
     if (this.hp < 0) this.hp = 0;
     this.lastHit = new Date().getTime();
-    console.log(`Endboss getroffen! HP: ${this.hp}/${this.maxHp} (Level ${this.aggressionLevel})`);
     this.changePhase("hurt");
     const percentage = (this.hp / this.maxHp) * 100;
     this.world.statusBarEndboss.setPercentage(percentage);

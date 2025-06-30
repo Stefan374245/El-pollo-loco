@@ -36,16 +36,16 @@ class NewLevelManager {
         new Bottle()
       ],
       [
-        new Coins(200, 200),
-        new Coins(240, 170),
-        new Coins(280, 136),
-        new Coins(320, 170),
-        new Coins(360, 200),
-        new Coins(1000, 200),
-        new Coins(1040, 170),
-        new Coins(1080, 136),
-        new Coins(1120, 170),
-        new Coins(1160, 200)
+       new Coins(200, 200),
+      new Coins(300, 180),
+      new Coins(400, 156),
+      new Coins(500, 170),
+      new Coins(600, 200),
+      new Coins(800, 156),
+      new Coins(900, 180),
+      new Coins(1000, 200),
+      new Coins(1100, 170),
+      new Coins(1200, 156)
       ],
       [
         new BackgroundObject("assets/img/5_background/layers/air.png", -719),
@@ -99,7 +99,7 @@ class NewLevelManager {
         new Enemy2(),
         new Enemy2()
       ],
-      new Endboss(2), // Aggressionslevel 2 für Level 2
+      new Endboss(2), 
       [
         new Clouds(),
         new Clouds(),

@@ -1,6 +1,8 @@
 class CollisionHandler {
   constructor(world) {
     this.world = world;
+    this.offsets = CollisionConfig.getOffsets();
+    this.barIsScaling = false;
   }
 
   checkAll() {
@@ -15,94 +17,141 @@ class CollisionHandler {
 
   checkEnemiesCollision() {
     const jumpAttackHappened = this.checkJumpAttacks();
-    
     if (!jumpAttackHappened) {
       this.checkNormalCollisions();
     }
-
     this.checkCharacterHP(this.world.character);
   }
 
   checkJumpAttacks() {
-    const offsetX = 10;
-    const offsetY = 10;
     const now = Date.now();
     let jumpAttackHappened = false;
 
-
     this.world.level.enemies.forEach((enemy) => {
-      if (
-        this.world.character.isColliding(enemy, offsetX, offsetY) &&
-        !enemy.isDead()
-      ) {
-        const isAbove = this.isAboveEnemy(this.world.character, enemy);
-        const isImmuneToThisEnemy =
-          enemy.immuneUntil && now < enemy.immuneUntil;
+      const enemyType = enemy instanceof Enemy2 ? 'enemy2' : 'enemy';
+      const jumpOffsets = this.offsets[enemyType].precise;
+
+      const hasCollision = CollisionConfig.isPreciseCollision(
+        this.world.character, 
+        enemy, 
+        this.offsets.character.jump, 
+        jumpOffsets
+      );
+
+      if (hasCollision && !enemy.isDead()) {
+        const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, enemy, jumpOffsets);
+        const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
 
         if (isAbove && !isImmuneToThisEnemy) {
           enemy.immuneUntil = Date.now() + 200;
           jumpAttackHappened = true;
 
           enemy.hit();
-          this.world.character.snapToGround();
+
+          this.world.character.y = 280;
+          this.world.character.speedY = 0;
           this.world.character.jump();
 
-          audioManager.play("jumpOnEnemy");
+          if (audioManager && audioManager.play) {
+            audioManager.play("jumpOnEnemy");
+          }
         }
       }
     });
 
-
     if (this.world.level.miniEndbosses) {
       this.world.level.miniEndbosses.forEach((miniEndboss) => {
-        const miniEndbossOffsetX = 15;
-        const miniEndbossOffsetY = 15;
+        const jumpOffsets = this.offsets.miniEndboss.jump;
 
         if (
-          this.world.character.isColliding(
+          CollisionConfig.isPreciseCollision(
+            this.world.character,
             miniEndboss,
-            miniEndbossOffsetX,
-            miniEndbossOffsetY
+            this.offsets.character.jump,
+            jumpOffsets
           ) &&
           !miniEndboss.isDead()
         ) {
-          const isAbove = this.isAboveEnemy(this.world.character, miniEndboss);
-          const isImmuneToThisEnemy =
-            miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
+          const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, miniEndboss, jumpOffsets);
+          const isImmuneToThisEnemy = miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
 
           if (isAbove && !isImmuneToThisEnemy) {
-    
             miniEndboss.immuneUntil = Date.now() + 200;
             jumpAttackHappened = true;
 
-            miniEndboss.hitBoss();
-            this.world.character.snapToGround();
-            this.world.character.jump();
+            miniEndboss.hitMiniEndboss();
 
-            audioManager.play("jumpOnEnemy");
+            const miniEndbossTopWithOffset = miniEndboss.y + jumpOffsets.y;
+            this.world.character.y = miniEndbossTopWithOffset - this.world.character.height;
+            this.world.character.speedY = -25;
+
+            const landingCheck = setInterval(() => {
+              if (this.world.character.y >= 280) {
+                this.world.character.snapToGround();
+                clearInterval(landingCheck);
+              }
+            }, 1000 / 60);
+
+            if (audioManager && audioManager.play) {
+              audioManager.play("jumpOnEnemy");
+            }
           }
         }
       });
+    }
+
+    const boss = this.world.level.endboss;
+    const bossJumpOffsets = this.offsets.endboss.jump;
+
+    if (
+      CollisionConfig.isPreciseCollision(
+        this.world.character,
+        boss,
+        this.offsets.character.jump,
+        bossJumpOffsets
+      ) &&
+      !boss.isDead()
+    ) {
+      const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, boss, bossJumpOffsets);
+      const isImmuneToThisEnemy = boss.immuneUntil && now < boss.immuneUntil;
+
+      if (isAbove && !isImmuneToThisEnemy) {
+        boss.immuneUntil = Date.now() + 200;
+        jumpAttackHappened = true;
+
+        boss.hitBoss();
+
+        this.world.character.y = 280;
+        this.world.character.speedY = 0;
+        this.world.character.jump();
+
+        if (audioManager && audioManager.play) {
+          audioManager.play("jumpOnEnemy");
+        }
+      }
     }
 
     return jumpAttackHappened;
   }
 
   checkNormalCollisions() {
-    const offsetX = 10;
-    const offsetY = 10;
-    const miniEndbossOffsetX = 20;
-    const miniEndbossOffsetY = 30;
     const now = Date.now();
 
     this.world.level.enemies.forEach((enemy) => {
+      const enemyType = enemy instanceof Enemy2 ? 'enemy2' : 'enemy';
+      const enemyOffsets = this.offsets[enemyType].normal;
+
       if (
-        this.world.character.isColliding(enemy, offsetX, offsetY) &&
+        CollisionConfig.isPreciseCollision(
+          this.world.character,
+          enemy,
+          this.offsets.character.normal,
+          enemyOffsets
+        ) &&
         !enemy.isDead()
       ) {
-        const isAbove = this.isAboveEnemy(this.world.character, enemy);
-        const isImmuneToThisEnemy =
-          enemy.immuneUntil && now < enemy.immuneUntil;
+        const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, enemy, enemyOffsets);
+        const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
 
         if (!isAbove && !isImmuneToThisEnemy) {
           this.world.character.hitWithCooldown(enemy);
@@ -114,22 +163,18 @@ class CollisionHandler {
     if (this.world.level.miniEndbosses) {
       this.world.level.miniEndbosses.forEach((miniEndboss) => {
         if (
-          this.world.character.isColliding(
+          CollisionConfig.isPreciseCollision(
+            this.world.character,
             miniEndboss,
-            miniEndbossOffsetX,
-            miniEndbossOffsetY
+            this.offsets.character.normal,
+            this.offsets.miniEndboss.normal
           ) &&
           !miniEndboss.isDead()
         ) {
-          const isAbove = this.isAboveEnemy(
-            this.world.character,
-            miniEndboss
-          );
-          const isImmuneToThisEnemy =
-            miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
+          const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, miniEndboss, this.offsets.miniEndboss.normal);
+          const isImmuneToThisEnemy = miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
 
           if (!isAbove && !isImmuneToThisEnemy) {
-            console.log("Normal collision with Mini-Endboss!");
             this.world.character.hitWithCooldown(miniEndboss);
             this.world.statusBar.setPercentage(this.world.character.hp);
           }
@@ -139,11 +184,21 @@ class CollisionHandler {
 
     const boss = this.world.level.endboss;
     if (
-      this.world.character.isColliding(boss, offsetX, offsetY) &&
+      CollisionConfig.isPreciseCollision(
+        this.world.character,
+        boss,
+        this.offsets.character.normal,
+        this.offsets.endboss.normal
+      ) &&
       !boss.isDead()
     ) {
-      this.world.character.hitWithCooldown(boss);
-      this.world.statusBar.setPercentage(this.world.character.hp);
+      const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, boss, this.offsets.endboss.normal);
+      const isImmuneToThisEnemy = boss.immuneUntil && now < boss.immuneUntil;
+
+      if (!isAbove && !isImmuneToThisEnemy) {
+        this.world.character.hitWithCooldown(boss);
+        this.world.statusBar.setPercentage(this.world.character.hp);
+      }
     }
   }
 
@@ -159,7 +214,6 @@ class CollisionHandler {
       endboss.dead = true;
 
       if (gameManager.currentLevel === 1) {
-
         gameManager.completeLevel();
       } else {
         gameManager.triggerEndScreen(true);
@@ -170,10 +224,10 @@ class CollisionHandler {
   checkMiniEndbossHP() {
     if (this.world.level.miniEndbosses) {
       const miniEndbossesToCheck = [...this.world.level.miniEndbosses];
-      
+
       for (let i = 0; i < miniEndbossesToCheck.length; i++) {
         const miniEndboss = miniEndbossesToCheck[i];
-        
+
         if (this.world.level.miniEndbosses.includes(miniEndboss) && 
             miniEndboss.hp <= 0 && !miniEndboss.dead) {
           miniEndboss.die();
@@ -182,17 +236,7 @@ class CollisionHandler {
     }
   }
 
-  isAboveEnemy(character, enemy) {
-    return (
-      character.speedY > 0 &&
-      character.y + character.height - 20 <= enemy.y + 20
-    );
-  }
-
   checkBottleHitEnemy() {
-    const offsetX = 5;
-    const offsetY = 5;
-
     this.world.throwableObjects.forEach((bottle) => {
       if (this.world.level.miniEndbosses) {
         this.world.level.miniEndbosses.forEach((miniEndboss) => {
@@ -203,38 +247,43 @@ class CollisionHandler {
       }
 
       this.world.level.enemies.forEach((enemy) => {
-        if (!enemy.isDead() && bottle.isColliding(enemy, offsetX, offsetY)) {
-          enemy.hit();
-          bottle.hasHitGround = true;
-          bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
-          
-          audioManager.play('smashBottle');
+        if (!enemy.isDead() && !bottle.hasHitGround) {
+          const hasCollision = bottle.isColliding(enemy, 5, 5);
+
+          if (hasCollision) {
+            enemy.hit();
+            bottle.hasHitGround = true;
+            bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+
+            if (audioManager && audioManager.play) {
+              audioManager.play('smashBottle');
+            }
+          }
         }
       });
 
-      this.world.level.endboss.checkBottleHit(bottle);
+      if (!this.world.level.endboss.isDead()) {
+        this.world.level.endboss.checkBottleHit(bottle);
+      }
     });
   }
 
   checkBottles() {
-    const offsetX = 10;
-    const offsetY = 10;
     const maxBottles = 5;
 
     this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
       const canPickUp = this.world.bottleCount < maxBottles;
-      const isColliding = this.world.character.isColliding(
-        bottle,
-        offsetX,
-        offsetY
-      );
+      const isColliding = this.world.character.isColliding(bottle, 10, 10);
+
       if (isColliding && canPickUp) {
         this.world.bottleCount++;
         this.increaseBar(this.world.statusBarBottles, 100 / maxBottles);
 
-        audioManager.play("takeBottle");
-        if (this.world.bottleCount === maxBottles) {
-          audioManager.play("fullbar");
+        if (audioManager && audioManager.play) {
+          audioManager.play("takeBottle");
+          if (this.world.bottleCount === maxBottles) {
+            audioManager.play("fullbar");
+          }
         }
 
         this.animateBarScale(this.world.statusBarBottles);
@@ -246,12 +295,19 @@ class CollisionHandler {
   }
 
   checkCoins() {
-    const offsetX = 8;
-    const offsetY = 8;
     this.world.level.coins = this.world.level.coins.filter((coin) => {
-      if (this.world.character.isColliding(coin, offsetX, offsetY)) {
+      const hasCollision = CollisionConfig.isPreciseCollision(
+        this.world.character,
+        coin,
+        this.offsets.character.coin,
+        this.offsets.coins.collect
+      );
+
+      if (hasCollision) {
         this.increaseBar(this.world.statusBarCoins, 10);
-        audioManager.play("coins");
+        if (audioManager && audioManager.play) {
+          audioManager.play("coins");
+        }
         this.animateBarScale(this.world.statusBarCoins);
         return false;
       }
@@ -281,20 +337,5 @@ class CollisionHandler {
       bar.height = originalHeight;
       this.barIsScaling = false;
     }, 150);
-  }
-
-  /**
-   * character.is
-   * @param {*} mo MovableObject to check for collision
-   * Checks if this object is colliding with another movable object
-   * @returns
-   */
-  isColliding(mo, offsetX = 0, offsetY = 0) {
-    return (
-      this.x + this.width - offsetX > mo.x + offsetX &&
-      this.y + this.height - offsetY > mo.y + offsetY &&
-      this.x + offsetX < mo.x + mo.width - offsetX &&
-      this.y + offsetY < mo.y + mo.height - offsetY
-    );
   }
 }

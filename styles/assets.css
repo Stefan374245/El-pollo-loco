@@ -27,7 +27,14 @@ button:not(.mute-btn, .back-btn):hover {
   background-color: transparent;
   border: none;
   padding: 0;
+  transition: animation 1s ease-in-out;
 }
+
+.endboss-walk {
+  width: 56px;
+  height: 56px;
+}
+
 
 .back-btn {
   border: none;
