@@ -3,7 +3,21 @@ class AudioManager {
   constructor() {
     this.soundMuted = false;
     this.musicMuted = false;
+    this.globalMuted = false; // Neue globale Mute-Eigenschaft
     this.currentTrackIndex = 0;
+    
+    // Mute-Button Eigenschaften
+    this.buttonX = 0;
+    this.buttonY = 0;
+    this.buttonWidth = 40;
+    this.buttonHeight = 40;
+    this.isButtonHovered = false;
+    
+    // Lade die Icons
+    this.unmuteIcon = new Image();
+    this.muteIcon = new Image();
+    this.unmuteIcon.src = "assets/icons/unmute.svg";
+    this.muteIcon.src = "assets/icons/mute.svg";
 
     this.tracks = {
       startscreen: new Audio("assets/audio/start-screen.mp3"),
@@ -29,11 +43,13 @@ class AudioManager {
     this.tracks.startgame.volume = 0.2;
 }
 
-  play(name) {
-    if (this.soundMuted) return;
+  play(name, loop = false, volume = 1) {
+    if (this.globalMuted) return;
     const audio = this.tracks[name];
     if (audio) {
       audio.currentTime = 0;
+      audio.volume = volume;
+      audio.loop = loop;
       audio.play();
     }
   }
@@ -43,32 +59,42 @@ class AudioManager {
     if (audio) audio.pause();
   }
 
-  toggleBackgroundMusic() {
-    const audio = this.tracks.startscreen;
-    if (this.musicMuted) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-    this.musicMuted = !this.musicMuted;
-  }
-
   stopAll() {
     Object.values(this.tracks).forEach(audio => audio.pause());
   }
 
   muteAll() {
-    this.soundMuted = true;
+    this.globalMuted = true;
     this.stopAll();
   }
 
   unmuteAll() {
-    this.soundMuted = false;
+    this.globalMuted = false;
+    
+    // Starte die entsprechende Hintergrundmusik wieder, je nach Spielstatus
+    if (!this.musicMuted) {
+      // Prüfe ob das Spiel läuft oder der Startscreen aktiv ist
+      if (typeof gameManager !== 'undefined' && gameManager.gameRunning) {
+        this.tracks.startgame.play();
+      } else {
+        this.tracks.startscreen.play();
+      }
+    }
+  }
+
+  // Toggle für den Canvas-Mute-Button
+  toggleGlobalMute() {
+    if (this.globalMuted) {
+      this.unmuteAll();
+    } else {
+      this.muteAll();
+    }
+    return this.globalMuted;
   }
 
   // Erweiterte Funktionen für Character-Audio-Management
   playWithPosition(name, position = 0) {
-    if (this.soundMuted) return;
+    if (this.globalMuted) return;
     const audio = this.tracks[name];
     if (audio) {
       audio.currentTime = position;
@@ -110,15 +136,61 @@ class AudioManager {
       audio.currentTime = time;
     }
   }
+
+  // Mute-Button Funktionalität
+  setupMuteButton(canvasWidth, canvasHeight) {
+    this.buttonX = canvasWidth - 60;
+    this.buttonY = 10;
+  }
+
+  drawMuteButton(ctx) {
+    // Zeichne Button-Hintergrund
+    ctx.save();
+    
+    // Button-Hintergrund mit Hover-Effekt
+    ctx.fillStyle = this.isButtonHovered ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(this.buttonX, this.buttonY, this.buttonWidth, this.buttonHeight);
+    
+    // Button-Rahmen
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(this.buttonX, this.buttonY, this.buttonWidth, this.buttonHeight);
+    
+    // Zeichne das entsprechende Icon
+    const icon = this.globalMuted ? this.muteIcon : this.unmuteIcon;
+    if (icon.complete) {
+      const iconSize = this.buttonWidth * 0.7;
+      const iconX = this.buttonX + (this.buttonWidth - iconSize) / 2;
+      const iconY = this.buttonY + (this.buttonHeight - iconSize) / 2;
+      ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+    }
+    
+    ctx.restore();
+  }
+
+  isButtonClicked(mouseX, mouseY) {
+    return mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
+           mouseY >= this.buttonY && mouseY <= this.buttonY + this.buttonHeight;
+  }
+
+  setButtonHovered(hovered) {
+    this.isButtonHovered = hovered;
+  }
+
+  toggleMuteButton() {
+    this.toggleGlobalMute();
+    return this.globalMuted;
+  }
 }
 
-function toggleMusic() {
-  audioManager.toggleBackgroundMusic();
+function toggleGlobalMute() {
+  audioManager.toggleGlobalMute();
 
   const icon = document.getElementById("music-toggle-icon");
   if (icon) {
-    icon.src = audioManager.musicMuted
+    icon.src = audioManager.globalMuted
       ? "assets/icons/mute.svg"
       : "assets/icons/unmute.svg";
   }
 }
+

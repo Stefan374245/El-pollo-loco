@@ -26,6 +26,7 @@ class World {
     this.initAudio();   // 👈 Musik starten
     this.startCollisionCheck();
     this.startThrowCheck();
+    this.setupMuteButton(); // 👈 Mute-Button initialisieren
     this.draw();
   }
 
@@ -53,9 +54,52 @@ class World {
     this.camera_x = 0;
     this.canThrow = true;
   }
+
+  setupMuteButton() {
+    // Positioniere den Mute-Button oben rechts im Canvas
+    audioManager.setupMuteButton(this.canvas.width, this.canvas.height);
+    
+    // Entferne bestehende Event-Listener um Duplikate zu vermeiden
+    this.canvas.removeEventListener('click', this.handleCanvasClick);
+    this.canvas.removeEventListener('mousemove', this.handleCanvasMouseMove);
+    
+    // Vereinfachter Click-Handler ohne camera_x
+    this.handleCanvasClick = (event) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      if (audioManager.isButtonClicked(mouseX, mouseY)) {
+        audioManager.toggleGlobalMute();
+
+        const icon = document.getElementById("music-toggle-icon");
+        if (icon) {
+          icon.src = audioManager.globalMuted
+            ? "assets/icons/mute.svg"
+            : "assets/icons/unmute.svg";
+        }
+      }
+    };
+    
+    this.handleCanvasMouseMove = (event) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+      
+      const isHovered = audioManager.isButtonClicked(mouseX, mouseY);
+      audioManager.setButtonHovered(isHovered);
+      
+      // Cursor ändern bei Hover
+      this.canvas.style.cursor = isHovered ? 'pointer' : 'default';
+    };
+    
+    // Event-Listener hinzufügen
+    this.canvas.addEventListener('click', this.handleCanvasClick);
+    this.canvas.addEventListener('mousemove', this.handleCanvasMouseMove);
+  }
   initAudio() {
-    audioManager.pause('startScreen');
-    audioManager.play('startGame', true, 0.5);
+    audioManager.pause('startscreen');
+    audioManager.play('startgame', true, 0.5);
   }
   setWorld() {
     
@@ -108,16 +152,6 @@ class World {
     this.addObjectsToMap(this.level.backgroundObjects);
     this.addObjectsToMap(this.level.clouds);
 
-    this.ctx.translate(-this.camera_x, 0);
-
-    if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
-      this.addToMap(this.statusBarEndboss);
-    }
-    this.addToMap(this.statusBarBottles);
-    this.addToMap(this.statusBar);
-    this.addToMap(this.statusBarCoins);
-    this.ctx.translate(this.camera_x, 0);
-
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
     this.addToMap(this.level.endboss);
@@ -130,7 +164,18 @@ class World {
       this.addObjectsToMap(this.level.miniEndbosses);
     }
 
+    // Zeichne HUD (ohne camera_x)
     this.ctx.translate(-this.camera_x, 0);
+    
+    if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
+      this.addToMap(this.statusBarEndboss);
+    }
+    this.addToMap(this.statusBarBottles);
+    this.addToMap(this.statusBar);
+    this.addToMap(this.statusBarCoins);
+    
+    // Mute-Button über UI
+    audioManager.drawMuteButton(this.ctx);
 
       if (gameManager.gameRunning)  {
       requestAnimationFrame(() => {
