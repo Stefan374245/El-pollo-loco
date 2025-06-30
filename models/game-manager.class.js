@@ -13,7 +13,7 @@ class GameManager {
     this.currentWorld = null;
     this.keyboard = new KeyBoard(); 
     this.canvas = document.getElementById('canvas');
-    this.currentLevel = 1; // Level-Tracking hinzufügen
+    this.currentLevel = 1;
     this.playStartScreenAudio();
   }
 
@@ -32,7 +32,7 @@ playStartScreenAudio() {
 
 handleStart() {
   const startscreen = audioManager.tracks['startscreen'];
-  const startBtn = audioManager.tracks['startgame']; // oder: audioManager.tracks['startbtn'] wenn du getrennte hast
+  const startBtn = audioManager.tracks['startgame'];
 
   startscreen.pause();
 
@@ -45,6 +45,8 @@ handleStart() {
     this.startGame();
     this.fadeInCanvas();
   }, 500);
+  
+  document.getElementById('startScreen').style.visibility = 'hidden';
 }
 
   startGame(levelNumber = 1) {
@@ -105,6 +107,7 @@ handleStart() {
     this.showStartScreenOverlay();
 
     document.getElementById("startScreen").classList.add("active");
+    document.getElementById("startScreen").style.visibility = 'visible';
     document.getElementById("playScreen").classList.remove("active");
     document.getElementById("endScreen").classList.remove("active");
   }
@@ -126,6 +129,15 @@ stopAllSounds() {
     if (this.currentWorld) {
       clearInterval(this.currentWorld.collisionInterval);
       clearInterval(this.currentWorld.throwInterval);
+      
+      // Event-Listener vom Canvas entfernen
+      if (this.currentWorld.handleCanvasClick) {
+        this.canvas.removeEventListener('click', this.currentWorld.handleCanvasClick);
+      }
+      if (this.currentWorld.handleCanvasMouseMove) {
+        this.canvas.removeEventListener('mousemove', this.currentWorld.handleCanvasMouseMove);
+      }
+      
       this.currentWorld = null;
     }
   }
@@ -164,16 +176,14 @@ stopAllSounds() {
     endScreen.classList.add('active');
     endScreen.innerHTML = getLevelCompleteTemplate();
 
-    // Level 2 nach 3 Sekunden starten
+
     setTimeout(() => {
       this.closeLevelComplete();
       this.startLevel2();
     }, 3000);
   }
 
-  /**
-   * Schließt Level-Complete-Screen
-   */
+
   closeLevelComplete() {
     const canvas = document.getElementById('canvas');
     const endScreen = document.getElementById('endScreen');
@@ -191,7 +201,6 @@ stopAllSounds() {
   }
 }
 
-// === Globale Funktionen ===
 function showSettings() {
   document.getElementById("overlayContainer").innerHTML = settingsOverlayTemplate();
 }
