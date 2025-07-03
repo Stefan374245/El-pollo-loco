@@ -2,16 +2,43 @@
   canvas {
     width: 100%;
   }
+
   .start-screen-card {
+    justify-content: center;
     width: 90%;
+    height: 50vh;
     max-width: 100%;
     padding: 16px;
-    border-radius: 20px;
   }
-  
+
+  .start-screen-card > * {
+    border-radius: 16px;
+  }
+
   .game-mute-btn {
     top: 10px;
     right: 10px;
+  }
+
+  .start-screen-card h1 {
+    margin: 0 !important;
+  }
+
+  .startscreen-buttons {
+    flex-direction: row;
+  }
+
+  .startscreen-buttons button {
+    width: 150px;
+    height: 88px;
+  }
+
+  .mute-icon {
+    width: 150px;
+    height: 72px;
+  }
+    footer {
+    display: none;
   }
 }
 
@@ -19,7 +46,7 @@
   canvas {
     height: 100vh;
   }
-  
+
   .game-mute-btn {
     top: 10px;
     right: 10px;

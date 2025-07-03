@@ -9,7 +9,6 @@ function init() {
 }
 
 document.addEventListener('keydown', (event) => {
-
   switch (event.code) {
     case 'ArrowRight':
     case 'KeyD':
@@ -19,23 +18,15 @@ document.addEventListener('keydown', (event) => {
     case 'KeyA':
       gameManager.keyboard.LEFT = true;
       break;
-    case 'ArrowUp':
-    case 'KeyW':
-      gameManager.keyboard.UP = true;
-      break;
-    case 'ArrowDown':
-    case 'KeyS':
-      gameManager.keyboard.DOWN = true;
-      break;
     case 'Space':
       console.log('SPACE gedrückt!');
       gameManager.keyboard.JUMP = true;
       break;
     case 'Enter':
-      gameManager.keyboard.F = true;
+      gameManager.keyboard.F = true; // Enter wirft auch
       break;
     case 'KeyF':
-      gameManager.keyboard.F = true;
+      gameManager.keyboard.F = true; // F wirft
   }
   console.log(event.code);
 });
@@ -50,22 +41,60 @@ document.addEventListener('keyup', (event) => {
     case 'KeyA':
       gameManager.keyboard.LEFT = false;
       break;
-    case 'ArrowUp':
-    case 'KeyW':
-      gameManager.keyboard.UP = false;
-      break;
-    case 'ArrowDown':
-    case 'KeyS':
-      gameManager.keyboard.DOWN = false;
-      break;
     case 'Space':
       gameManager.keyboard.JUMP = false;
       break;
     case 'Enter':
-      gameManager.keyboard.THROW = false;
+      gameManager.keyboard.F = false; // Enter loslassen
       break;
     case 'KeyF':
-      gameManager.keyboard.F = false;
+      gameManager.keyboard.F = false; // F loslassen
   }
   console.log(event.code);
 });
+
+function checkOrientation() {
+  const overlay = document.getElementById('rotate-device-overlay');
+  if (
+    window.innerWidth < 760 &&
+    window.innerHeight > window.innerWidth
+  ) {
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } else {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+/**
+ * Richtet nur Touch-Controls für Mobile ein.
+ * @param {Keyboard} kb – Instanz deiner Keyboard-Klasse.
+ */
+function setupMobileTouchControls(kb) {
+  const btnLeft  = document.getElementById("btn-left");
+  const btnRight = document.getElementById("btn-right");
+  const btnJump  = document.getElementById("btn-jump");
+  const btnThrow = document.getElementById("btn-throw");
+
+  function bindTouch(btn, keyName) {
+    if (!btn) return;
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      kb[keyName] = true;
+    }, { passive: false });
+    btn.addEventListener("touchend",   e => {
+      e.preventDefault();
+      kb[keyName] = false;
+    });
+  }
+
+  bindTouch(btnLeft,  "LEFT");
+  bindTouch(btnRight, "RIGHT");
+  bindTouch(btnJump,  "JUMP");
+  bindTouch(btnThrow, "F");
+}
+
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+document.addEventListener('DOMContentLoaded', checkOrientation);

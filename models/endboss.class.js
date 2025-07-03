@@ -15,7 +15,7 @@ class Endboss extends Enemy {
     hp: 100,
     maxHp: 100,
     spawnEnemiesOnAttack: false,
-    alertDuration: 1700,
+    alertDuration: 3000,
     damagePerHit: 20
   };
   
@@ -150,7 +150,7 @@ animate() {
 handlePhaseTransition() {
   switch (this.animationPhase) {
     case "alert":
-  break;
+      break;
 
     case "attack":
       this.attackCount++;
@@ -161,12 +161,12 @@ handlePhaseTransition() {
       this.changePhase("walk");
       break;
 
-  case "walk":
-
-  setTimeout(() => {
-    this.phaseStep++;
-    this.changePhase("attack");
-  }, 2000);
+    case "walk":
+      setTimeout(() => {
+        this.phaseStep++;
+        this.changePhase("attack");
+      }, 2000);
+      break;
 
     case "hurt":
       this.changePhase(this.previousPhase || "attack");

@@ -1,4 +1,4 @@
-// === gameManager.class.js ===
+// === game-manager.class.js ===
 const audioManager = new AudioManager();
 let gameManager;
 
@@ -11,54 +11,91 @@ class GameManager {
   constructor() {
     this.gameRunning = false;
     this.currentWorld = null;
-    this.keyboard = new KeyBoard(); 
-    this.canvas = document.getElementById('canvas');
+    this.keyboard = new KeyBoard();
+    this.canvas = document.getElementById("canvas");
     this.currentLevel = 1;
+    
   }
 
   showStartScreenOverlay() {
-    document.getElementById("overlayContainer").innerHTML = startScreenOverlayTemplate();
+
+    const footer = document.querySelector("footer");
+    if (footer) footer.style.display = "none";
+
+    this.prepareCanvas(false);
+
+    if (this.isMobile()) {
+      this.currentWorld = new MobileWorld(this.canvas, this.keyboard);
+      window.mobileWorld = this.currentWorld;
+    } else {
+      const startScreen = document.getElementById("startScreen");
+      startScreen.innerHTML = startScreenOverlayTemplate();
+      startScreen.classList.add("active");
+    }
   }
 
-handleStart() {
-  const startscreen = audioManager.tracks['startscreen'];
-  const startBtn = audioManager.tracks['startgame'];
+  handleStart() {
+    const startscreen = audioManager.tracks["startscreen"];
+    const startBtn = audioManager.tracks["startgame"];
 
-  startscreen.pause();
+    startscreen.pause();
+    startBtn.currentTime = 0;
+    startBtn.volume = 0.6;
+    startBtn.play();
 
-  startBtn.currentTime = 0;
-  startBtn.volume = 0.6;
-  startBtn.play();
+    setTimeout(() => {
+      this.closeOverlay();
+      this.startGame();
+      this.fadeInCanvas();
+    }, 500);
+  }
 
-  setTimeout(() => {
-    this.closeOverlay();
-    this.startGame();
-    this.fadeInCanvas();
-  }, 500);
-  
-  document.getElementById('startScreen').style.visibility = 'hidden';
+startGame(levelNumber = 1) {
+  this.gameRunning = true;
+  this.currentLevel = levelNumber;
+
+  const startScreen = document.getElementById("startScreen");
+  startScreen.classList.remove("active");
+  startScreen.innerHTML = "";
+  startScreen.style.display = "none";
+
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("playScreen").classList.add("active");
+  document.getElementById("mobileControls").classList.add("active");
+
+  setupMobileTouchControls(this.keyboard);
+
+  this.prepareCanvas(true);
+
+  this.clearWorld();
+  if (this.isMobile()) {
+    this.currentWorld = new MobileWorld(
+      this.canvas,
+      this.keyboard,
+      levelNumber
+    );
+    window.mobileWorld = this.currentWorld;
+  } else {
+    this.currentWorld = new World(this.canvas, this.keyboard, levelNumber);
+  }
 }
 
-  startGame(levelNumber = 1) {
-    this.clearWorld();
-    this.gameRunning = true;
-    this.currentLevel = levelNumber;
 
-    document.getElementById("startScreen").classList.remove("active");
-    document.getElementById("playScreen").classList.add("active");
-    document.getElementById("endScreen").classList.remove("active");
-
-    this.currentWorld = new World(this.canvas, this.keyboard, levelNumber);
+  prepareCanvas(visible) {
+    this.canvas.style.display = visible ? "block" : "none";
+    this.canvas.style.opacity = visible ? "1" : "0";
+    this.canvas.style.visibility = visible ? "visible" : "hidden";
+    this.canvas.style.zIndex = "10";
   }
 
   triggerEndScreen(isWin) {
     this.stopGame();
 
-    const canvas = document.getElementById('canvas');
-    const endScreen = document.getElementById('endScreen');
+    const canvas = document.getElementById("canvas");
+    const endScreen = document.getElementById("endScreen");
 
-    canvas.style.filter = 'blur(5px)';
-    endScreen.classList.add('active');
+    canvas.style.filter = "blur(5px)";
+    endScreen.classList.add("active");
     endScreen.innerHTML = getFirstEndScreenTemplate(isWin);
 
     setTimeout(() => {
@@ -67,22 +104,22 @@ handleStart() {
   }
 
   showFinalEndScreen(isWin) {
-    const endScreen = document.getElementById('endScreen');
+    const endScreen = document.getElementById("endScreen");
     endScreen.innerHTML = getFinalEndScreenTemplate(isWin);
     this.addRestartButton();
   }
 
   addRestartButton() {
-    const restart = document.getElementById('restartContainer');
+    const restart = document.getElementById("restartContainer");
     restart.innerHTML = getRestartSVG();
-    restart.classList.add('slide-in');
+    restart.classList.add("slide-in");
     this.addRestartHandler();
   }
 
   addRestartHandler() {
-    const svgText = document.querySelector('#gameOverSVG');
+    const svgText = document.querySelector("#gameOverSVG");
     if (svgText) {
-      svgText.addEventListener('click', () => this.handleRestart());
+      svgText.addEventListener("click", () => this.handleRestart());
     }
   }
 
@@ -96,53 +133,67 @@ handleStart() {
     this.stopGame();
     this.showStartScreenOverlay();
 
-    document.getElementById("startScreen").classList.add("active");
-    document.getElementById("startScreen").style.visibility = 'visible';
-    document.getElementById("playScreen").classList.remove("active");
-    document.getElementById("endScreen").classList.remove("active");
+    const startScreen = document.getElementById("startScreen");
+    const playScreen = document.getElementById("playScreen");
+    const endScreen = document.getElementById("endScreen");
+    const controls = document.getElementById("mobileControls");
+
+    startScreen.classList.add("active");
+    startScreen.style.display = "flex";
+    startScreen.style.visibility = "visible";
+
+    playScreen.classList.remove("active");
+    endScreen.classList.remove("active");
+
+    this.prepareCanvas(false);
+
+    controls.classList.remove("active");
+
+    document.getElementById("background").classList.add("blur");
   }
 
   stopGame() {
     this.gameRunning = false;
     this.stopAllSounds();
     this.clearWorld();
-
-    const canvas = document.getElementById('canvas');
-    canvas.style.filter = '';
+    this.canvas.style.filter = "";
+    document.getElementById("mobileControls").classList.remove("active");
   }
 
-stopAllSounds() {
-  audioManager.stopAll();
-}
+  stopAllSounds() {
+    audioManager.stopAll();
+  }
 
   clearWorld() {
     if (this.currentWorld) {
       clearInterval(this.currentWorld.collisionInterval);
       clearInterval(this.currentWorld.throwInterval);
-      
-      // Event-Listener vom Canvas entfernen
+
       if (this.currentWorld.handleCanvasClick) {
-        this.canvas.removeEventListener('click', this.currentWorld.handleCanvasClick);
+        this.canvas.removeEventListener(
+          "click",
+          this.currentWorld.handleCanvasClick
+        );
       }
       if (this.currentWorld.handleCanvasMouseMove) {
-        this.canvas.removeEventListener('mousemove', this.currentWorld.handleCanvasMouseMove);
+        this.canvas.removeEventListener(
+          "mousemove",
+          this.currentWorld.handleCanvasMouseMove
+        );
       }
-      
+
       this.currentWorld = null;
     }
   }
 
   closeOverlay() {
-    document.getElementById("overlayContainer").innerHTML = "";
+    document.getElementById("startScreen").innerHTML = "";
   }
 
   fadeInCanvas() {
-    document.getElementById("canvas").style.opacity = 1;
+    this.canvas.style.opacity = 1;
   }
 
-  /**
-   * Behandelt Level-Abschluss
-   */
   completeLevel() {
     if (this.currentLevel === 1) {
       this.showLevelComplete();
@@ -151,19 +202,14 @@ stopAllSounds() {
     }
   }
 
-  /**
-   * Zeigt Level-Complete-Screen
-   */
   showLevelComplete() {
     this.stopGame();
-    
-    const canvas = document.getElementById('canvas');
-    const endScreen = document.getElementById('endScreen');
+    const canvas = document.getElementById("canvas");
+    const endScreen = document.getElementById("endScreen");
 
-    canvas.style.filter = 'blur(5px)';
-    endScreen.classList.add('active');
+    canvas.style.filter = "blur(5px)";
+    endScreen.classList.add("active");
     endScreen.innerHTML = getLevelCompleteTemplate();
-
 
     setTimeout(() => {
       this.closeLevelComplete();
@@ -171,30 +217,35 @@ stopAllSounds() {
     }, 3000);
   }
 
-
   closeLevelComplete() {
-    const canvas = document.getElementById('canvas');
-    const endScreen = document.getElementById('endScreen');
-    
-    canvas.style.filter = '';
-    endScreen.classList.remove('active');
+    const canvas = document.getElementById("canvas");
+    const endScreen = document.getElementById("endScreen");
+
+    canvas.style.filter = "";
+    endScreen.classList.remove("active");
   }
 
-  /**
-   * Startet Level 2
-   */
   startLevel2() {
     this.currentLevel = 2;
     this.startGame(2);
   }
+
+  isMobile() {
+    return (
+      window.innerWidth < 768 ||
+      "ontouchstart" in window ||
+      navigator.userAgent.toLowerCase().includes("mobile")
+    );
+  }
 }
 
 function showSettings() {
-  document.getElementById("overlayContainer").innerHTML = settingsOverlayTemplate();
+  document.getElementById("startScreen").innerHTML = settingsOverlayTemplate();
 }
 
 function backToStartScreen() {
-  document.getElementById("overlayContainer").innerHTML = startScreenOverlayTemplate();
+  document.getElementById("startScreen").innerHTML =
+    startScreenOverlayTemplate();
 }
 
 function handleGameOver() {
