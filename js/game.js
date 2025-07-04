@@ -19,7 +19,6 @@ document.addEventListener('keydown', (event) => {
       gameManager.keyboard.LEFT = true;
       break;
     case 'Space':
-      console.log('SPACE gedrückt!');
       gameManager.keyboard.JUMP = true;
       break;
     case 'Enter':
@@ -28,7 +27,6 @@ document.addEventListener('keydown', (event) => {
     case 'KeyF':
       gameManager.keyboard.F = true; // F wirft
   }
-  console.log(event.code);
 });
 
 document.addEventListener('keyup', (event) => {
@@ -50,7 +48,6 @@ document.addEventListener('keyup', (event) => {
     case 'KeyF':
       gameManager.keyboard.F = false; // F loslassen
   }
-  console.log(event.code);
 });
 
 function checkOrientation() {

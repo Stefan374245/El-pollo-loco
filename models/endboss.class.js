@@ -3,33 +3,32 @@ class Endboss extends Enemy {
   width = 300;
   y = 72;
 
-  animationPhase = "alert";
-  currentImage = 0;
-  enemySpawned = false;
-  frameCount = 0;
-  
+  animationPhase        = "alert";
+  currentImage          = 0;
+  frameCount            = 0;
+  attackCount           = 0;
+  phaseStep             = 0;
+
+   onDeathComplete = null;
+     deadAnimationComplete = false;
+
   aggressionLevel = 1;
-  
   aggressionLevel1 = {
-    speed: 20,
+    speed: 16,
     hp: 100,
     maxHp: 100,
     spawnEnemiesOnAttack: false,
     alertDuration: 3000,
-    damagePerHit: 20
+    damagePerHit: 20,
   };
-  
   aggressionLevel2 = {
-    speed: 30,
+    speed: 24,
     hp: 140,
     maxHp: 140,
     spawnEnemiesOnAttack: true,
-    alertDuration: 1700,
-    damagePerHit: 20
+    alertDuration: 2000,
+    damagePerHit: 20,
   };
-
-  attackCount = 0;
-  phaseStep = 0;
 
   animations = {
     walk: [
@@ -72,152 +71,154 @@ class Endboss extends Enemy {
 
   constructor(aggressionLevel = 1) {
     super();
+    // Alle Animations-Bilder vorladen
     this.loadImage(this.animations.walk[0]);
-    Object.values(this.animations).forEach((images) => this.loadImages(images));
+    Object.values(this.animations).forEach(images => this.loadImages(images));
+
     this.x = 2200;
-    this.aggressionLevel = aggressionLevel;
     this.applyAggressionLevel(aggressionLevel);
+
     this.alertTriggered = false;
   }
 
   applyAggressionLevel(level) {
-    if (level === 2) {
-      this.speed = this.aggressionLevel2.speed;
-      this.hp = this.aggressionLevel2.hp;
-      this.maxHp = this.aggressionLevel2.maxHp;
-      this.damagePerHit = this.aggressionLevel2.damagePerHit;
-    } else {
-      this.speed = this.aggressionLevel1.speed;
-      this.hp = this.aggressionLevel1.hp;
-      this.maxHp = this.aggressionLevel1.maxHp;
-      this.damagePerHit = this.aggressionLevel1.damagePerHit;
-    }
+    const cfg = level === 2 ? this.aggressionLevel2 : this.aggressionLevel1;
+    this.aggressionLevel = level;
+    this.speed          = cfg.speed;
+    this.hp             = cfg.hp;
+    this.maxHp          = cfg.maxHp;
+    this.damagePerHit   = cfg.damagePerHit;
   }
 
-animate() {
-  setInterval(() => {
-    if (
-      this.world &&
-      this.x + this.width / 2 < -this.world.camera_x + this.world.canvas.width
-    ) {
+  animate() {
+    setInterval(() => {
+      if (
+        !this.world ||
+        this.x + this.width / 2 >= -this.world.camera_x + this.world.canvas.width
+      ) return;
+
+
       if (!this.alertTriggered && this.world.character.x >= this.x - 600) {
         this.alertTriggered = true;
         this.changePhase("alert");
         this.initializeStatusBar();
-        if (this.world.character.audioManager) {
-          this.world.character.audioManager.play('endboss');
-          this.world.character.audioManager.stopAndReset('startgame');
-        }
+        this.world.character.audioManager?.play("endboss");
+        this.world.character.audioManager?.stopAndReset("level1");
+        this.world.character.audioManager?.stopAndReset("level2");
       }
-      
+
+ 
       if (this.animationPhase === "walk") {
         this.moveLeft();
       }
       if (this.animationPhase === "alert" && !this.alertFinished) {
         this.alertFinished = true;
-        setTimeout(() => {
-          this.changePhase("attack");
-        }, this.getCurrentAggressionSettings().alertDuration);
+        setTimeout(
+          () => this.changePhase("attack"),
+          this.getCurrentAggressionSettings().alertDuration
+        );
       }
 
-      this.handleAnimation();
-    }
-  }, 200);
-}
-
-  initializeStatusBar() {
-    if (this.world && this.world.statusBarEndboss) {
-      const percentage = (this.hp / this.maxHp) * 100;
-      this.world.statusBarEndboss.setPercentage(percentage);
-      console.log(`StatusBar initialisiert: ${this.hp}/${this.maxHp} (${Math.round(percentage)}%) - Level ${this.aggressionLevel}`);
-    }
-  }
-
-  handleAnimation() {
-    if (this.isDead()) {
+  if (this.isDead()) {
       this.playAnimation(this.animations.dead);
+      this.frameCount++;
+
+      if (this.frameCount >= this.animations.dead.length && !this.deadAnimationComplete) {
+        this.deadAnimationComplete = true;
+        
+        setTimeout(() => {
+          if (typeof this.onDeathComplete === 'function') {
+            this.onDeathComplete();
+          }
+        }, 2000);
+      }
       return;
     }
 
+      this.handleAnimation();
+    }, 200);
+  }
+
+  initializeStatusBar() {
+    if (!this.world?.statusBarEndboss) return;
+    const pct = (this.hp / this.maxHp) * 100;
+    this.world.statusBarEndboss.setPercentage(pct);
+  }
+
+  handleAnimation() {
     this.playAnimation(this.animations[this.animationPhase]);
     this.frameCount++;
-
     if (this.frameCount >= this.animations[this.animationPhase].length) {
       this.handlePhaseTransition();
     }
   }
 
-handlePhaseTransition() {
-  switch (this.animationPhase) {
-    case "alert":
-      break;
-
-    case "attack":
-      this.attackCount++;
-      if (this.getCurrentAggressionSettings().spawnEnemiesOnAttack && this.attackCount % 2 === 0) {
-        this.spawnEnemyBehind();
-      }
-      this.phaseStep++;
-      this.changePhase("walk");
-      break;
-
-    case "walk":
-      setTimeout(() => {
+  handlePhaseTransition() {
+    switch (this.animationPhase) {
+      case "alert":
+        break;
+      case "attack":
+        this.attackCount++;
+        if (
+          this.getCurrentAggressionSettings().spawnEnemiesOnAttack &&
+          this.attackCount % 2 === 0
+        ) {
+          this.spawnEnemyBehind();
+        }
         this.phaseStep++;
-        this.changePhase("attack");
-      }, 2000);
-      break;
-
-    case "hurt":
-      this.changePhase(this.previousPhase || "attack");
-      break;
+        this.changePhase("walk");
+        break;
+      case "walk":
+        setTimeout(() => {
+          this.phaseStep++;
+          this.changePhase("attack");
+        }, 2000);
+        break;
+      case "hurt":
+        this.changePhase(this.previousPhase || "attack");
+        break;
+    }
   }
-}
 
   getCurrentAggressionSettings() {
-    return this.aggressionLevel === 2 ? this.aggressionLevel2 : this.aggressionLevel1;
+    return this.aggressionLevel === 2
+      ? this.aggressionLevel2
+      : this.aggressionLevel1;
   }
 
   changePhase(newPhase) {
-    this.previousPhase = this.animationPhase;
+    this.previousPhase  = this.animationPhase;
     this.animationPhase = newPhase;
-    this.frameCount = 0;
-    this.currentImage = 0;
+    this.frameCount     = 0;
+    this.currentImage   = 0;
   }
 
-spawnEnemyBehind() {
-  if (!this.world) return;
-
-  const newEnemy = new Enemy2();
-  newEnemy.x = this.x + this.width - 70;
-  newEnemy.y = 390;
-  newEnemy.world = this.world;
-  newEnemy.speed = 3.5;
-  this.world.level.enemies.push(newEnemy);
-}
-
+  spawnEnemyBehind() {
+    if (!this.world) return;
+    const e = new Enemy2();
+    e.x     = this.x + this.width - 70;
+    e.y     = 390;
+    e.world = this.world;
+    e.speed = 3.5;
+    this.world.level.enemies.push(e);
+  }
 
   checkBottleHit(bottle) {
-    const config = CollisionConfig.getOffsets();
-    const endbossOffsets = config.endboss.precise;
-    const bottleOffsets = config.throwableBottle.hit;
-
+    const cfg = CollisionConfig.getOffsets();
     if (
       !this.isDead() &&
       CollisionConfig.isPreciseCollision(
         bottle,
         this,
-        bottleOffsets,
-        endbossOffsets
+        cfg.throwableBottle.hit,
+        cfg.endboss.precise
       ) &&
       !bottle.hasHitGround
     ) {
-      console.log('Endboss hit by bottle!');
       this.hitBoss();
       bottle.hasHitGround = true;
       bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
-      
-      audioManager.play('smashBottle');
+      audioManager.play("smashBottle");
     }
   }
 
@@ -225,18 +226,36 @@ spawnEnemyBehind() {
     this.hitBoss();
   }
 
-  hitBoss() {
-    if (this.animationPhase === "hurt" || this.isDead()) return;
-    const damage = 20;
-    this.hp -= damage;
-    if (this.hp < 0) this.hp = 0;
-    this.lastHit = new Date().getTime();
-    this.changePhase("hurt");
-    const percentage = (this.hp / this.maxHp) * 100;
-    this.world.statusBarEndboss.setPercentage(percentage);
-    if (this.hp === 0) {
-      this.changePhase("dead");
-      this.deathProcessed = false;
+hitBoss() {
+  if (this.animationPhase === "hurt" || this.isDead()) return;
+
+  // Schaden anwenden
+  this.hp = Math.max(
+    0,
+    this.hp - this.getCurrentAggressionSettings().damagePerHit
+  );
+  this.changePhase("hurt");
+  this.world.statusBarEndboss.setPercentage((this.hp / this.maxHp) * 100);
+
+  // Starte Dead-Phase
+  if (this.hp === 0) {
+    this.changePhase("dead");
+    this.frameCount = 0; // Reset für Dead-Animation
+  }
+}
+  /**
+   * Ruft GameManager.completeLevel() auf, um den Level-Complete-Screen
+   * anzuzeigen und direkt anschließend Level 2 zu starten.
+   */
+  scheduleLevelComplete() {
+    if (this.endLevelScheduled) return;
+    this.endLevelScheduled = true;
+    
+    // Sicherstellen, dass gameManager existiert
+    if (window.gameManager && typeof window.gameManager.completeLevel === 'function') {
+      window.gameManager.completeLevel();
+    } else {
+      console.error('GameManager ist nicht verfügbar');
     }
   }
 }

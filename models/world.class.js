@@ -90,6 +90,7 @@ class World {
     this.canvas.addEventListener('click', this.handleCanvasClick);
     this.canvas.addEventListener('mousemove', this.handleCanvasMouseMove);
   }
+  
   initAudio() {
     if (!audioManager.globalMuted) {
       audioManager.pause('startscreen');

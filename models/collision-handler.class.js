@@ -209,17 +209,11 @@ class CollisionHandler {
     }
   }
 
-  checkEndBossHP(endboss) {
-    if (endboss.hp <= 0 && !endboss.dead) {
-      endboss.dead = true;
-
-      if (gameManager.currentLevel === 1) {
-        gameManager.completeLevel();
-      } else {
-        gameManager.triggerEndScreen(true);
-      }
-    }
+checkEndBossHP(endboss) {
+  if (endboss.hp <= 0 && !endboss.dead) {
+    endboss.dead = true;
   }
+}
 
   checkMiniEndbossHP() {
     if (this.world.level.miniEndbosses) {
