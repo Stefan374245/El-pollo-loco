@@ -26,7 +26,6 @@ class World {
     this.initAudio();
     this.startCollisionCheck();
     this.startThrowCheck();
-    this.setupMuteButton();
     this.draw();
   }
 
@@ -53,44 +52,8 @@ class World {
     this.canThrow = true;
   }
 
-  setupMuteButton() {
-    audioManager.setupMuteButton(this.canvas.width, this.canvas.height);
-    
-    this.canvas.removeEventListener('click', this.handleCanvasClick);
-    this.canvas.removeEventListener('mousemove', this.handleCanvasMouseMove);
-    
-    this.handleCanvasClick = (event) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-
-      if (audioManager.isButtonClicked(mouseX, mouseY)) {
-        audioManager.toggleGlobalMute();
-
-        const icon = document.getElementById("music-toggle-icon");
-        if (icon) {
-          icon.src = audioManager.globalMuted
-            ? "assets/icons/mute.svg"
-            : "assets/icons/unmute.svg";
-        }
-      }
-    };
-    
-    this.handleCanvasMouseMove = (event) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-      
-      const isHovered = audioManager.isButtonClicked(mouseX, mouseY);
-      audioManager.setButtonHovered(isHovered);
-      
-      this.canvas.style.cursor = isHovered ? 'pointer' : 'default';
-    };
-    
-    this.canvas.addEventListener('click', this.handleCanvasClick);
-    this.canvas.addEventListener('mousemove', this.handleCanvasMouseMove);
-  }
   
+
   initAudio() {
     if (!audioManager.globalMuted) {
       audioManager.pause('startscreen');
@@ -173,8 +136,6 @@ class World {
     this.addToMap(this.statusBarBottles);
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
-    
-    audioManager.drawMuteButton(this.ctx);
 
       if (gameManager.gameRunning)  {
       requestAnimationFrame(() => {

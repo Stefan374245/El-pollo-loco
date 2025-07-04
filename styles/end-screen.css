@@ -56,8 +56,8 @@
 
 #gameOverSVG .btn {
   font-size: 96px;
-  fill: #FFC831;
-  stroke: #FF6C00;
+  fill: var(--primary-bright-yellow);
+  stroke: var(--primary-orange-dark);
   stroke-width: 2px;
   paint-order: stroke;
   text-anchor: middle;
@@ -78,26 +78,13 @@
   to   { opacity: 1; }
 }
 
-/* Level Complete Styles */
-.level-complete-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
 
 .level-complete-content {
   text-align: center;
   color: #fff;
   padding: 40px;
   border-radius: 20px;
-  background: linear-gradient(135deg, #ff9900, #ffb700);
+  background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
@@ -129,7 +116,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ffcc00, #fff);
+  background: linear-gradient(90deg, var(--primary-yellow), #fff);
   border-radius: 10px;
   width: 0%;
   animation: fillProgress 3s ease-in-out forwards;

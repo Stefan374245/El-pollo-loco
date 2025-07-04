@@ -2,7 +2,7 @@ class AudioManager {
   constructor() {
     this.soundMuted = false;
     this.musicMuted = false;
-    this.globalMuted = true;
+    this.globalMuted = false;
     this.currentTrackIndex = 0;
     this.buttonX = 0;
     this.buttonY = 0;

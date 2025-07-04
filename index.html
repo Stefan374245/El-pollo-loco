@@ -6,6 +6,7 @@
     <title>El pollo loco</title>
 
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles/colors.css" />
     <link rel="stylesheet" href="./styles/fonts.css" />
     <link rel="stylesheet" href="./styles/assets.css" />
     <link rel="stylesheet" href="./styles/animations.css" />
@@ -56,6 +57,11 @@
     <div id="startScreen"></div>
 
     <div id="playScreen" class="playScreen active">
+      <div id="desktopMuteButton" class="desktop-mute-button ">
+        <button id="btn-mute-desktop" class="mute-btn-desktop">
+          <img src="assets/icons/unmute.svg" alt="Mute">
+        </button>
+      </div>
       <canvas id="canvas" width="720" height="480"> </canvas>
     </div>
 
@@ -63,11 +69,14 @@
       <div class="btn-left-side">
         <button id="btn-left" class="mobile-btn">⬅️</button>
         <button id="btn-jump" class="mobile-btn">⬆️</button>
+           <button id="btn-mute" class="mobile-btn mute-btn fullscreen-btn">
+            <img src="assets/icons/unmute.svg" alt="Mute" class="mobile-mute-icon">
+          </button>
       </div>
-      <div class="fullscreen-div">
-        <button id="btn-fullscreen" class="mobile-btn fullscreen-btn">⛶</button>
+    
 
         <div class="btn-right-side">
+          <button id="btn-fullscreen" class="mobile-btn fullscreen-btn">⛶</button>
           <button id="btn-throw" class="mobile-btn">
             <img
               src="./assets/img/6_salsa_bottle/bottle_rotation/rotation_sequences.gif"
@@ -93,7 +102,7 @@
     </div>
 
     <footer>
-      <div class="footerText maxContent">
+      <div class="footerText">
         &copy;<span id="year"></span> Stefan Helldobler - Alle Bilder von
         <a href="https://developerakademie.com/" target="_blank"
           >Developer Academie</a
@@ -103,7 +112,7 @@
         ><br /><br />
         <a href="https://github.com/Stefan374245" target="_blank"
           ><img
-            src="./assets/icons/github-logo.png"
+            src="./assets/icons/github-mark.png"
             alt="github logo"
             title="GitHub"
         /></a>

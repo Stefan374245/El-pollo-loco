@@ -18,11 +18,14 @@ class GameManager {
   }
 
   showStartScreenOverlay() {
-    const footer = document.querySelector("footer");
-    if (footer) footer.style.display = "none";
-
+  
     this.prepareCanvas(false);
-
+    const footer = document.querySelector("footer");
+    if (this.isMobile() && footer) {
+      footer.style.display = "none";
+    } else if (footer) {
+      footer.style.display = "";
+    }
     if (this.isMobile()) {
       this.currentWorld = new MobileWorld(this.canvas, this.keyboard);
       window.mobileWorld = this.currentWorld;
@@ -36,6 +39,8 @@ class GameManager {
   handleStart() {
     const startscreen = audioManager.tracks["startscreen"];
     const startBtn = audioManager.tracks[`level${this.currentLevel}`];
+     const footer = document.querySelector("footer");
+    if (footer) footer.style.display = "none";
 
     try {
       startscreen.pause();
@@ -61,16 +66,20 @@ class GameManager {
 
     audioManager.playLevelMusic(levelNumber);
 
-    // Hide start screen elements
     const startScreen = document.getElementById("startScreen");
     startScreen.classList.remove("active");
     startScreen.innerHTML = "";
     startScreen.style.display = "none";
 
-    // Ensure endScreen is hidden, show playScreen and controls
     document.getElementById("endScreen").classList.remove("active");
     document.getElementById("playScreen").classList.add("active");
-  
+
+    if (typeof showDesktopMuteButton === 'function') {
+      showDesktopMuteButton();
+      if (typeof updateMuteButton === 'function') {
+        updateMuteButton();
+      }
+    }
 
       if (this.isMobile()) {
       document.getElementById("mobileControls").classList.add("active");
@@ -81,7 +90,6 @@ class GameManager {
     this.prepareCanvas(true);
     this.clearWorld();
 
-    // Initialize world based on device
     if (this.isMobile()) {
       this.currentWorld = new MobileWorld(
         this.canvas,
@@ -97,7 +105,6 @@ class GameManager {
       );
     }
 
-    // Register endboss death callback
     const boss = this.currentWorld.level?.endboss;
     if (boss) {
       boss.onDeathComplete = () => {
@@ -179,6 +186,10 @@ class GameManager {
     this.clearWorld();
     this.canvas.style.filter = "";
     document.getElementById("mobileControls").classList.remove("active");
+
+    if (typeof hideDesktopMuteButton === 'function') {
+      hideDesktopMuteButton();
+    }
   }
 
   stopAllSounds() {
@@ -186,25 +197,53 @@ class GameManager {
   }
 
   clearWorld() {
-    if (this.currentWorld) {
-      clearInterval(this.currentWorld.collisionInterval);
-      clearInterval(this.currentWorld.throwInterval);
-      if (this.currentWorld.handleCanvasClick) {
-        this.canvas.removeEventListener(
-          "click",
-          this.currentWorld.handleCanvasClick
-        );
-      }
-      if (this.currentWorld.handleCanvasMouseMove) {
-        this.canvas.removeEventListener(
-          "mousemove",
-          this.currentWorld.handleCanvasMouseMove
-        );
-      }
-      this.currentWorld = null;
-    }
-  }
+  if (this.currentWorld) {
+    clearInterval(this.currentWorld.collisionInterval);
+    clearInterval(this.currentWorld.throwInterval);
 
+    if (this.currentWorld.level && this.currentWorld.level.enemies) {
+      this.currentWorld.level.enemies.forEach(enemy => {
+        if (enemy.animationInterval) {
+          clearInterval(enemy.animationInterval);
+        }
+        if (enemy.moveInterval) {
+          clearInterval(enemy.moveInterval);
+        }
+      });
+    }
+  
+    if (this.currentWorld.level && this.currentWorld.level.endboss) {
+      const boss = this.currentWorld.level.endboss;
+      if (boss.animationInterval) {
+        clearInterval(boss.animationInterval);
+      }
+      if (boss.moveInterval) {
+        clearInterval(boss.moveInterval);
+      }
+    }
+ 
+    if (this.currentWorld.character) {
+      if (this.currentWorld.character.animationInterval) {
+        clearInterval(this.currentWorld.character.animationInterval);
+      }
+    }
+    
+    if (this.currentWorld.handleCanvasClick) {
+      this.canvas.removeEventListener(
+        "click",
+        this.currentWorld.handleCanvasClick
+      );
+    }
+    if (this.currentWorld.handleCanvasMouseMove) {
+      this.canvas.removeEventListener(
+        "mousemove",
+        this.currentWorld.handleCanvasMouseMove
+      );
+    }
+
+    this.currentWorld = null;
+  }
+}
   closeOverlay() {
     document.getElementById("startScreen").innerHTML = "";
   }
