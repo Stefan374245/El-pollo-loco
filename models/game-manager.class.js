@@ -4,6 +4,7 @@ let gameManager;
 
 window.onload = () => {
   gameManager = new GameManager();
+  window.gameManager = gameManager; 
   gameManager.showStartScreenOverlay();
 };
 
@@ -14,11 +15,9 @@ class GameManager {
     this.keyboard = new KeyBoard();
     this.canvas = document.getElementById("canvas");
     this.currentLevel = 1;
-    
   }
 
   showStartScreenOverlay() {
-
     const footer = document.querySelector("footer");
     if (footer) footer.style.display = "none";
 
@@ -36,12 +35,18 @@ class GameManager {
 
   handleStart() {
     const startscreen = audioManager.tracks["startscreen"];
-    const startBtn = audioManager.tracks["startgame"];
+    const startBtn = audioManager.tracks[`level${this.currentLevel}`];
 
-    startscreen.pause();
-    startBtn.currentTime = 0;
-    startBtn.volume = 0.6;
-    startBtn.play();
+    try {
+      startscreen.pause();
+      startBtn.currentTime = 0;
+      startBtn.volume = 0.6;
+      startBtn.play().catch(error => {
+        console.log('Audio autoplay prevented:', error);
+      });
+    } catch (error) {
+      console.log('Audio error:', error);
+    }
 
     setTimeout(() => {
       this.closeOverlay();
@@ -50,36 +55,56 @@ class GameManager {
     }, 500);
   }
 
-startGame(levelNumber = 1) {
-  this.gameRunning = true;
-  this.currentLevel = levelNumber;
+  startGame(levelNumber = 1) {
+    this.gameRunning = true;
+    this.currentLevel = levelNumber;
 
-  const startScreen = document.getElementById("startScreen");
-  startScreen.classList.remove("active");
-  startScreen.innerHTML = "";
-  startScreen.style.display = "none";
+    audioManager.playLevelMusic(levelNumber);
 
-  document.getElementById("endScreen").classList.remove("active");
-  document.getElementById("playScreen").classList.add("active");
-  document.getElementById("mobileControls").classList.add("active");
+    // Hide start screen elements
+    const startScreen = document.getElementById("startScreen");
+    startScreen.classList.remove("active");
+    startScreen.innerHTML = "";
+    startScreen.style.display = "none";
 
-  setupMobileTouchControls(this.keyboard);
+    // Ensure endScreen is hidden, show playScreen and controls
+    document.getElementById("endScreen").classList.remove("active");
+    document.getElementById("playScreen").classList.add("active");
+  
 
-  this.prepareCanvas(true);
+      if (this.isMobile()) {
+      document.getElementById("mobileControls").classList.add("active");
+      setupMobileTouchControls(this.keyboard);
+    } else {
+      document.getElementById("mobileControls").classList.remove("active");
+    }
+    this.prepareCanvas(true);
+    this.clearWorld();
 
-  this.clearWorld();
-  if (this.isMobile()) {
-    this.currentWorld = new MobileWorld(
-      this.canvas,
-      this.keyboard,
-      levelNumber
-    );
-    window.mobileWorld = this.currentWorld;
-  } else {
-    this.currentWorld = new World(this.canvas, this.keyboard, levelNumber);
+    // Initialize world based on device
+    if (this.isMobile()) {
+      this.currentWorld = new MobileWorld(
+        this.canvas,
+        this.keyboard,
+        levelNumber
+      );
+      window.mobileWorld = this.currentWorld;
+    } else {
+      this.currentWorld = new World(
+        this.canvas,
+        this.keyboard,
+        levelNumber
+      );
+    }
+
+    // Register endboss death callback
+    const boss = this.currentWorld.level?.endboss;
+    if (boss) {
+      boss.onDeathComplete = () => {
+        this.completeLevel();
+      };
+    }
   }
-}
-
 
   prepareCanvas(visible) {
     this.canvas.style.display = visible ? "block" : "none";
@@ -90,7 +115,6 @@ startGame(levelNumber = 1) {
 
   triggerEndScreen(isWin) {
     this.stopGame();
-
     const canvas = document.getElementById("canvas");
     const endScreen = document.getElementById("endScreen");
 
@@ -144,11 +168,8 @@ startGame(levelNumber = 1) {
 
     playScreen.classList.remove("active");
     endScreen.classList.remove("active");
-
     this.prepareCanvas(false);
-
     controls.classList.remove("active");
-
     document.getElementById("background").classList.add("blur");
   }
 
@@ -168,7 +189,6 @@ startGame(levelNumber = 1) {
     if (this.currentWorld) {
       clearInterval(this.currentWorld.collisionInterval);
       clearInterval(this.currentWorld.throwInterval);
-
       if (this.currentWorld.handleCanvasClick) {
         this.canvas.removeEventListener(
           "click",
@@ -181,7 +201,6 @@ startGame(levelNumber = 1) {
           this.currentWorld.handleCanvasMouseMove
         );
       }
-
       this.currentWorld = null;
     }
   }
@@ -209,6 +228,7 @@ startGame(levelNumber = 1) {
 
     canvas.style.filter = "blur(5px)";
     endScreen.classList.add("active");
+    audioManager.play("nextLvl", false, 0.5);
     endScreen.innerHTML = getLevelCompleteTemplate();
 
     setTimeout(() => {

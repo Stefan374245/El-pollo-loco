@@ -28,19 +28,24 @@ class CollisionHandler {
     let jumpAttackHappened = false;
 
     this.world.level.enemies.forEach((enemy) => {
-      const enemyType = enemy instanceof Enemy2 ? 'enemy2' : 'enemy';
+      const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
       const jumpOffsets = this.offsets[enemyType].precise;
 
       const hasCollision = CollisionConfig.isPreciseCollision(
-        this.world.character, 
-        enemy, 
-        this.offsets.character.jump, 
+        this.world.character,
+        enemy,
+        this.offsets.character.jump,
         jumpOffsets
       );
 
       if (hasCollision && !enemy.isDead()) {
-        const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, enemy, jumpOffsets);
-        const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+        const isAbove = CollisionConfig.isReallyAboveEnemy(
+          this.world.character,
+          enemy,
+          jumpOffsets
+        );
+        const isImmuneToThisEnemy =
+          enemy.immuneUntil && now < enemy.immuneUntil;
 
         if (isAbove && !isImmuneToThisEnemy) {
           enemy.immuneUntil = Date.now() + 200;
@@ -48,8 +53,12 @@ class CollisionHandler {
 
           enemy.hit();
 
-          this.world.character.y = 280;
-          this.world.character.speedY = 0;
+          const landY = CollisionConfig.getJumpLandingPosition(
+            this.world.character,
+            enemy,
+            jumpOffsets
+          );
+          this.world.character.snapToGround(280);
           this.world.character.jump();
 
           if (audioManager && audioManager.play) {
@@ -72,8 +81,13 @@ class CollisionHandler {
           ) &&
           !miniEndboss.isDead()
         ) {
-          const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, miniEndboss, jumpOffsets);
-          const isImmuneToThisEnemy = miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
+          const isAbove = CollisionConfig.isReallyAboveEnemy(
+            this.world.character,
+            miniEndboss,
+            jumpOffsets
+          );
+          const isImmuneToThisEnemy =
+            miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
 
           if (isAbove && !isImmuneToThisEnemy) {
             miniEndboss.immuneUntil = Date.now() + 200;
@@ -82,12 +96,13 @@ class CollisionHandler {
             miniEndboss.hitMiniEndboss();
 
             const miniEndbossTopWithOffset = miniEndboss.y + jumpOffsets.y;
-            this.world.character.y = miniEndbossTopWithOffset - this.world.character.height;
+            this.world.character.y =
+              miniEndbossTopWithOffset - this.world.character.height;
             this.world.character.speedY = -25;
 
             const landingCheck = setInterval(() => {
               if (this.world.character.y >= 280) {
-                this.world.character.snapToGround();
+                this.world.character.snapToGround(280);
                 clearInterval(landingCheck);
               }
             }, 1000 / 60);
@@ -100,37 +115,6 @@ class CollisionHandler {
       });
     }
 
-    const boss = this.world.level.endboss;
-    const bossJumpOffsets = this.offsets.endboss.jump;
-
-    if (
-      CollisionConfig.isPreciseCollision(
-        this.world.character,
-        boss,
-        this.offsets.character.jump,
-        bossJumpOffsets
-      ) &&
-      !boss.isDead()
-    ) {
-      const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, boss, bossJumpOffsets);
-      const isImmuneToThisEnemy = boss.immuneUntil && now < boss.immuneUntil;
-
-      if (isAbove && !isImmuneToThisEnemy) {
-        boss.immuneUntil = Date.now() + 200;
-        jumpAttackHappened = true;
-
-        boss.hitBoss();
-
-        this.world.character.y = 280;
-        this.world.character.speedY = 0;
-        this.world.character.jump();
-
-        if (audioManager && audioManager.play) {
-          audioManager.play("jumpOnEnemy");
-        }
-      }
-    }
-
     return jumpAttackHappened;
   }
 
@@ -138,7 +122,7 @@ class CollisionHandler {
     const now = Date.now();
 
     this.world.level.enemies.forEach((enemy) => {
-      const enemyType = enemy instanceof Enemy2 ? 'enemy2' : 'enemy';
+      const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
       const enemyOffsets = this.offsets[enemyType].normal;
 
       if (
@@ -150,8 +134,13 @@ class CollisionHandler {
         ) &&
         !enemy.isDead()
       ) {
-        const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, enemy, enemyOffsets);
-        const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+        const isAbove = CollisionConfig.isReallyAboveEnemy(
+          this.world.character,
+          enemy,
+          enemyOffsets
+        );
+        const isImmuneToThisEnemy =
+          enemy.immuneUntil && now < enemy.immuneUntil;
 
         if (!isAbove && !isImmuneToThisEnemy) {
           this.world.character.hitWithCooldown(enemy);
@@ -171,9 +160,14 @@ class CollisionHandler {
           ) &&
           !miniEndboss.isDead()
         ) {
-          const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, miniEndboss, this.offsets.miniEndboss.normal);
-          const isImmuneToThisEnemy = miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
-
+          const isAbove = CollisionConfig.isReallyAboveEnemy(
+            this.world.character,
+            miniEndboss,
+            this.offsets.miniEndboss.normal
+          );
+          const isImmuneToThisEnemy =
+            miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
+          this.world.character.snapToGround(280);
           if (!isAbove && !isImmuneToThisEnemy) {
             this.world.character.hitWithCooldown(miniEndboss);
             this.world.statusBar.setPercentage(this.world.character.hp);
@@ -192,7 +186,11 @@ class CollisionHandler {
       ) &&
       !boss.isDead()
     ) {
-      const isAbove = CollisionConfig.isReallyAboveEnemy(this.world.character, boss, this.offsets.endboss.normal);
+      const isAbove = CollisionConfig.isReallyAboveEnemy(
+        this.world.character,
+        boss,
+        this.offsets.endboss.normal
+      );
       const isImmuneToThisEnemy = boss.immuneUntil && now < boss.immuneUntil;
 
       if (!isAbove && !isImmuneToThisEnemy) {
@@ -205,19 +203,12 @@ class CollisionHandler {
   checkCharacterHP(character) {
     if (character.hp <= 0 && !character.dead) {
       character.dead = true;
-      gameManager.triggerEndScreen(false);
     }
   }
 
   checkEndBossHP(endboss) {
     if (endboss.hp <= 0 && !endboss.dead) {
       endboss.dead = true;
-
-      if (gameManager.currentLevel === 1) {
-        gameManager.completeLevel();
-      } else {
-        gameManager.triggerEndScreen(true);
-      }
     }
   }
 
@@ -228,8 +219,11 @@ class CollisionHandler {
       for (let i = 0; i < miniEndbossesToCheck.length; i++) {
         const miniEndboss = miniEndbossesToCheck[i];
 
-        if (this.world.level.miniEndbosses.includes(miniEndboss) && 
-            miniEndboss.hp <= 0 && !miniEndboss.dead) {
+        if (
+          this.world.level.miniEndbosses.includes(miniEndboss) &&
+          miniEndboss.hp <= 0 &&
+          !miniEndboss.dead
+        ) {
           miniEndboss.die();
         }
       }
@@ -256,7 +250,7 @@ class CollisionHandler {
             bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
 
             if (audioManager && audioManager.play) {
-              audioManager.play('smashBottle');
+              audioManager.play("smashBottle");
             }
           }
         }
@@ -306,7 +300,7 @@ class CollisionHandler {
       if (hasCollision) {
         this.increaseBar(this.world.statusBarCoins, 10);
         if (audioManager && audioManager.play) {
-          audioManager.play("coins");
+          audioManager.play("coins", false, 1);
         }
         this.animateBarScale(this.world.statusBarCoins);
         return false;

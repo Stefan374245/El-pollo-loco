@@ -58,15 +58,24 @@
     <div id="playScreen" class="playScreen active">
       <canvas id="canvas" width="720" height="480"> </canvas>
     </div>
-    
+
     <div id="mobileControls" class="mobile-controls">
       <div class="btn-left-side">
         <button id="btn-left" class="mobile-btn">⬅️</button>
         <button id="btn-jump" class="mobile-btn">⬆️</button>
       </div>
-      <div class="btn-right-side">
-        <button id="btn-throw" class="mobile-btn"><img src="./assets/img/6_salsa_bottle/bottle_rotation/rotation_sequences.gif" alt=""></button>
-        <button id="btn-right" class="mobile-btn">➡️</button>
+      <div class="fullscreen-div">
+        <button id="btn-fullscreen" class="mobile-btn fullscreen-btn">⛶</button>
+
+        <div class="btn-right-side">
+          <button id="btn-throw" class="mobile-btn">
+            <img
+              src="./assets/img/6_salsa_bottle/bottle_rotation/rotation_sequences.gif"
+              alt="rotating-bottle"
+            />
+          </button>
+          <button id="btn-right" class="mobile-btn">➡️</button>
+        </div>
       </div>
     </div>
 
@@ -75,7 +84,7 @@
     <div id="rotate-device-overlay" class="rotate-device-overlay">
       <div class="rotate-content">
         <img
-          src="assets/icons/rotate.svg"
+          src="assets/icons/turn-device.svg"
           alt="Rotate device"
           style="width: 64px; height: 64px"
         />

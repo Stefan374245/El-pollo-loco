@@ -128,3 +128,10 @@
 .coin-animate:hover {
   animation-duration: 1s;
 }
+
+/* Rotate content animation for device icon */
+.rotate-content img {
+  animation: rotate 2s linear infinite;
+  display: block;
+  margin: 0 auto 12px auto;
+}

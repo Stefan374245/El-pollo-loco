@@ -34,9 +34,9 @@ class ThrowableObject extends MovableObject {
 
   throw() {
     this.speedY = -30;
-    this.applyGravity();            // ✅ aus MovableObject
-    this.startRotation();           // 🔁 Flasche dreht sich
-    this.bottleHitGround();         // ✅ checkt Aufprall
+    this.applyGravity();
+    this.startRotation();
+    this.bottleHitGround();
 
     this.moveInterval = setInterval(() => {
       if (!this.hasHitGround) {
@@ -72,6 +72,9 @@ class ThrowableObject extends MovableObject {
 
     this.playAnimation(this.IMAGE_BOTTLE_SPLASH);
 
+    if (audioManager && audioManager.play) {
+      audioManager.play('smashBottle');
+    }
     setTimeout(() => {
       if (this.world) {
         const index = this.world.throwableObjects.indexOf(this);

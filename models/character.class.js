@@ -81,6 +81,12 @@ lastHit = 0;
     this.isWhistlePlaying = false;
     this.isSnoringPlaying = false;
     this.damageSoundPlaying = false;
+    this.deathAnimationComplete = false;
+      this.gameOverSoundPlayed = false; 
+
+    this.onDeathComplete = () => {
+      handleGameOver();
+    };
     
     this.audioManager = null;
   }
@@ -96,6 +102,10 @@ animate() {
 }
 
   handleInput() {
+    // Character kann sich nicht bewegen wenn er tot ist
+    if (this.isDead()) {
+      return;
+    }
 
     const now = Date.now();
     const isInKnockback = this.knockbackUntil && now < this.knockbackUntil;
@@ -130,7 +140,24 @@ animate() {
   handleAnimation() {
     if (this.isDead()) {
       this.stopAllAudio();
+     if (this.audioManager && !this.gameOverSoundPlayed) {
+      this.audioManager.play('gameOver', false, 0.8);
+      this.gameOverSoundPlayed = true;
+    }
       this.playAnimation(this.IMAGES_DEAD);
+      
+      // Prüfen ob Death-Animation komplett ist
+      if (!this.deathAnimationComplete && this.currentImage >= this.IMAGES_DEAD.length - 1) {
+        this.deathAnimationComplete = true;
+        
+        // Kurze Verzögerung vor Game Over
+        setTimeout(() => {
+          if (this.onDeathComplete) {
+            this.onDeathComplete();
+          }
+        }, 2000);
+      }
+      
       return;
     }
 

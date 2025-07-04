@@ -16,8 +16,9 @@ class AudioManager {
 
     this.sounds = {
       startscreen: new Audio("assets/audio/start-screen.mp3"),
-      startgame: new Audio("assets/audio/start-game.mp3"),
-      startBtn: new Audio("assets/audio/start-btn.mp3"),
+      level1: new Audio("assets/audio/level1.mp3"),
+      level2: new Audio("assets/audio/level2.mp3"),
+      nextLvl: new Audio("assets/audio/next-level.mp3"),
       endboss: new Audio("assets/audio/endboss.mp3"),
       fullbar: new Audio("assets/audio/full-bottle-bar.mp3"),
       takeBottle: new Audio("assets/audio/take-bottle.mp3"),
@@ -29,16 +30,19 @@ class AudioManager {
       whistle: new Audio("assets/audio/whistle.mp3"),
       jump: new Audio("assets/audio/jump.mp3"),
       jumpOnEnemy: new Audio("assets/audio/jump-on-enemy.mp3"),
+      gameOver : new Audio("assets/audio/game-over.mp3"),
+      win : new Audio("assets/audio/win.mp3"),
     };
 
-    // Kompatibilität für alte tracks Referenz
     this.tracks = this.sounds;
 
     this.sounds.startscreen.loop = true;
     this.sounds.startscreen.volume = 0.3;
 
-    this.sounds.startgame.loop = true;
-    this.sounds.startgame.volume = 0.2;
+    this.sounds.level1.loop = true;
+    this.sounds.level1.volume = 0.2;
+    this.sounds.level2.volume = 0.2;
+    this.sounds.level2.volume = 0.2;
 
     this.settings = {
       soundEnabled: true
@@ -77,6 +81,24 @@ class AudioManager {
     }
   }
 
+    playLevelMusic(levelNumber) {
+    // Stop all music first
+    this.stopAll();
+    
+    // Play the correct level music
+    const levelMusicName = `level${levelNumber}`;
+    if (this.sounds[levelMusicName]) {
+      this.play(levelMusicName, true, 0.6); // loop=true, volume=0.6
+    } else {
+      console.warn(`Level music "${levelMusicName}" not found`);
+    }
+  }
+
+  playStartScreenMusic() {
+    this.stopAll();
+    this.play("startscreen", true, 0.3);
+  }
+
   pause(name) {
     const audio = this.sounds[name];
     if (audio) audio.pause();
@@ -98,7 +120,7 @@ class AudioManager {
     this.globalMuted = false;
     if (!this.musicMuted) {
       if (typeof gameManager !== 'undefined' && gameManager.gameRunning) {
-        this.sounds.startgame.play();
+        this.sounds.level1.play();
       } else {
         this.sounds.startscreen.play();
       }

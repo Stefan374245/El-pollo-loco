@@ -65,10 +65,9 @@ class MovableObject extends DrawableObject {
     this.knockbackUntil = Date.now() + 400;
   }
 
-  snapToGround() {
-    const groundLevel = 280;
-    this.y = groundLevel;
-    this.speedY = 0; // Stoppe die Fallgeschwindigkeit
+    snapToGround(targetY = 280) {
+    this.y      = targetY;
+    this.speedY = 0;
   }
 
   playAnimation(images) {
