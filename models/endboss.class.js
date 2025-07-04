@@ -130,7 +130,7 @@ class Endboss extends Enemy {
           if (typeof this.onDeathComplete === 'function') {
             this.onDeathComplete();
           }
-        }, 2000);
+        }, 2500);
       }
       return;
     }
@@ -240,7 +240,10 @@ hitBoss() {
   // Starte Dead-Phase
   if (this.hp === 0) {
     this.changePhase("dead");
-    this.frameCount = 0; // Reset für Dead-Animation
+    this.frameCount = 0; 
+     if (audioManager && audioManager.play) {
+      audioManager.play('win', false, 0.8);
+    }
   }
 }
   /**

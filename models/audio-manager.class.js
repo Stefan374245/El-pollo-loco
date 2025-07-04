@@ -30,6 +30,8 @@ class AudioManager {
       whistle: new Audio("assets/audio/whistle.mp3"),
       jump: new Audio("assets/audio/jump.mp3"),
       jumpOnEnemy: new Audio("assets/audio/jump-on-enemy.mp3"),
+      gameOver : new Audio("assets/audio/game-over.mp3"),
+      win : new Audio("assets/audio/win.mp3"),
     };
 
     this.tracks = this.sounds;

@@ -73,6 +73,8 @@ function setupMobileTouchControls(kb) {
   const btnRight = document.getElementById("btn-right");
   const btnThrow = document.getElementById("btn-throw");
   const btnJump  = document.getElementById("btn-jump");
+    const btnFullscreen = document.getElementById("btn-fullscreen");
+
 
   function bindTouch(btn, keyName) {
     if (!btn) return;
@@ -90,6 +92,83 @@ function setupMobileTouchControls(kb) {
   bindTouch(btnRight, "RIGHT");
   bindTouch(btnJump,  "JUMP");
   bindTouch(btnThrow, "F");
+
+    if (btnFullscreen) {
+    btnFullscreen.addEventListener("touchstart", e => {
+      e.preventDefault();
+      toggleFullscreen();
+    }, { passive: false });
+    
+    btnFullscreen.addEventListener("click", e => {
+      e.preventDefault();
+      toggleFullscreen();
+    });
+  }
+}
+
+
+
+function isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+}
+
+function toggleFullscreen() {
+  if (!isMobileDevice()) return; // Nur auf Handy erlauben
+
+  if (
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement ||
+    document.msFullscreenElement
+  ) {
+    // Exit fullscreen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  } else {
+    // Enter fullscreen
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      element.mozRequestFullScreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    }
+  }
+}
+
+// Event Listener für alle Browser
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
+function updateFullscreenButton() {
+  const btn = document.getElementById('btn-fullscreen');
+  if (btn) {
+    // Nur auf Handy anzeigen, sonst verstecken
+    if (!isMobileDevice()) {
+      btn.style.display = 'none';
+      return;
+    } else {
+      btn.style.display = '';
+    }
+    const isFullscreen =
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement;
+    btn.innerHTML = isFullscreen ? '⛶' : '▢';
+  }
 }
 
 window.addEventListener('resize', checkOrientation);

@@ -205,7 +205,6 @@ class CollisionHandler {
   checkCharacterHP(character) {
     if (character.hp <= 0 && !character.dead) {
       character.dead = true;
-      gameManager.triggerEndScreen(false);
     }
   }
 
@@ -300,7 +299,7 @@ checkEndBossHP(endboss) {
       if (hasCollision) {
         this.increaseBar(this.world.statusBarCoins, 10);
         if (audioManager && audioManager.play) {
-          audioManager.play("coins");
+          audioManager.play('coins', false, 1);
         }
         this.animateBarScale(this.world.statusBarCoins);
         return false;
