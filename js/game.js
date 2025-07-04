@@ -19,13 +19,16 @@ document.addEventListener('keydown', (event) => {
       gameManager.keyboard.LEFT = true;
       break;
     case 'Space':
+      event.preventDefault(); // Verhindert Button-Trigger durch Leertaste
       gameManager.keyboard.JUMP = true;
       break;
     case 'Enter':
+      event.preventDefault(); // Verhindert Button-Trigger durch Enter
       gameManager.keyboard.F = true; // Enter wirft auch
       break;
     case 'KeyF':
       gameManager.keyboard.F = true; // F wirft
+      break;
   }
 });
 
@@ -40,13 +43,16 @@ document.addEventListener('keyup', (event) => {
       gameManager.keyboard.LEFT = false;
       break;
     case 'Space':
+      event.preventDefault(); // Verhindert Button-Trigger durch Leertaste
       gameManager.keyboard.JUMP = false;
       break;
     case 'Enter':
+      event.preventDefault(); // Verhindert Button-Trigger durch Enter
       gameManager.keyboard.F = false; // Enter loslassen
       break;
     case 'KeyF':
       gameManager.keyboard.F = false; // F loslassen
+      break;
   }
 });
 
@@ -102,6 +108,22 @@ function setupMobileTouchControls(kb) {
     btnFullscreen.addEventListener("click", e => {
       e.preventDefault();
       toggleFullscreen();
+    });
+  }
+
+  // Mute Button Event Handling
+  const btnMute = document.getElementById("btn-mute");
+  if (btnMute) {
+    btnMute.addEventListener("touchstart", e => {
+      e.preventDefault();
+      audioManager.toggleGlobalMute();
+      updateMuteButton();
+    }, { passive: false });
+    
+    btnMute.addEventListener("click", e => {
+      e.preventDefault();
+      audioManager.toggleGlobalMute();
+      updateMuteButton();
     });
   }
 }
@@ -170,6 +192,63 @@ function updateFullscreenButton() {
     btn.innerHTML = isFullscreen ? '⛶' : '▢';
   }
 }
+
+function updateMuteButton() {
+  const btnMute = document.getElementById('btn-mute');
+  const btnMuteDesktop = document.getElementById('btn-mute-desktop');
+  
+  if (btnMute) {
+    const imgElement = btnMute.querySelector('img');
+    if (imgElement) {
+      imgElement.src = audioManager.globalMuted 
+        ? "assets/icons/mute.svg" 
+        : "assets/icons/unmute.svg";
+    }
+  }
+  if (btnMuteDesktop) {
+    const imgElement = btnMuteDesktop.querySelector('img');
+    if (imgElement) {
+      imgElement.src = audioManager.globalMuted 
+        ? "assets/icons/mute.svg" 
+        : "assets/icons/unmute.svg";
+    }
+  }
+}
+
+// Desktop Mute Button Event Handling
+function setupDesktopMuteButton() {
+  const btnMuteDesktop = document.getElementById("btn-mute-desktop");
+  if (btnMuteDesktop) {
+    btnMuteDesktop.addEventListener("click", e => {
+      e.preventDefault();
+      audioManager.toggleGlobalMute();
+      updateMuteButton();
+    });
+  }
+}
+
+// Zeige Desktop Mute Button nur auf Desktop und nur während des Spiels
+function showDesktopMuteButton() {
+  const desktopMuteContainer = document.getElementById("desktopMuteButton");
+  if (desktopMuteContainer && !isMobileDevice()) {
+    desktopMuteContainer.classList.remove("hidden");
+    desktopMuteContainer.style.display = "block";
+  }
+}
+
+// Verstecke Desktop Mute Button
+function hideDesktopMuteButton() {
+  const desktopMuteContainer = document.getElementById("desktopMuteButton");
+  if (desktopMuteContainer) {
+    desktopMuteContainer.classList.add("hidden");
+    desktopMuteContainer.style.display = "none";
+  }
+}
+
+// Initialisiere Desktop Mute Button bei Seitenladung
+document.addEventListener('DOMContentLoaded', () => {
+  setupDesktopMuteButton();
+});
 
 window.addEventListener('resize', checkOrientation);
 window.addEventListener('orientationchange', checkOrientation);
