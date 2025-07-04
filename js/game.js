@@ -74,8 +74,8 @@ function checkOrientation() {
 function setupMobileTouchControls(kb) {
   const btnLeft  = document.getElementById("btn-left");
   const btnRight = document.getElementById("btn-right");
-  const btnJump  = document.getElementById("btn-jump");
   const btnThrow = document.getElementById("btn-throw");
+  const btnJump  = document.getElementById("btn-jump");
 
   function bindTouch(btn, keyName) {
     if (!btn) return;

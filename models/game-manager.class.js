@@ -244,8 +244,12 @@ function showSettings() {
 }
 
 function backToStartScreen() {
-  document.getElementById("startScreen").innerHTML =
-    startScreenOverlayTemplate();
+  const startScreen = document.getElementById("startScreen");
+  if (gameManager && gameManager.isMobile()) {
+    startScreen.innerHTML = getMobileStartScreenTemplate();
+  } else {
+    startScreen.innerHTML = startScreenOverlayTemplate();
+  }
 }
 
 function handleGameOver() {
