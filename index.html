@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="./styles/start-screen.css" />
     <link rel="stylesheet" href="./styles/end-screen.css" />
     <link rel="stylesheet" href="./styles/setting-overlay.css" />
+    <link rel="stylesheet" href="./styles/resp.css" />
 
-   
     <script src="./js/templates.js"></script>
     <script src="./models/drawable-object.class.js"></script>
     <script src="./models/movable-object.class.js"></script>
@@ -36,16 +36,14 @@
     <script src="./models/collision-config.class.js"></script>
     <script src="./models/collision-handler.class.js"></script>
     <script src="./models/world.class.js"></script>
+    <script src="./models/mobile-world.class.js"></script>
+
     <script src="./models/level.class.js"></script>
-  
-  
+
     <script src="./levels/level-manager.class.js"></script>
-  
+
     <script src="./models/game-manager.class.js"></script>
     <script src="./js/game.js"></script>
-   
-   
-
   </head>
   <body>
     <div id="background">
@@ -55,26 +53,52 @@
       />
     </div>
 
-    <div id="startScreen" class="start-screen">
-      <div id="overlayContainer"></div>
-    </div>
+    <div id="startScreen"></div>
 
-    <div id="playScreen" class="playScreen">
+    <div id="playScreen" class="playScreen active">
       <canvas id="canvas" width="720" height="480"> </canvas>
+    </div>
+    
+    <div id="mobileControls" class="mobile-controls">
+      <div class="btn-left-side">
+        <button id="btn-left" class="mobile-btn">⬅️</button>
+        <button id="btn-jump" class="mobile-btn">⬆️</button>
+      </div>
+      <div class="btn-right-side">
+        <button id="btn-throw" class="mobile-btn"><img src="./assets/img/6_salsa_bottle/bottle_rotation/rotation_sequences.gif" alt=""></button>
+        <button id="btn-right" class="mobile-btn">➡️</button>
+      </div>
     </div>
 
     <div id="endScreen" class="endScreen"></div>
 
+    <div id="rotate-device-overlay" class="rotate-device-overlay">
+      <div class="rotate-content">
+        <img
+          src="assets/icons/rotate.svg"
+          alt="Rotate device"
+          style="width: 64px; height: 64px"
+        />
+        <p>Turn your device to play el pollo loco!</p>
+      </div>
+    </div>
 
     <footer>
-        <div class="footerText maxContent">
-            &copy;<span id="year"></span> Stefan Helldobler - Alle Bilder von
-            <a href="https://developerakademie.com/" target="_blank">Developer Academie</a>, Icons von
-            <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>, Sounds von <a
-                href="https://freesound.org/" target="_blank">freesound<br><br>
-                <a href="https://github.com/Stefan374245" target="_blank"><img src="./assets/icons/github-logo.png"
-                        alt="github logo" title="GitHub" /></a>
-        </div>
+      <div class="footerText maxContent">
+        &copy;<span id="year"></span> Stefan Helldobler - Alle Bilder von
+        <a href="https://developerakademie.com/" target="_blank"
+          >Developer Academie</a
+        >, Icons von
+        <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>,
+        Sounds von <a href="https://freesound.org/" target="_blank">freesound</a
+        ><br /><br />
+        <a href="https://github.com/Stefan374245" target="_blank"
+          ><img
+            src="./assets/icons/github-logo.png"
+            alt="github logo"
+            title="GitHub"
+        /></a>
+      </div>
     </footer>
   </body>
 </html>

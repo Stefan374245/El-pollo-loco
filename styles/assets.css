@@ -35,13 +35,12 @@ button:not(.mute-btn, .back-btn):hover {
   height: 56px;
 }
 
-
 .back-btn {
   border: none;
   box-shadow: none;
   background-color: transparent;
   transition: transform 0.2s ease;
-   cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
+  cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
   transition: animation 1s ease-in-out;
 }
 
@@ -67,7 +66,7 @@ button:not(.mute-btn, .back-btn):hover {
 
 .back-icon:hover {
   animation-play-state: paused;
-   filter: drop-shadow(0px 0px 6px gold);
+  filter: drop-shadow(0px 0px 6px gold);
 }
 
 .startscreen-buttons button {
@@ -80,7 +79,7 @@ button:not(.mute-btn, .back-btn):hover {
   background: transparent;
   border: none;
   padding: 0;
-   cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
+  cursor: url(../assets/img/6_salsa_bottle/bottle_hover_cursor.png) 10 5, auto;
 }
 
 .mute-icon {
@@ -100,9 +99,9 @@ button:not(.mute-btn, .back-btn):hover {
 }
 
 .win-img {
-   width: 80%;
+  width: 80%;
   height: 33vh;
-   margin: 20px 0;
+  margin: 20px 0;
 }
 
 .lose-img {
@@ -110,4 +109,53 @@ button:not(.mute-btn, .back-btn):hover {
   height: 100vh;
   margin: 20px 0;
   z-index: 1;
+}
+
+.mobile-controls {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 12px;
+  z-index: 15;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-controls.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.btn-left-side, .btn-right-side {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 0 10px;
+}
+.mobile-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  font-size: 1.8rem;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255, 165, 0, 0.9);
+  color: #fff;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-btn img {
+  width: 40px;
+}
+
+.mobile-btn:active {
+  background-color: rgba(255, 140, 0, 1);
 }

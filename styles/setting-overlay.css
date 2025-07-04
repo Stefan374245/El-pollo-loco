@@ -15,7 +15,10 @@
 }
 
 .setting-overlay {
-    height: fit-content;
+    height: 80vh;
+    max-height: 600px;
+    overflow-y: auto;
+    scrollbar-width: none;
     color: #000;
     animation: coin-spin 0.8s steps(2) infinite;
     background-repeat: no-repeat;
@@ -34,9 +37,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 30px 0;
+    justify-content: flex-start;
+    padding: 30px 20px;
     width: 100%;
+    max-height: calc(80vh - 80px);
+    overflow-y: auto;
 }
 
 .key-list,
@@ -62,10 +67,6 @@
     text-align: left;
 }
 
-.label {
-    flex: 1;
-    font-weight: bold;
-}
 
 .key {
     flex-shrink: 0;
@@ -87,3 +88,19 @@ hr {
     margin: 20px auto;
     border: 1px solid #ffd700;
 }
+
+.settings-crawl-container {
+  perspective: 500px;
+ overflow-y: auto;
+  height: 100%;
+  background: black;
+  color: yellow;
+  font-family: "Fredericka the Great", cursive;
+  text-align: center;
+}
+
+.settings-crawl-container.scrollable {
+  perspective: none; /* Keine 3D-Drehung mehr */
+  overflow-y: auto; /* Scrollbar nur vertikal */
+}
+

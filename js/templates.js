@@ -26,60 +26,52 @@ function startScreenOverlayTemplate() {
 
 function settingsOverlayTemplate() {
   return `
-    <div class="setting-overlay start-screen-card" id="settingsOverlay">
-      <div class="setting-card">
-        
-          <button class="back-btn" onclick="backToStartScreen()">
+    <div class="start-screen-card setting-overlay">
+      <div class="setting-header">
+        <h1>Game Controls</h1>
+        <button class="back-btn" onclick="backToStartScreen()">
             <img class="icon back-icon" src="./assets/icons/back1.svg" alt="back" />
-          </button>
-          <h1>Movement</h1>
-        
-     
-        <div class="setting-content">
-          <ul class="key-list">
-            <li><span class="label"><b>Move left/right</b></span><span class="key">A / D</span></li>
-            <li><span class="label"><b>Jump</b></span><span class="key">Space</span></li>
-            <li><span class="label"><b>Throw</b></span><span class="key">F</span></li>
-            <li><span class="label"><b>Fullscreen</b></span><span class="key"><img class="icon" src="./assets/icons/fullscreen.svg" alt="Fullscreen Icon"></span></li>
-            <li><span class="label"><b>Fullscreen off</b></span><span class="key"><img class="icon" src="./assets/icons/escape.svg" alt="Escape Icon"></span></li>
-            <li>
-              <span class="label"><b>Mute/unmute</b></span>
-              <span class="key">
-                <img class="icon" src="./assets/icons/mute.svg" alt="Mute Icon" /> /
-                <img class="icon" src="./assets/icons/unmute.svg" alt="Unmute Icon" />
-              </span>
-            </li>
-          </ul>
-          <hr>
-          <ul class="explanation">
-            <h1>Game explanation</h1>
-            <li>
-              <span class="label">Collect coins & bottles</span>
-              <span class="key">
-                <div class="icon bottle-rotate"></div>
-                <div class="icon coin-animate"></div>
-              </span>
-            </li>
-            <li>
-              <span class="label">Jump or throw bottles on small chickens to kill them</span>
-              <span class="key">
-                <div class="icon chicken-walk"></div>
-              </span>
-            </li>
-            <li>
-              <span class="label">Throw multiple bottles on endboss to kill him</span>
-              <span class="key">
-                <div class="icon endboss-walk"></div>
-              </span>
-            </li>
-            <li>
-              <span class="label">You only can jump once on mini-endboss</span>
-               <span class="key">
-                  Finish level 1
-                </span>
-            </li>
-          </ul>
-        </div>
+        </button>
+      </div>
+      <div class="setting-content">
+        <ul class="key-list">
+          <li><span class="label"><b>Move left/right:</b></span><span class="key">Swipe Left / Right</span></li>
+          <li><span class="label"><b>Jump:</b></span><span class="key">Tap Screen</span></li>
+          <li><span class="label"><b>Throw:</b></span><span class="key">Double Tap</span></li>
+          <li><span class="label"><b>Mute/unmute:</b></span>
+            <span class="key">
+              <img class="icon" src="./assets/icons/mute.svg" alt="Mute Icon" /> /
+              <img class="icon" src="./assets/icons/unmute.svg" alt="Unmute Icon" />
+            </span>
+          </li>
+        </ul>
+        <hr>
+        <h2>Game Explanation</h2>
+        <ul class="explanation">
+          <li>
+            <span class="label">Collect coins & bottles</span>
+            <span class="key">
+              <div class="icon bottle-rotate"></div>
+              <div class="icon coin-animate"></div>
+            </span>
+          </li>
+          <li>
+            <span class="label">Jump or throw bottles on small chickens to kill them</span>
+            <span class="key">
+              <div class="icon chicken-walk"></div>
+            </span>
+          </li>
+          <li>
+            <span class="label">Throw multiple bottles on endboss to kill him</span>
+            <span class="key">
+              <div class="icon endboss-walk"></div>
+            </span>
+          </li>
+          <li>
+            <span class="label">You only can jump once on mini-endboss</span>
+            <span class="key">Finish level 1</span>
+          </li>
+        </ul>
       </div>
     </div>
   `;
@@ -134,6 +126,26 @@ function getLevelCompleteTemplate() {
           <div class="progress-bar">
             <div class="progress-fill"></div>
           </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getMobileStartScreenTemplate() {
+  return `
+    <div class="start-screen-card">
+      <h1 class="h1-no-margin">El Pollo Loco</h1>
+      <div class="startscreen-content">
+        <h2>Ready for Adventure?</h2>
+        <div class="startscreen-buttons">
+          <button onclick="gameManager.startGame()">
+            <span class="icon bottle-rotate"></span>
+            Start Game
+          </button>
+          <button onclick="showSettings()">
+            Info
+          </button>
         </div>
       </div>
     </div>

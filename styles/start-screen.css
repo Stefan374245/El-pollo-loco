@@ -1,10 +1,9 @@
 /* === Startscreen Overlay === */
-.start-screen {
-  width: 100%;
-  height: 100%;
+#startScreen {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
   z-index: 11;
 }
 
@@ -12,8 +11,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
-   width: 600px;
+  width: 600px;
   max-width: 90%;
   color: #fff8dc;
   background-image: url("../assets/img/2_character_pepe/3_jump/J-36.png");
@@ -23,11 +21,9 @@
   border: 6px solid #ffd700;
   border-radius: 30px;
   padding: 16px;
- 
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
   text-align: center;
   animation: pop-in 0.6s ease-out;
-  
   z-index: 2;
 }
 
@@ -37,6 +33,7 @@
   inset: 0;
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 1;
+  border-radius: 24px;
 }
 
 .start-screen-card > * {
