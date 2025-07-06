@@ -97,11 +97,18 @@ class Endboss extends Enemy {
     }
   }
 
-  initializeStatusBar() {
-    if (!this.world?.statusBarEndboss) return;
+ initializeStatusBar() {
+  if (!this.world?.statusBarEndboss) return;
+  
+  if (this.world.statusBarEndboss.updateFromHpValues) {
+    this.world.statusBarEndboss.updateFromHpValues(this.hp, this.maxHp);
+  } else {
+
+    this.world.statusBarEndboss.setMaxHp(this.maxHp);
     const pct = (this.hp / this.maxHp) * 100;
     this.world.statusBarEndboss.setPercentage(pct);
   }
+}
 
   handleAnimation() {
     if (
@@ -201,13 +208,7 @@ class Endboss extends Enemy {
     enemy1.world = this.world;
     enemy1.speed = 3.2;
 
-    const enemy2 = new Enemy2();
-    enemy2.x     = this.x + this.width + 72;
-    enemy2.y     = 390;
-    enemy2.world = this.world;
-    enemy2.speed = 3.2;
-
-    this.world.level.enemies.push(enemy1, enemy2);
+    this.world.level.enemies.push(enemy1);
   }
 
   checkBottleHit(bottle) {
@@ -232,17 +233,22 @@ class Endboss extends Enemy {
 hitBoss() {
   if (this.animationPhase === "hurt" || this.isDead()) return;
 
-  this.hp = Math.max(
-    0,
-    this.hp - this.getCurrentAggressionSettings().damagePerHit
-  );
+  // Schaden basierend auf Aggression Level
+  const damage = this.getCurrentAggressionSettings().damagePerHit;
+  this.hp = Math.max(0, this.hp - damage);
+  
+  console.log(`Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`);
+  
   this.changePhase("hurt");
-  this.world.statusBarEndboss.setPercentage((this.hp / this.maxHp) * 100);
+  
+  if (this.world?.statusBarEndboss) {
+    this.world.statusBarEndboss.updateFromHpValues(this.hp, this.maxHp);
+  }
 
   if (this.hp === 0) {
     this.changePhase("dead");
     this.frameCount = 0; 
-     if (audioManager && audioManager.play) {
+    if (audioManager && audioManager.play) {
       audioManager.play('win', false, 0.8);
     }
   }

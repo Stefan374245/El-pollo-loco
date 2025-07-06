@@ -102,7 +102,7 @@ animate() {
 }
 
   handleInput() {
-    // Character kann sich nicht bewegen wenn er tot ist
+
     if (this.isDead()) {
       return;
     }

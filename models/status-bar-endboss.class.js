@@ -1,12 +1,12 @@
 class StatusBarEndboss extends DrawableObject {
-IMAGES_HP_BAR = [
-    'assets/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',
-    'assets/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',
-    'assets/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',
-    'assets/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',
-    'assets/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',
-    'assets/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'
-];
+  IMAGES_HP_BAR = [
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange0.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange20.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange40.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange60.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange80.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange100.png",
+  ];
 
   percentage = 100;
   maxHp = 100;
@@ -32,35 +32,57 @@ IMAGES_HP_BAR = [
 
   setPercentage(percentage) {
     this.percentage = percentage;
-    
+
     if (this.percentage < 0) this.percentage = 0;
     if (this.percentage > 100) this.percentage = 100;
-    
+
     let path = this.IMAGES_HP_BAR[this.resolveImageIndex()];
     this.img = this.availableImages[path];
-    
+
     const currentHp = Math.round((this.percentage / 100) * this.maxHp);
     const hitsToKill = Math.ceil(currentHp / 20);
     const imageIndex = this.resolveImageIndex();
-    console.log(`StatusBar Update: ${currentHp}/${this.maxHp} (${Math.round(this.percentage)}%) - Noch ${hitsToKill} Hits - Image: orange${imageIndex === 0 ? '0' : imageIndex === 1 ? '20' : imageIndex === 2 ? '40' : imageIndex === 3 ? '60' : imageIndex === 4 ? '80' : '100'}.png`);
+    console.log(
+      `StatusBar Update: ${currentHp}/${this.maxHp} (${Math.round(
+        this.percentage
+      )}%) - Noch ${hitsToKill} Hits - Image: orange${
+        imageIndex === 0
+          ? "0"
+          : imageIndex === 1
+          ? "20"
+          : imageIndex === 2
+          ? "40"
+          : imageIndex === 3
+          ? "60"
+          : imageIndex === 4
+          ? "80"
+          : "100"
+      }.png`
+    );
   }
 
-  resolveImageIndex() {
+resolveImageIndex() {
+  const currentHp = Math.round((this.percentage / 100) * this.maxHp);
+  const hitsRemaining = Math.ceil(currentHp / 20);
 
-    if (this.percentage >= 100) {
-      return 5;
-    } else if (this.percentage >= 80) {
-      return 4;
-    } else if (this.percentage >= 60) {
-      return 3;
-    } else if (this.percentage >= 40) {
-      return 2;
-    } else if (this.percentage >= 20) {
-      return 1;
-    } else {
-      return 0;
-    }
+
+  if (this.maxHp === 140) {
+    if (hitsRemaining <= 0) return 0;
+    if (hitsRemaining <= 1) return 1;
+    if (hitsRemaining <= 2) return 2;
+    if (hitsRemaining <= 4) return 3;
+    if (hitsRemaining <= 6) return 4;
+    return 5;
   }
+
+  
+  if (hitPercentage <= 0) return 0;
+  if (hitPercentage <= 20) return 1;
+  if (hitPercentage <= 40) return 2;
+  if (hitPercentage <= 60) return 3;
+  if (hitPercentage <= 80) return 4;
+  return 5;
+}
 
   getHealthInfo() {
     const currentHp = Math.round((this.percentage / 100) * this.maxHp);
@@ -68,7 +90,14 @@ IMAGES_HP_BAR = [
       currentHp: currentHp,
       maxHp: this.maxHp,
       percentage: Math.round(this.percentage),
-      hitsRemaining: Math.ceil(currentHp / 20) // Bei 20 Schaden pro Hit
+      hitsRemaining: Math.ceil(currentHp / 20),
     };
+  }
+
+  updateFromHpValues(currentHp, maxHp) {
+    this.maxHp = maxHp;
+    this.currentHp = currentHp;
+    const percentage = (currentHp / maxHp) * 100;
+    this.setPercentage(percentage);
   }
 }

@@ -18,6 +18,8 @@ class GameManager {
   }
 
   showStartScreenOverlay() {
+
+     this.clearWorld();
   
     this.prepareCanvas(false);
     const footer = document.querySelector("footer");
@@ -127,12 +129,10 @@ class GameManager {
 
     canvas.style.filter = "blur(5px)";
     endScreen.classList.add("active");
-    endScreen.innerHTML = getFirstEndScreenTemplate(isWin);
 
-    setTimeout(() => {
-      this.showFinalEndScreen(isWin);
-    }, 3000);
-  }
+   endScreen.innerHTML = getFinalEndScreenTemplate(isWin);
+  this.addRestartButton();
+}
 
   showFinalEndScreen(isWin) {
     const endScreen = document.getElementById("endScreen");
@@ -201,57 +201,45 @@ class GameManager {
     audioManager.stopAll();
   }
 
-  clearWorld() {
-  if (this.currentWorld) {
-    clearInterval(this.currentWorld.collisionInterval);
-    clearInterval(this.currentWorld.throwInterval);
+clearWorld() {
+  if (!this.currentWorld) return;
 
-    if (this.currentWorld.level && this.currentWorld.level.enemies) {
-      this.currentWorld.level.enemies.forEach(enemy => {
-        if (enemy.animationInterval) {
-          clearInterval(enemy.animationInterval);
-        }
-        if (enemy.moveInterval) {
-          clearInterval(enemy.moveInterval);
-        }
-      });
-    }
-  
-    if (this.currentWorld.level && this.currentWorld.level.endboss) {
-      const boss = this.currentWorld.level.endboss;
-      if (boss.animationInterval) {
-        clearInterval(boss.animationInterval);
-      }
-      if (boss.moveInterval) {
-        clearInterval(boss.moveInterval);
-      }
-    }
- 
-    if (this.currentWorld.character) {
-      if (this.currentWorld.character.animationInterval) {
-        clearInterval(this.currentWorld.character.animationInterval);
-      }
-    }
-    
-    if (this.currentWorld.handleCanvasClick) {
-      this.canvas.removeEventListener(
-        "click",
-        this.currentWorld.handleCanvasClick
-      );
-    }
-    if (this.currentWorld.handleCanvasMouseMove) {
-      this.canvas.removeEventListener(
-        "mousemove",
-        this.currentWorld.handleCanvasMouseMove
-      );
-    }
+  clearInterval(this.currentWorld.collisionInterval);
+  clearInterval(this.currentWorld.throwInterval);
+  clearInterval(this.currentWorld.runInterval);
 
-    this.currentWorld = null;
+
+  const clearEntityIntervals = (entity) => {
+    if (!entity) return;
+    clearInterval(entity.animationInterval);
+    clearInterval(entity.moveInterval);
+    clearInterval(entity.directionInterval);
+  };
+
+  const level = this.currentWorld.level;
+  if (level) {
+    level.enemies?.forEach(clearEntityIntervals);
+    clearEntityIntervals(level.endboss);
+    level.miniEndbosses?.forEach(clearEntityIntervals);
   }
+  
+  clearEntityIntervals(this.currentWorld.character);
+
+  if (this.currentWorld.handleCanvasClick) {
+    this.canvas.removeEventListener("click", this.currentWorld.handleCanvasClick);
+  }
+  if (this.currentWorld.handleCanvasMouseMove) {
+    this.canvas.removeEventListener("mousemove", this.currentWorld.handleCanvasMouseMove);
+  }
+
+  this.currentWorld = null;
 }
+
+
   closeOverlay() {
     document.getElementById("startScreen").innerHTML = "";
   }
+
 
   fadeInCanvas() {
     this.canvas.style.opacity = 1;

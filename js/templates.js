@@ -85,18 +85,6 @@ function getRestartSVG() {
   `;
 }
 
-function getFirstEndScreenTemplate(isWin) {
-  return `
-    <div class="win-over-container">
-      <img class="${isWin ? "win-img" : "lose-img"} stay-visible" src="${
-    isWin
-      ? "assets/img/You won, you lost/You Win A.png"
-      : "assets/img/9_intro_outro_screens/game_over/oh no you lost!.png"
-  }" 
-        alt="${isWin ? "You Win!" : "Oh Nooo! You Lost"}">
-    </div>
-  `;
-}
 
 function getFinalEndScreenTemplate(isWin) {
   return `

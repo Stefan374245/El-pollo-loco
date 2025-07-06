@@ -29,7 +29,6 @@ class World {
     this.draw();
   }
 
-
   init() {
     if (this.levelNumber === 2) {
       this.level = NewLevelManager.createLevel2();
@@ -38,15 +37,15 @@ class World {
       this.level = NewLevelManager.createLevel1();
       this.level.level_end_point = 2500;
     }
-    
+
     this.character = new Character();
     this.statusBar = new StatusBar();
     this.statusBarCoins = new StatusBarCoins();
     this.statusBarBottles = new StatusBarBottles();
-    
+
     const endbossMaxHp = this.level.endboss.maxHp;
     this.statusBarEndboss = new StatusBarEndboss(endbossMaxHp);
-    
+
     this.throwableObjects = [];
     this.collisionHandler = new CollisionHandler(this);
     this.bottleCount = 0;
@@ -54,15 +53,13 @@ class World {
     this.canThrow = true;
   }
 
-  
-
   initAudio() {
     if (!audioManager.globalMuted) {
-      audioManager.pause('startscreen');
-      audioManager.play('startgame', true, 0.5);
+      audioManager.pause("startscreen");
+      audioManager.play("startgame", true, 0.5);
     } else {
       audioManager.unmuteAll();
-      
+
       const icon = document.getElementById("music-toggle-icon");
       if (icon) {
         icon.src = audioManager.globalMuted
@@ -72,7 +69,6 @@ class World {
     }
   }
   setWorld() {
-    
     this.character.world = this;
     this.character.setAudioManager(audioManager);
     this.character.animate();
@@ -98,20 +94,13 @@ class World {
     this.level.endboss.world = this;
     this.level.endboss.animate();
 
-    const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
-    this.statusBarEndboss.setPercentage(initialPercentage);
+    this.initializeMiniEndbosses();
 
-    if (this.level.miniEndbosses) {
-      this.level.miniEndbosses.forEach((miniEndboss, index) => {
-        miniEndboss.world = this;
-        miniEndboss.id = `miniEndboss_${index}_${Date.now()}`;
-        miniEndboss.animate();
-      });
-    }
+    this.initializeStatusBars();
   }
 
   draw() {
-     if (!gameManager.gameRunning) return;
+    if (!gameManager.gameRunning) return;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -131,7 +120,7 @@ class World {
     }
 
     this.ctx.translate(-this.camera_x, 0);
-    
+
     if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
       this.addToMap(this.statusBarEndboss);
     }
@@ -139,7 +128,7 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
 
-      if (gameManager.gameRunning)  {
+    if (gameManager.gameRunning) {
       requestAnimationFrame(() => {
         this.draw();
       });
@@ -177,16 +166,18 @@ class World {
     this.ctx.restore();
   }
 
-startCollisionCheck() {
-  if (this.collisionInterval) {
-    clearInterval(this.collisionInterval);
-  }
-  this.collisionInterval = setInterval(() => {
-     if (gameManager.gameRunning) {
-      this.collisionHandler.checkAll();
+  
+  startCollisionCheck() {
+    if (this.collisionInterval) {
+      clearInterval(this.collisionInterval);
     }
-  }, 10);
-}
+    this.collisionInterval = setInterval(() => {
+      if (gameManager.gameRunning) {
+        this.collisionHandler.checkAll();
+      }
+    }, 10);
+  }
+
 
   checkThrowableObjects() {
     if (this.keyboard.F && this.bottleCount > 0 && this.canThrow) {
@@ -200,7 +191,7 @@ startCollisionCheck() {
 
       this.throwableObjects.push(bottle);
 
-      audioManager.play('throwBottle');
+      audioManager.play("throwBottle");
 
       this.bottleCount--;
 
@@ -213,14 +204,35 @@ startCollisionCheck() {
       }, 500);
     }
   }
-startThrowCheck() {
-  if (this.throwInterval) {
-    clearInterval(this.throwInterval);
-  }
-  this.throwInterval = setInterval(() => {
-     if (gameManager.gameRunning)  {
-      this.checkThrowableObjects();
+
+  startThrowCheck() {
+    if (this.throwInterval) {
+      clearInterval(this.throwInterval);
     }
-  }, 200);
+    this.throwInterval = setInterval(() => {
+      if (gameManager.gameRunning) {
+        this.checkThrowableObjects();
+      }
+    }, 200);
+  }
+
+
+  initializeMiniEndbosses() {
+  if (this.level.miniEndbosses) {
+    this.level.miniEndbosses.forEach((miniEndboss, index) => {
+      miniEndboss.world = this;
+      miniEndboss.id = `miniEndboss_${index}_${Date.now()}`;
+      miniEndboss.animate();
+    });
+  }
+}
+
+initializeStatusBars() {
+  if (this.statusBarEndboss.updateFromHpValues) {
+    this.statusBarEndboss.updateFromHpValues(this.level.endboss.hp, this.level.endboss.maxHp);
+  } else {
+    const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
+    this.statusBarEndboss.setPercentage(initialPercentage);
+  }
 }
 }
