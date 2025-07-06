@@ -4,6 +4,7 @@ class NewLevelManager {
    * @returns {Level} Level 1 Instanz
    */
   static createLevel1() {
+     const level1Endboss = new Endboss(1, 2200);
     return new Level(
       [
         new Enemy(),
@@ -17,7 +18,7 @@ class NewLevelManager {
         new Enemy2(),
         new Enemy2()
       ],
-      new Endboss(1),
+      level1Endboss,
       [
         new Clouds(),
         new Clouds(),
@@ -77,6 +78,7 @@ class NewLevelManager {
       ],
       null 
     );
+    
   }
 
   /**
@@ -84,6 +86,7 @@ class NewLevelManager {
    * @returns {Level} Level 2 Instanz mit Mini-Endbossen
    */
   static createLevel2() {
+    const level2Endboss = new Endboss(2, 3000);
     return new Level(
       [
       new Enemy(),
@@ -96,7 +99,7 @@ class NewLevelManager {
       new Enemy2(),
       new Enemy2()
       ],
-      new Endboss(2), 
+      level2Endboss, 
       [
       new Clouds(),
       new Clouds(),
@@ -176,12 +179,17 @@ class NewLevelManager {
       new BackgroundObject("assets/img/5_background/layers/air.png", 719 * 4),
       new BackgroundObject("assets/img/5_background/layers/3_third_layer/1.png", 719 * 4),
       new BackgroundObject("assets/img/5_background/layers/2_second_layer/1.png", 719 * 4),
-      new BackgroundObject("assets/img/5_background/layers/1_first_layer/1.png", 719 * 4)
+      new BackgroundObject("assets/img/5_background/layers/1_first_layer/1.png", 719 * 4),
+
+      new BackgroundObject("assets/img/5_background/layers/air.png", 719 * 5),
+      new BackgroundObject("assets/img/5_background/layers/3_third_layer/1.png", 719 * 5),
+      new BackgroundObject("assets/img/5_background/layers/2_second_layer/1.png", 719 * 5),
+      new BackgroundObject("assets/img/5_background/layers/1_first_layer/1.png", 719 * 5)
       ],
       [
       new MiniEndboss(1000),
-      new MiniEndboss(1500),
-      new MiniEndboss(2000)
+      new MiniEndboss(1700),
+      new MiniEndboss(2300)
       ]
     );
   }

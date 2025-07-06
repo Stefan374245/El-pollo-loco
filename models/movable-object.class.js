@@ -44,9 +44,11 @@ class MovableObject extends DrawableObject {
   moveLeft() {
     this.x -= this.speed;
   }
+  
   jump() {
     this.speedY = -25;
   }
+
   knockback(attacker = null) {
     let knockbackDirection = -1;
     

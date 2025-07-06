@@ -33,8 +33,10 @@ class World {
   init() {
     if (this.levelNumber === 2) {
       this.level = NewLevelManager.createLevel2();
+      this.level.level_end_point = 3500;
     } else {
       this.level = NewLevelManager.createLevel1();
+      this.level.level_end_point = 2500;
     }
     
     this.character = new Character();

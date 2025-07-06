@@ -183,6 +183,11 @@ class GameManager {
   stopGame() {
     this.gameRunning = false;
     this.stopAllSounds();
+      if (this.currentWorld) {
+    if (this.currentWorld.runInterval) {
+      clearInterval(this.currentWorld.runInterval);
+    }
+  }
     this.clearWorld();
     this.canvas.style.filter = "";
     document.getElementById("mobileControls").classList.remove("active");
