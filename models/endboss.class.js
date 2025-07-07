@@ -1,18 +1,37 @@
+/**
+ * Represents the main boss enemy in the game.
+ * Manages complex boss behavior including multiple attack phases and aggression levels.
+ * @class Endboss
+ * @extends Enemy
+ */
 class Endboss extends Enemy {
+  /** @type {number} Height of the endboss */
   height = 400;
+  /** @type {number} Width of the endboss */
   width = 300;
+  /** @type {number} Y-coordinate position */
   y = 72;
 
+  /** @type {string} Current animation phase */
   animationPhase        = "alert";
+  /** @type {number} Current image index for animation */
   currentImage          = 0;
+  /** @type {number} Frame counter for animation timing */
   frameCount            = 0;
+  /** @type {number} Number of attacks performed */
   attackCount           = 0;
+  /** @type {number} Current phase step counter */
   phaseStep             = 0;
 
-   onDeathComplete = null;
-     deadAnimationComplete = false;
+   /** @type {function} Callback function when death animation completes */
+  onDeathComplete = null;
+  /** @type {boolean} Flag indicating if death animation is complete */
+  deadAnimationComplete = false;
 
+  /** @type {number} Current aggression level of the boss */
   aggressionLevel = 1;
+  
+  /** @type {Object} Configuration for aggression level 1 */
   aggressionLevel1 = {
     speed: 16,
     hp: 100,
@@ -21,8 +40,10 @@ class Endboss extends Enemy {
     alertDuration: 3000,
     damagePerHit: 20,
   };
+  
+  /** @type {Object} Configuration for aggression level 2 */
   aggressionLevel2 = {
-    speed: 24,
+    speed: 20,
     hp: 140,
     maxHp: 140,
     spawnEnemiesOnAttack: true,
@@ -30,6 +51,7 @@ class Endboss extends Enemy {
     damagePerHit: 20,
   };
 
+  /** @type {Object} Collection of animation image arrays */
   animations = {
     walk: [
       "assets/img/4_enemie_boss_chicken/1_walk/G1.png",
@@ -69,18 +91,26 @@ class Endboss extends Enemy {
     ],
   };
 
-  constructor(aggressionLevel = 1) {
+  /**
+   * Creates a new endboss instance
+   * @param {number} [aggressionLevel=1] - The aggression level of the boss (1 or 2)
+   * @param {number} [xPosition=2200] - X-coordinate position of the boss
+   */
+  constructor(aggressionLevel = 1, xPosition = 2200) {
     super();
-    // Alle Animations-Bilder vorladen
     this.loadImage(this.animations.walk[0]);
     Object.values(this.animations).forEach(images => this.loadImages(images));
 
-    this.x = 2200;
+    this.x = xPosition;
     this.applyAggressionLevel(aggressionLevel);
 
     this.alertTriggered = false;
   }
 
+  /**
+   * Applies the specified aggression level configuration to the boss
+   * @param {number} level - The aggression level to apply (1 or 2)
+   */
   applyAggressionLevel(level) {
     const cfg = level === 2 ? this.aggressionLevel2 : this.aggressionLevel1;
     this.aggressionLevel = level;
@@ -90,36 +120,55 @@ class Endboss extends Enemy {
     this.damagePerHit   = cfg.damagePerHit;
   }
 
-  animate() {
-    setInterval(() => {
-      if (
-        !this.world ||
-        this.x + this.width / 2 >= -this.world.camera_x + this.world.canvas.width
-      ) return;
+   animate() {
+    if (!this.animationInterval) {
+      this.animationInterval = setInterval(() => {
+        this.handleAnimation();
+      }, 200);
+    }
+  }
 
+ initializeStatusBar() {
+  if (!this.world?.statusBarEndboss) return;
+  
+  if (this.world.statusBarEndboss.updateFromHpValues) {
+    this.world.statusBarEndboss.updateFromHpValues(this.hp, this.maxHp);
+  } else {
 
-      if (!this.alertTriggered && this.world.character.x >= this.x - 600) {
-        this.alertTriggered = true;
-        this.changePhase("alert");
-        this.initializeStatusBar();
-        this.world.character.audioManager?.play("endboss");
-        this.world.character.audioManager?.stopAndReset("level1");
-        this.world.character.audioManager?.stopAndReset("level2");
-      }
+    this.world.statusBarEndboss.setMaxHp(this.maxHp);
+    const pct = (this.hp / this.maxHp) * 100;
+    this.world.statusBarEndboss.setPercentage(pct);
+  }
+}
 
- 
-      if (this.animationPhase === "walk") {
-        this.moveLeft();
-      }
-      if (this.animationPhase === "alert" && !this.alertFinished) {
-        this.alertFinished = true;
-        setTimeout(
-          () => this.changePhase("attack"),
-          this.getCurrentAggressionSettings().alertDuration
-        );
-      }
+  handleAnimation() {
+    if (
+      !this.world ||
+      this.x + this.width / 2 >= -this.world.camera_x + this.world.canvas.width
+    ) return;
 
-  if (this.isDead()) {
+    if (!this.alertTriggered && this.world.character.x >= this.x - 600) {
+      this.alertTriggered = true;
+      this.changePhase("alert");
+      this.initializeStatusBar();
+      this.world.character.audioManager?.play("endboss");
+      this.world.character.audioManager?.stopAndReset("level1");
+      this.world.character.audioManager?.stopAndReset("level2");
+    }
+
+    if (this.animationPhase === "walk") {
+      this.moveLeft();
+    }
+
+    if (this.animationPhase === "alert" && !this.alertFinished) {
+      this.alertFinished = true;
+      setTimeout(
+        () => this.changePhase("attack"),
+        this.getCurrentAggressionSettings().alertDuration
+      );
+    }
+
+    if (this.isDead()) {
       this.playAnimation(this.animations.dead);
       this.frameCount++;
 
@@ -135,17 +184,6 @@ class Endboss extends Enemy {
       return;
     }
 
-      this.handleAnimation();
-    }, 200);
-  }
-
-  initializeStatusBar() {
-    if (!this.world?.statusBarEndboss) return;
-    const pct = (this.hp / this.maxHp) * 100;
-    this.world.statusBarEndboss.setPercentage(pct);
-  }
-
-  handleAnimation() {
     this.playAnimation(this.animations[this.animationPhase]);
     this.frameCount++;
     if (this.frameCount >= this.animations[this.animationPhase].length) {
@@ -195,12 +233,13 @@ class Endboss extends Enemy {
 
   spawnEnemyBehind() {
     if (!this.world) return;
-    const e = new Enemy2();
-    e.x     = this.x + this.width - 70;
-    e.y     = 390;
-    e.world = this.world;
-    e.speed = 3.5;
-    this.world.level.enemies.push(e);
+    const enemy1 = new Enemy2();
+    enemy1.x     = this.x + this.width - 54;
+    enemy1.y     = 390;
+    enemy1.world = this.world;
+    enemy1.speed = 3.2;
+
+    this.world.level.enemies.push(enemy1);
   }
 
   checkBottleHit(bottle) {
@@ -222,26 +261,27 @@ class Endboss extends Enemy {
     }
   }
 
-  hit() {
-    this.hitBoss();
-  }
-
 hitBoss() {
   if (this.animationPhase === "hurt" || this.isDead()) return;
 
-  // Schaden anwenden
-  this.hp = Math.max(
-    0,
-    this.hp - this.getCurrentAggressionSettings().damagePerHit
-  );
+  // Schaden basierend auf Aggression Level
+  const damage = this.getCurrentAggressionSettings().damagePerHit;
+  this.hp = Math.max(0, this.hp - damage);
+  
+  console.log(`Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`);
+  if (this.world?.character?.audioManager) {
+    this.world.character.audioManager.play('endbossHit', false, 0.8);
+  }
   this.changePhase("hurt");
-  this.world.statusBarEndboss.setPercentage((this.hp / this.maxHp) * 100);
+  
+  if (this.world?.statusBarEndboss) {
+    this.world.statusBarEndboss.updateFromHpValues(this.hp, this.maxHp);
+  }
 
-  // Starte Dead-Phase
   if (this.hp === 0) {
     this.changePhase("dead");
     this.frameCount = 0; 
-     if (audioManager && audioManager.play) {
+    if (audioManager && audioManager.play) {
       audioManager.play('win', false, 0.8);
     }
   }
@@ -254,7 +294,6 @@ hitBoss() {
     if (this.endLevelScheduled) return;
     this.endLevelScheduled = true;
     
-    // Sicherstellen, dass gameManager existiert
     if (window.gameManager && typeof window.gameManager.completeLevel === 'function') {
       window.gameManager.completeLevel();
     } else {

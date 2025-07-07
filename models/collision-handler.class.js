@@ -1,10 +1,23 @@
+/**
+ * Handles all collision detection and interactions between game objects.
+ * Manages character-enemy collisions, item collection, and damage calculations.
+ * @class CollisionHandler
+ */
 class CollisionHandler {
+  /**
+   * Creates a new collision handler instance
+   * @param {World} world - The game world instance
+   */
   constructor(world) {
     this.world = world;
     this.offsets = CollisionConfig.getOffsets();
     this.barIsScaling = false;
   }
 
+  /**
+   * Performs all collision checks in the correct order
+   * Called every frame to detect and handle collisions
+   */
   checkAll() {
     this.checkEnemiesCollision();
     this.checkBottles();
@@ -15,6 +28,10 @@ class CollisionHandler {
     this.checkMiniEndbossHP();
   }
 
+  /**
+   * Checks collisions between character and enemies
+   * Handles both jump attacks and normal collisions
+   */
   checkEnemiesCollision() {
     const jumpAttackHappened = this.checkJumpAttacks();
     if (!jumpAttackHappened) {
@@ -23,6 +40,10 @@ class CollisionHandler {
     this.checkCharacterHP(this.world.character);
   }
 
+  /**
+   * Checks for jump attacks from the character on enemies and mini-bosses
+   * @returns {boolean} True if a jump attack happened, false otherwise
+   */
   checkJumpAttacks() {
     const now = Date.now();
     let jumpAttackHappened = false;
@@ -118,6 +139,9 @@ class CollisionHandler {
     return jumpAttackHappened;
   }
 
+  /**
+   * Checks normal collisions between the character and enemies/mini-bosses
+   */
   checkNormalCollisions() {
     const now = Date.now();
 
@@ -200,18 +224,29 @@ class CollisionHandler {
     }
   }
 
+  /**
+   * Checks and updates the HP of the character
+   * @param {Character} character - The character instance
+   */
   checkCharacterHP(character) {
     if (character.hp <= 0 && !character.dead) {
       character.dead = true;
     }
   }
 
+  /**
+   * Checks and updates the HP of the end boss
+   * @param {Endboss} endboss - The end boss instance
+   */
   checkEndBossHP(endboss) {
     if (endboss.hp <= 0 && !endboss.dead) {
       endboss.dead = true;
     }
   }
 
+  /**
+   * Checks and updates the HP of mini end bosses
+   */
   checkMiniEndbossHP() {
     if (this.world.level.miniEndbosses) {
       const miniEndbossesToCheck = [...this.world.level.miniEndbosses];
@@ -230,6 +265,9 @@ class CollisionHandler {
     }
   }
 
+  /**
+   * Checks if thrown bottles hit enemies or mini-bosses
+   */
   checkBottleHitEnemy() {
     this.world.throwableObjects.forEach((bottle) => {
       if (this.world.level.miniEndbosses) {
@@ -262,6 +300,9 @@ class CollisionHandler {
     });
   }
 
+  /**
+   * Checks and handles bottle pickups by the character
+   */
   checkBottles() {
     const maxBottles = 5;
 
@@ -288,6 +329,9 @@ class CollisionHandler {
     });
   }
 
+  /**
+   * Checks and handles coin pickups by the character
+   */
   checkCoins() {
     this.world.level.coins = this.world.level.coins.filter((coin) => {
       const hasCollision = CollisionConfig.isPreciseCollision(
@@ -309,11 +353,20 @@ class CollisionHandler {
     });
   }
 
+  /**
+   * Increases the fill bar of status bars (bottles, coins, etc.)
+   * @param {Object} bar - The bar object to increase
+   * @param {number} [amount=0] - The amount to increase the bar by
+   */
   increaseBar(bar, amount = 0) {
     bar.percentage = Math.min(bar.percentage + amount, 100);
     bar.setPercentage(bar.percentage);
   }
 
+  /**
+   * Animates the scaling effect of the bar when an item is picked up
+   * @param {Object} bar - The bar object to animate
+   */
   animateBarScale(bar) {
     if (this.barIsScaling) return;
 

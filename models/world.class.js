@@ -1,20 +1,57 @@
+/**
+ * Main class for the game world that manages all game objects and their interactions
+ * Handles rendering, collision detection, and game state management
+ * @class World
+ */
 class World {
+  /** @type {Character} The main character of the game */
   character;
+  
+  /** @type {Level} The current level with all objects */
   level;
+  
+  /** @type {HTMLCanvasElement} The canvas element for rendering */
   canvas;
+  
+  /** @type {CanvasRenderingContext2D} The 2D rendering context of the canvas */
   ctx;
+  
+  /** @type {Object} Keyboard input handler for controls */
   keyboard;
+  
+  /** @type {number} Number of available bottles for throwing */
   bottleCount;
+  
+  /** @type {number} X-position of the camera for scrolling */
   camera_x;
 
+  /** @type {StatusBar} Status bar for character HP */
   statusBar;
+  
+  /** @type {StatusBarCoins} Status bar for collected coins */
   statusBarCoins;
+  
+  /** @type {StatusBarBottles} Status bar for available bottles */
   statusBarBottles;
+  
+  /** @type {StatusBarEndboss} Status bar for endboss HP */
   statusBarEndboss;
+  
+  /** @type {ThrowableObject[]} Array of all thrown objects */
   throwableObjects;
+  
+  /** @type {CollisionHandler} Handler for collision detection */
   collisionHandler;
+  
+  /** @type {boolean} Flag whether character can throw (cooldown) */
   canThrow;
 
+  /**
+   * Creates a new game world instance
+   * @param {HTMLCanvasElement} canvas - The canvas element for rendering
+   * @param {Object} keyboard - Keyboard input handler
+   * @param {number} [levelNumber=1] - The number of the level to load
+   */
   constructor(canvas, keyboard, levelNumber = 1) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
@@ -23,28 +60,32 @@ class World {
 
     this.init();
     this.setWorld();
-    this.initAudio();
     this.startCollisionCheck();
     this.startThrowCheck();
     this.draw();
   }
 
-
+  /**
+   * Initializes the game world with all required objects
+   * Loads the appropriate level and creates all game objects
+   */
   init() {
     if (this.levelNumber === 2) {
       this.level = NewLevelManager.createLevel2();
+      this.level.level_end_point = 3500;
     } else {
       this.level = NewLevelManager.createLevel1();
+      this.level.level_end_point = 2500;
     }
-    
+
     this.character = new Character();
     this.statusBar = new StatusBar();
     this.statusBarCoins = new StatusBarCoins();
     this.statusBarBottles = new StatusBarBottles();
-    
+
     const endbossMaxHp = this.level.endboss.maxHp;
     this.statusBarEndboss = new StatusBarEndboss(endbossMaxHp);
-    
+
     this.throwableObjects = [];
     this.collisionHandler = new CollisionHandler(this);
     this.bottleCount = 0;
@@ -52,25 +93,11 @@ class World {
     this.canThrow = true;
   }
 
-  
-
-  initAudio() {
-    if (!audioManager.globalMuted) {
-      audioManager.pause('startscreen');
-      audioManager.play('startgame', true, 0.5);
-    } else {
-      audioManager.unmuteAll();
-      
-      const icon = document.getElementById("music-toggle-icon");
-      if (icon) {
-        icon.src = audioManager.globalMuted
-          ? "assets/icons/mute.svg"
-          : "assets/icons/unmute.svg";
-      }
-    }
-  }
+  /**
+   * Links all game objects with the world and starts their animations
+   * Sets the world reference for all level objects
+   */
   setWorld() {
-    
     this.character.world = this;
     this.character.setAudioManager(audioManager);
     this.character.animate();
@@ -96,20 +123,17 @@ class World {
     this.level.endboss.world = this;
     this.level.endboss.animate();
 
-    const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
-    this.statusBarEndboss.setPercentage(initialPercentage);
+    this.initializeMiniEndbosses();
 
-    if (this.level.miniEndbosses) {
-      this.level.miniEndbosses.forEach((miniEndboss, index) => {
-        miniEndboss.world = this;
-        miniEndboss.id = `miniEndboss_${index}_${Date.now()}`;
-        miniEndboss.animate();
-      });
-    }
+    this.initializeStatusBars();
   }
 
+  /**
+   * Main drawing loop - renders all game objects to the canvas
+   * Uses requestAnimationFrame for smooth animation
+   */
   draw() {
-     if (!gameManager.gameRunning) return;
+    if (!gameManager.gameRunning) return;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -129,7 +153,7 @@ class World {
     }
 
     this.ctx.translate(-this.camera_x, 0);
-    
+
     if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
       this.addToMap(this.statusBarEndboss);
     }
@@ -137,19 +161,28 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarCoins);
 
-      if (gameManager.gameRunning)  {
+    if (gameManager.gameRunning) {
       requestAnimationFrame(() => {
         this.draw();
       });
     }
   }
 
+  /**
+   * Adds an array of objects to the drawing queue
+   * @param {MovableObject[]} objects - Array of objects to be drawn
+   */
   addObjectsToMap(objects) {
     objects.forEach((o) => {
       this.addToMap(o);
     });
   }
 
+  /**
+   * Draws a single object to the canvas
+   * Handles mirroring for objects with otherDirection flag
+   * @param {MovableObject} mo - The movable object to be drawn
+   */
   addToMap(mo) {
     if (mo.otherDirection) {
       this.flipImage(mo);
@@ -163,6 +196,10 @@ class World {
     }
   }
 
+  /**
+   * Mirrors an image horizontally for display
+   * @param {MovableObject} mo - The object to be mirrored
+   */
   flipImage(mo) {
     this.ctx.save();
     this.ctx.translate(mo.width, 0);
@@ -170,22 +207,34 @@ class World {
     mo.x = mo.x * -1;
   }
 
+  /**
+   * Restores the original image orientation
+   * @param {MovableObject} mo - The object whose mirroring is to be undone
+   */
   flipImageBack(mo) {
     mo.x = mo.x * -1;
     this.ctx.restore();
   }
 
-startCollisionCheck() {
-  if (this.collisionInterval) {
-    clearInterval(this.collisionInterval);
-  }
-  this.collisionInterval = setInterval(() => {
-     if (gameManager.gameRunning) {
-      this.collisionHandler.checkAll();
+  /**
+   * Starts the regular collision checking
+   * Clears previous intervals and creates a new one every 10ms
+   */
+  startCollisionCheck() {
+    if (this.collisionInterval) {
+      clearInterval(this.collisionInterval);
     }
-  }, 10);
-}
+    this.collisionInterval = setInterval(() => {
+      if (gameManager.gameRunning) {
+        this.collisionHandler.checkAll();
+      }
+    }, 10);
+  }
 
+  /**
+   * Checks if the player wants to throw a bottle and can do so
+   * Creates new ThrowableObject instance on valid input
+   */
   checkThrowableObjects() {
     if (this.keyboard.F && this.bottleCount > 0 && this.canThrow) {
       const direction = this.character.otherDirection;
@@ -198,7 +247,7 @@ startCollisionCheck() {
 
       this.throwableObjects.push(bottle);
 
-      audioManager.play('throwBottle');
+      audioManager.play("throwBottle");
 
       this.bottleCount--;
 
@@ -211,14 +260,46 @@ startCollisionCheck() {
       }, 500);
     }
   }
-startThrowCheck() {
-  if (this.throwInterval) {
-    clearInterval(this.throwInterval);
-  }
-  this.throwInterval = setInterval(() => {
-     if (gameManager.gameRunning)  {
-      this.checkThrowableObjects();
+
+  /**
+   * Starts the regular checking for throwable objects
+   * Clears previous intervals and creates a new one every 200ms
+   */
+  startThrowCheck() {
+    if (this.throwInterval) {
+      clearInterval(this.throwInterval);
     }
-  }, 200);
-}
+    this.throwInterval = setInterval(() => {
+      if (gameManager.gameRunning) {
+        this.checkThrowableObjects();
+      }
+    }, 200);
+  }
+
+  /**
+   * Initializes all mini endbosses in the level
+   * Sets world reference, unique IDs and starts animations
+   */
+  initializeMiniEndbosses() {
+    if (this.level.miniEndbosses) {
+      this.level.miniEndbosses.forEach((miniEndboss, index) => {
+        miniEndboss.world = this;
+        miniEndboss.id = `miniEndboss_${index}_${Date.now()}`;
+        miniEndboss.animate();
+      });
+    }
+  }
+
+  /**
+   * Initializes all status bars with current values
+   * Sets initial HP values for endboss status bar
+   */
+  initializeStatusBars() {
+    if (this.statusBarEndboss.updateFromHpValues) {
+      this.statusBarEndboss.updateFromHpValues(this.level.endboss.hp, this.level.endboss.maxHp);
+    } else {
+      const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
+      this.statusBarEndboss.setPercentage(initialPercentage);
+    }
+  }
 }

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: mini-endboss.class.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: mini-endboss.class.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Represents a smaller variant of the main boss enemy.
+ * Inherits from Endboss but with reduced size and simplified behavior.
+ * @class MiniEndboss
+ * @extends Endboss
+ */
+class MiniEndboss extends Endboss {
+  /** @type {number} Width of the mini endboss */
+  width = 80; // Deutlich kleiner als vorher (100)
+  /** @type {number} Height of the mini endboss */
+  height = 120; // Deutlich kleiner als vorher (150)
+  /** @type {number} Health points of the mini endboss */
+  hp = 60; // Angepasst für 3 Hits bei 20 Schaden
+  /** @type {number} Maximum health points */
+  maxHp = 60;
+  /** @type {number} Movement speed */
+  speed = 4.0; // Erhöht von 2.5 auf 4.0 für mehr Geschwindigkeit
+  /** @type {number} Damage dealt per hit */
+  damagePerHit = 20;
+
+  /**
+   * Creates a new MiniEndboss instance
+   * @param {number} [x=1200] - X-coordinate position
+   */
+  constructor(x = 1200) {
+    super(1); // Mini-Endboss hat immer Aggressionslevel 1
+    this.x = x;
+    this.y = 320;
+    this.animationPhase = "walk";
+    this.otherDirection = false; // Für das flipImage System
+    this.deadAnimationComplete = false;
+    this.frameCount = 0;
+    this.id = null; // Wird in setWorld() gesetzt
+
+    // Mini-Endboss überschreibt HP-Werte
+    this.hp = 60; // 60 HP für 3 Hits bei 20 Schaden
+    this.maxHp = 60;
+  }
+
+  /**
+   * Updates the direction of the mini endboss based on character position
+   * Moves towards the character
+   */
+  updateDirection() {
+    // Keine Bewegung während Hurt-Animation oder wenn tot
+    if (
+      this.world &amp;&amp;
+      this.world.character &amp;&amp;
+      !this.isDead() &amp;&amp;
+      this.animationPhase !== "hurt"
+    ) {
+      const characterX = this.world.character.x;
+      const bossX = this.x;
+
+      // Flippe nur wenn Character rechts vom Boss steht (character.x > miniendboss.x)
+      this.otherDirection = characterX > bossX;
+
+      // Bewege sich zum Character hin
+      if (characterX > bossX) {
+        this.moveRight(); // Character ist rechts - bewege nach rechts
+      } else if (characterX &lt; bossX) {
+        this.moveLeft(); // Character ist links - bewege nach links
+      }
+    }
+  }
+
+  /**
+   * Animates the mini endboss by updating the animation phase
+   * and handling the animation timing
+   */
+  animate() {
+    setInterval(() => {
+      if (
+        this.world &amp;&amp;
+        this.x + this.width / 2 &lt; -this.world.camera_x + this.world.canvas.width
+      ) {
+        this.handleAnimation();
+      }
+    }, 200);
+
+    this.directionInterval = setInterval(() => {
+      // Keine Bewegung während Hurt-Animation oder wenn tot
+      if (!this.isDead() &amp;&amp; this.animationPhase !== "hurt") {
+        this.updateDirection();
+      }
+    }, 100);
+  }
+
+  /**
+   * Handles the animation phases of the mini endboss
+   * Plays the corresponding animation based on the current phase
+   */
+  handleAnimation() {
+    if (this.isDead() || this.animationPhase === "dead") {
+      this.playAnimation(this.animations.dead);
+
+      // Prüfe ob Dead-Animation komplett abgespielt wurde (1000ms anhalten)
+      if (
+        this.frameCount >= this.animations.dead.length - 1 &amp;&amp;
+        !this.deadAnimationComplete
+      ) {
+        this.deadAnimationComplete = true;
+        console.log(`Mini-Endboss ${this.id} Dead-Animation abgeschlossen`);
+        // Warte 1000ms bevor entfernt wird
+        setTimeout(() => {
+          this.removeSelfFromWorld();
+        }, 1000);
+      }
+      this.frameCount++;
+      return;
+    }
+
+    this.playAnimation(this.animations[this.animationPhase]);
+    this.frameCount++;
+
+    if (this.frameCount >= this.animations[this.animationPhase].length) {
+      this.handlePhaseTransition();
+    }
+  }
+
+  /**
+   * Handles the transition between different animation phases
+   * Defines the behavior and timing of each phase
+   */
+  handlePhaseTransition() {
+    this.frameCount = 0; // Reset frameCount bei jedem Phasenwechsel
+
+    switch (this.animationPhase) {
+      case "alert":
+        break;
+
+      case "attack":
+        this.attackCount++;
+        // Mini-Endboss spawnt KEINE Enemies
+        this.phaseStep++;
+        this.changePhase("walk");
+        break;
+
+      case "walk":
+        const walkDuration = 1500; // Kurze Walk-Phase für Mini-Endboss
+        setTimeout(() => {
+          this.phaseStep++;
+          this.changePhase("attack");
+        }, walkDuration);
+        break;
+
+      case "hurt":
+        // Längere Pause nach hurt-Animation (1000ms wie gewünscht)
+        setTimeout(() => {
+          if (this.animationPhase === "hurt") {
+            this.changePhase(this.previousPhase || "attack");
+          }
+        }, 1000); // 1000ms Hurt-Animation wie gewünscht
+        break;
+    }
+  }
+
+  /**
+   * Checks if a bottle hit the mini endboss using precise collision detection
+   * @param {Object} bottle - The bottle object to check collision with
+   */
+  checkBottleHit(bottle) {
+    const config = CollisionConfig.getOffsets();
+    const hitOffsets = config.miniEndboss.precise;
+
+    if (
+      !this.isDead() &amp;&amp;
+      CollisionConfig.isPreciseCollision(
+        bottle,
+        this,
+        config.throwableBottle.hit,
+        hitOffsets
+      ) &amp;&amp;
+      !bottle.hasHitGround
+    ) {
+      console.log("Mini-Endboss hit! HP before:", this.hp);
+      this.hitMiniEndboss(); // Eigene Methode für Mini-Endboss
+      bottle.hasHitGround = true;
+      bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+      console.log("Mini-Endboss HP after hit:", this.hp);
+    }
+  }
+
+  /**
+   * Custom hit method for mini endbosses
+   * Applies damage and handles the hurt and death phases
+   */
+  hitMiniEndboss() {
+    if (this.animationPhase === "hurt" || this.isDead()) return;
+
+    const damage = 20; // Mini-Endboss hat 60 HP und soll in 3 Treffern sterben (60÷20=3)
+    this.hp -= damage;
+    if (this.hp &lt; 0) this.hp = 0;
+
+    this.lastHit = new Date().getTime();
+    this.changePhase("hurt");
+
+    console.log(
+      `Mini-Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`
+    );
+
+    // Mini-Endbosse beeinflussen NICHT die Endboss-Statusbar
+
+    if (this.hp === 0) {
+      this.changePhase("dead");
+      this.deathProcessed = false;
+    }
+  }
+
+  /**
+   * Custom death logic for the mini endboss
+   * Stops movement and plays the death animation
+   */
+  die() {
+    console.log(`Mini-Endboss ${this.id} stirbt`);
+    this.dead = true;
+    this.changePhase("dead");
+    this.frameCount = 0; // Reset für Dead-Animation
+
+    if (this.directionInterval) {
+      clearInterval(this.directionInterval);
+    }
+  }
+
+  /**
+   * Prevents enemy spawning behind the mini endboss
+   * Overrides the spawnEnemyBehind method from Endboss
+   */
+  spawnEnemyBehind() {
+    // Mini-Endboss spawnt keine zusätzlichen Enemies
+  }
+
+  /**
+   * Removes this mini endboss instance from the world
+   * Overrides the removeSelfFromWorld method from Endboss
+   */
+  removeSelfFromWorld() {
+    if (this.world &amp;&amp; this.world.level &amp;&amp; this.world.level.miniEndbosses) {
+      const index = this.world.level.miniEndbosses.indexOf(this);
+      if (index > -1) {
+        this.world.level.miniEndbosses.splice(index, 1);
+        console.log(
+          `Mini-Endboss ${this.id} erfolgreich aus Array entfernt. Verbleibende: ${this.world.level.miniEndbosses.length}`
+        );
+      }
+    }
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MiniEndboss.html">MiniEndboss</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jul 07 2025 14:14:23 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

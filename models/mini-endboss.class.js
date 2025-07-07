@@ -1,11 +1,27 @@
+/**
+ * Represents a smaller variant of the main boss enemy.
+ * Inherits from Endboss but with reduced size and simplified behavior.
+ * @class MiniEndboss
+ * @extends Endboss
+ */
 class MiniEndboss extends Endboss {
+  /** @type {number} Width of the mini endboss */
   width = 80; // Deutlich kleiner als vorher (100)
+  /** @type {number} Height of the mini endboss */
   height = 120; // Deutlich kleiner als vorher (150)
+  /** @type {number} Health points of the mini endboss */
   hp = 60; // Angepasst für 3 Hits bei 20 Schaden
+  /** @type {number} Maximum health points */
   maxHp = 60;
+  /** @type {number} Movement speed */
   speed = 4.0; // Erhöht von 2.5 auf 4.0 für mehr Geschwindigkeit
+  /** @type {number} Damage dealt per hit */
   damagePerHit = 20;
 
+  /**
+   * Creates a new MiniEndboss instance
+   * @param {number} [x=1200] - X-coordinate position
+   */
   constructor(x = 1200) {
     super(1); // Mini-Endboss hat immer Aggressionslevel 1
     this.x = x;
@@ -21,7 +37,10 @@ class MiniEndboss extends Endboss {
     this.maxHp = 60;
   }
 
-  // Erweiterte Richtungslogik mit Bewegung
+  /**
+   * Updates the direction of the mini endboss based on character position
+   * Moves towards the character
+   */
   updateDirection() {
     // Keine Bewegung während Hurt-Animation oder wenn tot
     if (
@@ -45,7 +64,10 @@ class MiniEndboss extends Endboss {
     }
   }
 
-  // Überschreibt die animate-Methode um Richtungsupdate hinzuzufügen
+  /**
+   * Animates the mini endboss by updating the animation phase
+   * and handling the animation timing
+   */
   animate() {
     setInterval(() => {
       if (
@@ -64,6 +86,10 @@ class MiniEndboss extends Endboss {
     }, 100);
   }
 
+  /**
+   * Handles the animation phases of the mini endboss
+   * Plays the corresponding animation based on the current phase
+   */
   handleAnimation() {
     if (this.isDead() || this.animationPhase === "dead") {
       this.playAnimation(this.animations.dead);
@@ -92,7 +118,10 @@ class MiniEndboss extends Endboss {
     }
   }
 
-  // Überschreibt handlePhaseTransition um kein Enemy-Spawning zu haben
+  /**
+   * Handles the transition between different animation phases
+   * Defines the behavior and timing of each phase
+   */
   handlePhaseTransition() {
     this.frameCount = 0; // Reset frameCount bei jedem Phasenwechsel
 
@@ -126,7 +155,10 @@ class MiniEndboss extends Endboss {
     }
   }
 
-  // Überschreibt checkBottleHit mit angepassten Offsets für kleinere Größe
+  /**
+   * Checks if a bottle hit the mini endboss using precise collision detection
+   * @param {Object} bottle - The bottle object to check collision with
+   */
   checkBottleHit(bottle) {
     const config = CollisionConfig.getOffsets();
     const hitOffsets = config.miniEndboss.precise;
@@ -149,7 +181,10 @@ class MiniEndboss extends Endboss {
     }
   }
 
-  // Eigene Hit-Methode für Mini-Endbosse (beeinflusst nicht die Endboss-Statusbar)
+  /**
+   * Custom hit method for mini endbosses
+   * Applies damage and handles the hurt and death phases
+   */
   hitMiniEndboss() {
     if (this.animationPhase === "hurt" || this.isDead()) return;
 
@@ -172,7 +207,10 @@ class MiniEndboss extends Endboss {
     }
   }
 
-  // Überschreibt die Sterbe-Logik
+  /**
+   * Custom death logic for the mini endboss
+   * Stops movement and plays the death animation
+   */
   die() {
     console.log(`Mini-Endboss ${this.id} stirbt`);
     this.dead = true;
@@ -184,12 +222,18 @@ class MiniEndboss extends Endboss {
     }
   }
 
-  // Deaktiviert Enemy-Spawning
+  /**
+   * Prevents enemy spawning behind the mini endboss
+   * Overrides the spawnEnemyBehind method from Endboss
+   */
   spawnEnemyBehind() {
     // Mini-Endboss spawnt keine zusätzlichen Enemies
   }
 
-  // Entfernt diesen Mini-Endboss direkt aus dem World-Array
+  /**
+   * Removes this mini endboss instance from the world
+   * Overrides the removeSelfFromWorld method from Endboss
+   */
   removeSelfFromWorld() {
     if (this.world && this.world.level && this.world.level.miniEndbosses) {
       const index = this.world.level.miniEndbosses.indexOf(this);

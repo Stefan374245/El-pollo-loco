@@ -1,5 +1,4 @@
 .start-screen-card h1 {
-  width: 100%;
   font-size: 35px;
   margin-bottom: 20px;
   color: #000000;
@@ -19,4 +18,9 @@
 
 .label {
     font-weight: bold;
+}
+
+h2 {
+  margin: 0;
+  margin-bottom: 32px;
 }

@@ -1,9 +1,17 @@
+/**
+ * @fileoverview Level Manager for El Pollo Loco game.
+ * Handles creation and configuration of game levels with enemies, items, and backgrounds.
+ * @author Your Name
+ * @version 1.0.0
+ */
+
 class NewLevelManager {
   /**
-   * Erstellt Level 1 - entspricht der ursprünglichen level1.js Logik
-   * @returns {Level} Level 1 Instanz
+   * Creates Level 1 - corresponds to the original level1.js logic
+   * @returns {Level} Level 1 instance
    */
   static createLevel1() {
+     const level1Endboss = new Endboss(1, 2200);
     return new Level(
       [
         new Enemy(),
@@ -17,7 +25,7 @@ class NewLevelManager {
         new Enemy2(),
         new Enemy2()
       ],
-      new Endboss(1),
+      level1Endboss,
       [
         new Clouds(),
         new Clouds(),
@@ -77,13 +85,15 @@ class NewLevelManager {
       ],
       null 
     );
+    
   }
 
   /**
-   * Erstellt Level 2 - Anspruchsvoller mit mehr Gegnern und Mini-Endbossen
-   * @returns {Level} Level 2 Instanz mit Mini-Endbossen
+   * Creates Level 2 - More challenging with more enemies and mini-endbosses
+   * @returns {Level} Level 2 instance with mini-endbosses
    */
   static createLevel2() {
+    const level2Endboss = new Endboss(2, 3000);
     return new Level(
       [
       new Enemy(),
@@ -96,7 +106,7 @@ class NewLevelManager {
       new Enemy2(),
       new Enemy2()
       ],
-      new Endboss(2), 
+      level2Endboss, 
       [
       new Clouds(),
       new Clouds(),
@@ -176,12 +186,17 @@ class NewLevelManager {
       new BackgroundObject("assets/img/5_background/layers/air.png", 719 * 4),
       new BackgroundObject("assets/img/5_background/layers/3_third_layer/1.png", 719 * 4),
       new BackgroundObject("assets/img/5_background/layers/2_second_layer/1.png", 719 * 4),
-      new BackgroundObject("assets/img/5_background/layers/1_first_layer/1.png", 719 * 4)
+      new BackgroundObject("assets/img/5_background/layers/1_first_layer/1.png", 719 * 4),
+
+      new BackgroundObject("assets/img/5_background/layers/air.png", 719 * 5),
+      new BackgroundObject("assets/img/5_background/layers/3_third_layer/1.png", 719 * 5),
+      new BackgroundObject("assets/img/5_background/layers/2_second_layer/1.png", 719 * 5),
+      new BackgroundObject("assets/img/5_background/layers/1_first_layer/1.png", 719 * 5)
       ],
       [
       new MiniEndboss(1000),
-      new MiniEndboss(1500),
-      new MiniEndboss(2000)
+      new MiniEndboss(1700),
+      new MiniEndboss(2300)
       ]
     );
   }

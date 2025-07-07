@@ -1,10 +1,22 @@
+/**
+ * Represents the main character of the game.
+ * Handles player movement, animations, and interactions with the game world.
+ * @class Character
+ * @extends MovableObject
+ */
 class Character extends MovableObject {
+  /** @type {number} Height of the character */
   height = 160;
+  /** @type {number} Movement speed of the character */
   speed = 6;
+  /** @type {number} Current image index for animation */
   currentImage = 0;
+  /** @type {number} Health points of the character */
   hp = 100;
-lastHit = 0;
+  /** @type {number} Timestamp of last hit taken */
+  lastHit = 0;
   
+  /** @type {string[]} Animation images for idle state */
   IMAGES_IDLE = [
     'assets/img/2_character_pepe/1_idle/idle/I-1.png',
     'assets/img/2_character_pepe/1_idle/idle/I-2.png',
@@ -18,6 +30,7 @@ lastHit = 0;
     'assets/img/2_character_pepe/1_idle/idle/I-10.png',
   ];
 
+  /** @type {string[]} Animation images for long idle state */
   IMAGES_IDLE_LONG = [
     'assets/img/2_character_pepe/1_idle/long_idle/I-11.png',
     'assets/img/2_character_pepe/1_idle/long_idle/I-12.png',
@@ -27,6 +40,7 @@ lastHit = 0;
     'assets/img/2_character_pepe/1_idle/long_idle/I-16.png',
   ];
 
+  /** @type {string[]} Animation images for walking state */
   IMAGES_WALKING = [
     'assets/img/2_character_pepe/2_walk/W-21.png',
     'assets/img/2_character_pepe/2_walk/W-22.png',
@@ -36,6 +50,7 @@ lastHit = 0;
     'assets/img/2_character_pepe/2_walk/W-26.png',
   ];
 
+  /** @type {string[]} Animation images for jumping state */
   IMAGES_JUMPING = [
     'assets/img/2_character_pepe/3_jump/J-31.png',
     'assets/img/2_character_pepe/3_jump/J-32.png',
@@ -48,12 +63,14 @@ lastHit = 0;
     'assets/img/2_character_pepe/3_jump/J-39.png',
   ];
 
+  /** @type {string[]} Animation images for damage state */
   IMAGES_DAMAGE = [
     'assets/img/2_character_pepe/4_hurt/H-41.png',
     'assets/img/2_character_pepe/4_hurt/H-42.png',
     'assets/img/2_character_pepe/4_hurt/H-43.png',
   ];
 
+  /** @type {string[]} Animation images for dead state */
   IMAGES_DEAD = [
     'assets/img/2_character_pepe/5_dead/D-51.png',
     'assets/img/2_character_pepe/5_dead/D-52.png',
@@ -62,7 +79,11 @@ lastHit = 0;
     'assets/img/2_character_pepe/5_dead/D-55.png',
     'assets/img/2_character_pepe/5_dead/D-56.png',
     'assets/img/2_character_pepe/5_dead/D-57.png',
-  ];  constructor() {
+  ];  /**
+   * Creates a new character instance
+   * Initializes all animations, applies gravity and sets up properties
+   */
+  constructor() {
     super().loadImage('assets/img/2_character_pepe/1_idle/idle/I-1.png');
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
@@ -74,6 +95,9 @@ lastHit = 0;
     this.initializeProperties();
   }
 
+  /**
+   * Initializes character properties including audio states and callbacks
+   */
   initializeProperties() {
     this.lastActionTime = Date.now();
     this.jumpSoundPlayed = false;
@@ -91,6 +115,10 @@ lastHit = 0;
     this.audioManager = null;
   }
 
+  /**
+ * Manages animation and movement of the character
+ * Handles input processing and animation state changes
+ */
 animate() {
   this.inputInterval = setInterval(() => {
     if (gameManager.gameRunning) this.handleInput();
@@ -101,8 +129,12 @@ animate() {
   }, 100);
 }
 
+  /**
+   * Processes keyboard input and updates character movement
+   * Handles movement restrictions and camera positioning
+   */
   handleInput() {
-    // Character kann sich nicht bewegen wenn er tot ist
+
     if (this.isDead()) {
       return;
     }

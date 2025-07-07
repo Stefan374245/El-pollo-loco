@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: character.class.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: character.class.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Represents the main character of the game.
+ * Handles player movement, animations, and interactions with the game world.
+ * @class Character
+ * @extends MovableObject
+ */
+class Character extends MovableObject {
+  /** @type {number} Height of the character */
+  height = 160;
+  /** @type {number} Movement speed of the character */
+  speed = 6;
+  /** @type {number} Current image index for animation */
+  currentImage = 0;
+  /** @type {number} Health points of the character */
+  hp = 100;
+  /** @type {number} Timestamp of last hit taken */
+  lastHit = 0;
+  
+  /** @type {string[]} Animation images for idle state */
+  IMAGES_IDLE = [
+    'assets/img/2_character_pepe/1_idle/idle/I-1.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-2.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-3.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-4.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-5.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-6.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-7.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-8.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-9.png',
+    'assets/img/2_character_pepe/1_idle/idle/I-10.png',
+  ];
+
+  /** @type {string[]} Animation images for long idle state */
+  IMAGES_IDLE_LONG = [
+    'assets/img/2_character_pepe/1_idle/long_idle/I-11.png',
+    'assets/img/2_character_pepe/1_idle/long_idle/I-12.png',
+    'assets/img/2_character_pepe/1_idle/long_idle/I-13.png',
+    'assets/img/2_character_pepe/1_idle/long_idle/I-14.png',
+    'assets/img/2_character_pepe/1_idle/long_idle/I-15.png',
+    'assets/img/2_character_pepe/1_idle/long_idle/I-16.png',
+  ];
+
+  /** @type {string[]} Animation images for walking state */
+  IMAGES_WALKING = [
+    'assets/img/2_character_pepe/2_walk/W-21.png',
+    'assets/img/2_character_pepe/2_walk/W-22.png',
+    'assets/img/2_character_pepe/2_walk/W-23.png',
+    'assets/img/2_character_pepe/2_walk/W-24.png',
+    'assets/img/2_character_pepe/2_walk/W-25.png',
+    'assets/img/2_character_pepe/2_walk/W-26.png',
+  ];
+
+  /** @type {string[]} Animation images for jumping state */
+  IMAGES_JUMPING = [
+    'assets/img/2_character_pepe/3_jump/J-31.png',
+    'assets/img/2_character_pepe/3_jump/J-32.png',
+    'assets/img/2_character_pepe/3_jump/J-33.png',
+    'assets/img/2_character_pepe/3_jump/J-34.png',
+    'assets/img/2_character_pepe/3_jump/J-35.png',
+    'assets/img/2_character_pepe/3_jump/J-36.png',
+    'assets/img/2_character_pepe/3_jump/J-37.png',
+    'assets/img/2_character_pepe/3_jump/J-38.png',
+    'assets/img/2_character_pepe/3_jump/J-39.png',
+  ];
+
+  /** @type {string[]} Animation images for damage state */
+  IMAGES_DAMAGE = [
+    'assets/img/2_character_pepe/4_hurt/H-41.png',
+    'assets/img/2_character_pepe/4_hurt/H-42.png',
+    'assets/img/2_character_pepe/4_hurt/H-43.png',
+  ];
+
+  /** @type {string[]} Animation images for dead state */
+  IMAGES_DEAD = [
+    'assets/img/2_character_pepe/5_dead/D-51.png',
+    'assets/img/2_character_pepe/5_dead/D-52.png',
+    'assets/img/2_character_pepe/5_dead/D-53.png',
+    'assets/img/2_character_pepe/5_dead/D-54.png',
+    'assets/img/2_character_pepe/5_dead/D-55.png',
+    'assets/img/2_character_pepe/5_dead/D-56.png',
+    'assets/img/2_character_pepe/5_dead/D-57.png',
+  ];  /**
+   * Creates a new character instance
+   * Initializes all animations, applies gravity and sets up properties
+   */
+  constructor() {
+    super().loadImage('assets/img/2_character_pepe/1_idle/idle/I-1.png');
+    this.loadImages(this.IMAGES_WALKING);
+    this.loadImages(this.IMAGES_JUMPING);
+    this.loadImages(this.IMAGES_DAMAGE);
+    this.loadImages(this.IMAGES_IDLE);
+    this.loadImages(this.IMAGES_IDLE_LONG);
+    this.loadImages(this.IMAGES_DEAD);
+    this.applyGravity();
+    this.initializeProperties();
+  }
+
+  /**
+   * Initializes character properties including audio states and callbacks
+   */
+  initializeProperties() {
+    this.lastActionTime = Date.now();
+    this.jumpSoundPlayed = false;
+    this.whistlePosition = 0;
+    this.isWhistlePlaying = false;
+    this.isSnoringPlaying = false;
+    this.damageSoundPlaying = false;
+    this.deathAnimationComplete = false;
+      this.gameOverSoundPlayed = false; 
+
+    this.onDeathComplete = () => {
+      handleGameOver();
+    };
+    
+    this.audioManager = null;
+  }
+
+  /**
+ * Manages animation and movement of the character
+ * Handles input processing and animation state changes
+ */
+animate() {
+  this.inputInterval = setInterval(() => {
+    if (gameManager.gameRunning) this.handleInput();
+  }, 1000 / 30);
+
+  this.animationInterval = setInterval(() => {
+    if (gameManager.gameRunning) this.handleAnimation();
+  }, 100);
+}
+
+  /**
+   * Processes keyboard input and updates character movement
+   * Handles movement restrictions and camera positioning
+   */
+  handleInput() {
+
+    if (this.isDead()) {
+      return;
+    }
+
+    const now = Date.now();
+    const isInKnockback = this.knockbackUntil &amp;&amp; now &lt; this.knockbackUntil;
+    
+    if (isInKnockback) {
+      this.world.camera_x = -this.x + 100;
+      return;
+    }
+    
+    if (
+      this.world.keyboard.RIGHT &amp;&amp;
+      this.x &lt; this.world.level.level_end_point
+    ) {
+      this.moveRight();
+      this.otherDirection = false;
+      this.lastActionTime = Date.now();
+    }
+    if (this.world.keyboard.LEFT &amp;&amp; this.x > 0) {
+      this.moveLeft();
+      this.otherDirection = true;
+      this.lastActionTime = Date.now();
+    }
+    if (this.world.keyboard.JUMP &amp;&amp; !this.isJumping()) {
+      this.jump();
+      this.lastActionTime = Date.now();
+    }
+
+    this.world.camera_x = -this.x + 100;
+  }
+
+
+  handleAnimation() {
+    if (this.isDead()) {
+      this.stopAllAudio();
+     if (this.audioManager &amp;&amp; !this.gameOverSoundPlayed) {
+      this.audioManager.play('gameOver', false, 0.8);
+      this.gameOverSoundPlayed = true;
+    }
+      this.playAnimation(this.IMAGES_DEAD);
+      
+      // Prüfen ob Death-Animation komplett ist
+      if (!this.deathAnimationComplete &amp;&amp; this.currentImage >= this.IMAGES_DEAD.length - 1) {
+        this.deathAnimationComplete = true;
+        
+        // Kurze Verzögerung vor Game Over
+        setTimeout(() => {
+          if (this.onDeathComplete) {
+            this.onDeathComplete();
+          }
+        }, 2000);
+      }
+      
+      return;
+    }
+
+    if (this.isHurt()) {
+      this.stopAllAudio();
+      this.playAnimation(this.IMAGES_DAMAGE);
+      
+      // Spiele Damage Sound ab
+      if (this.audioManager &amp;&amp; !this.damageSoundPlaying) {
+        this.audioManager.play('damage');
+        this.damageSoundPlaying = true;
+        setTimeout(() => {
+          this.damageSoundPlaying = false;
+        }, 1000);
+      }
+      
+      this.resetIdleTimer();
+      return;
+    }
+
+    if (this.isJumping()) {
+      this.handleJumpAnimation();
+      return;
+    }
+
+    if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+      this.handleWalkAnimation();
+      return;
+    }
+
+    if (this.world.keyboard.F) {
+      this.handleWakeUpAction();
+      return;
+    }
+
+    const idleTime = Date.now() - this.lastActionTime;
+
+    if (idleTime > 4000) {
+      this.handleLongIdleAnimation();
+    } else {
+      this.handleNormalIdleAnimation();
+    }
+  }
+  handleJumpAnimation() {
+    this.playAnimation(this.IMAGES_JUMPING);
+    this.pauseWhistleAndSavePosition();
+    this.stopSnoring();
+    
+    if (!this.jumpSoundPlayed) {
+      if (this.audioManager) {
+        this.audioManager.play('jump');
+      } else {
+        console.warn('AudioManager nicht verfügbar für Jump-Sound');
+      }
+      this.jumpSoundPlayed = true;
+    }
+  }
+
+  handleWalkAnimation() {
+    this.playAnimation(this.IMAGES_WALKING);
+    this.stopSnoring();
+    this.resumeWhistleFromPosition();
+    this.jumpSoundPlayed = false;
+    this.resetIdleTimer();
+  }
+
+  // 11. Hilfsfunktion: Aufwach-Aktion verwalten
+  handleWakeUpAction() {
+    this.playAnimation(this.IMAGES_IDLE);
+    this.stopSnoring();
+    this.stopWhistle();
+    this.jumpSoundPlayed = false;
+    this.resetIdleTimer();
+  }
+
+  // 12. Hilfsfunktion: Long-Idle-Animation verwalten
+  handleLongIdleAnimation() {
+    this.playAnimation(this.IMAGES_IDLE_LONG);
+    this.stopWhistle();
+    this.startSnoring();
+    this.jumpSoundPlayed = false;
+  }
+
+  // 13. Hilfsfunktion: Normal-Idle-Animation verwalten
+  handleNormalIdleAnimation() {
+    this.playAnimation(this.IMAGES_IDLE);
+    this.stopSnoring();
+    this.stopWhistle();
+    this.jumpSoundPlayed = false;  }
+  
+  // 14. Hilfsfunktionen für Audio-Verwaltung mit AudioManager
+  pauseWhistleAndSavePosition() {
+    if (this.audioManager) {
+      if (this.audioManager.isPlaying('whistle')) {
+        this.whistlePosition = this.audioManager.pauseAndGetPosition('whistle');
+        this.isWhistlePlaying = false;
+      }
+    } else {
+      console.warn('AudioManager nicht verfügbar für Whistle-Pause');
+    }
+  }  resumeWhistleFromPosition() {
+    if (this.audioManager) {
+      if (!this.audioManager.isPlaying('whistle')) {
+        this.audioManager.playWithPosition('whistle', this.whistlePosition);
+        this.isWhistlePlaying = true;
+      }
+    } else {
+      console.warn('AudioManager nicht verfügbar für Whistle-Resume');
+    }
+  }
+  stopWhistle() {
+    if (this.audioManager) {
+      this.audioManager.stopAndReset('whistle');
+      this.whistlePosition = 0;
+      this.isWhistlePlaying = false;
+    }
+  }  startSnoring() {
+    if (this.audioManager) {
+      if (!this.audioManager.isPlaying('snoring')) {
+        this.audioManager.play('snoring');
+        this.isSnoringPlaying = true;
+      }
+    } else {
+      console.warn('AudioManager nicht verfügbar für Snoring');
+    }
+  }
+  stopSnoring() {
+    if (this.audioManager) {
+      this.audioManager.stopAndReset('snoring');
+      this.isSnoringPlaying = false;
+    }
+  }
+
+  stopAllAudio() {
+    this.stopWhistle();
+    this.stopSnoring();
+  }
+
+  resetIdleTimer() {
+    this.lastActionTime = Date.now();
+  }
+
+  // Methode um AudioManager zu setzen (wird von der World-Klasse aufgerufen)
+  setAudioManager(audioManager) {
+    this.audioManager = audioManager;
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Character.html">Character</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jul 07 2025 14:12:10 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

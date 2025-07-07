@@ -1,4 +1,13 @@
+/**
+ * Provides collision detection configuration and utility methods for game objects.
+ * Defines offset values and collision detection algorithms for different object types.
+ * @class CollisionConfig
+ */
 class CollisionConfig {
+    /**
+     * Returns collision offset configurations for all game object types
+     * @returns {Object} Configuration object with offsets for each object type
+     */
     static getOffsets() {
         return {
             character: {
@@ -40,6 +49,13 @@ class CollisionConfig {
         };
     }
 
+    /**
+     * Checks if character is really above an enemy for jump attacks
+     * @param {Character} character - The character object
+     * @param {Enemy} enemy - The enemy object
+     * @param {Object} [enemyOffsets=null] - Custom offsets for the enemy
+     * @returns {boolean} True if character is above enemy
+     */
     static isReallyAboveEnemy(character, enemy, enemyOffsets = null) {
         const cfg = this.getOffsets();
         if (!enemyOffsets) {
@@ -62,6 +78,13 @@ class CollisionConfig {
         return isAbove && isCentered;
     }
 
+    /**
+     * Calculates the landing position when jumping on an enemy
+     * @param {Character} character - The character object
+     * @param {Enemy} enemy - The enemy object
+     * @param {Object} enemyOffsets - Collision offsets for the enemy
+     * @returns {number} Y-coordinate for landing position
+     */
     static getJumpLandingPosition(character, enemy, enemyOffsets) {
         const groundLevel = 280;
         const enemyTopWithOffset = enemy.y + enemyOffsets.y;
@@ -69,6 +92,14 @@ class CollisionConfig {
         return Math.min(groundLevel, landingOnEnemyY);
     }
 
+    /**
+     * Performs precise collision detection between two objects
+     * @param {MovableObject} obj1 - First object to check
+     * @param {MovableObject} obj2 - Second object to check
+     * @param {Object} offsets1 - Collision offsets for first object
+     * @param {Object} [offsets2=null] - Collision offsets for second object
+     * @returns {boolean} True if objects are colliding
+     */
     static isPreciseCollision(obj1, obj2, offsets1, offsets2 = null) {
         if (!offsets1) offsets1 = { x: 0, y: 0 };
         if (!offsets2) offsets2 = { x: 0, y: 0 };
