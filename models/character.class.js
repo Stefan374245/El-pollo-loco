@@ -116,18 +116,18 @@ class Character extends MovableObject {
   }
 
   /**
- * Manages animation and movement of the character
- * Handles input processing and animation state changes
- */
-animate() {
-  this.inputInterval = setInterval(() => {
-    if (gameManager.gameRunning) this.handleInput();
-  }, 1000 / 30);
+   * Manages animation and movement of the character
+   * Handles input processing and animation state changes
+   */
+  animate() {
+    this.inputInterval = setInterval(() => {
+      if (gameManager.gameRunning) this.handleInput();
+    }, 1000 / 30);
 
-  this.animationInterval = setInterval(() => {
-    if (gameManager.gameRunning) this.handleAnimation();
-  }, 100);
-}
+    this.animationInterval = setInterval(() => {
+      if (gameManager.gameRunning) this.handleAnimation();
+    }, 100);
+  }
 
   /**
    * Processes keyboard input and updates character movement
@@ -169,6 +169,18 @@ animate() {
   }
 
 
+  /**
+   * Handles the character's animation state based on its current status and user input.
+   * 
+   * Animation states include death, hurt, jumping, walking, waking up, and idle (normal or long).
+   * Also manages related audio playback and triggers callbacks when certain animations complete.
+   * 
+   * - Plays death animation and sound, and triggers `onDeathComplete` callback after animation.
+   * - Plays hurt animation and sound, with cooldown to prevent repeated sound playback.
+   * - Handles jump and walk animations based on keyboard input.
+   * - Handles wake up action when the 'F' key is pressed.
+   * - Switches between normal and long idle animations based on inactivity duration.
+   */
   handleAnimation() {
     if (this.isDead()) {
       this.stopAllAudio();
@@ -178,11 +190,9 @@ animate() {
     }
       this.playAnimation(this.IMAGES_DEAD);
       
-      // Prüfen ob Death-Animation komplett ist
       if (!this.deathAnimationComplete && this.currentImage >= this.IMAGES_DEAD.length - 1) {
         this.deathAnimationComplete = true;
         
-        // Kurze Verzögerung vor Game Over
         setTimeout(() => {
           if (this.onDeathComplete) {
             this.onDeathComplete();
@@ -197,7 +207,6 @@ animate() {
       this.stopAllAudio();
       this.playAnimation(this.IMAGES_DAMAGE);
       
-      // Spiele Damage Sound ab
       if (this.audioManager && !this.damageSoundPlaying) {
         this.audioManager.play('damage');
         this.damageSoundPlaying = true;
@@ -233,6 +242,10 @@ animate() {
       this.handleNormalIdleAnimation();
     }
   }
+  /**
+   * Handles the animation for jumping state
+   * Plays jump animation and sound effects
+   */
   handleJumpAnimation() {
     this.playAnimation(this.IMAGES_JUMPING);
     this.pauseWhistleAndSavePosition();
@@ -248,6 +261,10 @@ animate() {
     }
   }
 
+  /**
+   * Handles the animation for walking state
+   * Plays walk animation and manages whistle sound
+   */
   handleWalkAnimation() {
     this.playAnimation(this.IMAGES_WALKING);
     this.stopSnoring();
@@ -256,7 +273,10 @@ animate() {
     this.resetIdleTimer();
   }
 
-  // 11. Hilfsfunktion: Aufwach-Aktion verwalten
+  /**
+   * Handles the wake up action animation
+   * Stops all sounds and plays idle animation
+   */
   handleWakeUpAction() {
     this.playAnimation(this.IMAGES_IDLE);
     this.stopSnoring();
@@ -265,7 +285,10 @@ animate() {
     this.resetIdleTimer();
   }
 
-  // 12. Hilfsfunktion: Long-Idle-Animation verwalten
+  /**
+   * Handles the long idle animation state
+   * Plays long idle animation and starts snoring
+   */
   handleLongIdleAnimation() {
     this.playAnimation(this.IMAGES_IDLE_LONG);
     this.stopWhistle();
@@ -273,14 +296,19 @@ animate() {
     this.jumpSoundPlayed = false;
   }
 
-  // 13. Hilfsfunktion: Normal-Idle-Animation verwalten
+  /**
+   * Handles the normal idle animation state
+   * Plays normal idle animation and stops sounds
+   */
   handleNormalIdleAnimation() {
     this.playAnimation(this.IMAGES_IDLE);
     this.stopSnoring();
     this.stopWhistle();
     this.jumpSoundPlayed = false;  }
   
-  // 14. Hilfsfunktionen für Audio-Verwaltung mit AudioManager
+  /**
+   * Pauses the whistle sound and saves the current playback position
+   */
   pauseWhistleAndSavePosition() {
     if (this.audioManager) {
       if (this.audioManager.isPlaying('whistle')) {
@@ -290,7 +318,12 @@ animate() {
     } else {
       console.warn('AudioManager nicht verfügbar für Whistle-Pause');
     }
-  }  resumeWhistleFromPosition() {
+  }
+  
+  /**
+   * Resumes the whistle sound from the saved position
+   */
+  resumeWhistleFromPosition() {
     if (this.audioManager) {
       if (!this.audioManager.isPlaying('whistle')) {
         this.audioManager.playWithPosition('whistle', this.whistlePosition);
@@ -300,13 +333,22 @@ animate() {
       console.warn('AudioManager nicht verfügbar für Whistle-Resume');
     }
   }
+  
+  /**
+   * Stops the whistle sound and resets the position
+   */
   stopWhistle() {
     if (this.audioManager) {
       this.audioManager.stopAndReset('whistle');
       this.whistlePosition = 0;
       this.isWhistlePlaying = false;
     }
-  }  startSnoring() {
+  }
+  
+  /**
+   * Starts playing the snoring sound effect
+   */
+  startSnoring() {
     if (this.audioManager) {
       if (!this.audioManager.isPlaying('snoring')) {
         this.audioManager.play('snoring');
@@ -316,6 +358,10 @@ animate() {
       console.warn('AudioManager nicht verfügbar für Snoring');
     }
   }
+  
+  /**
+   * Stops the snoring sound effect
+   */
   stopSnoring() {
     if (this.audioManager) {
       this.audioManager.stopAndReset('snoring');
@@ -323,16 +369,25 @@ animate() {
     }
   }
 
+  /**
+   * Stops all currently playing audio sounds
+   */
   stopAllAudio() {
     this.stopWhistle();
     this.stopSnoring();
   }
 
+  /**
+   * Resets the idle timer to current timestamp
+   */
   resetIdleTimer() {
     this.lastActionTime = Date.now();
   }
 
-  // Methode um AudioManager zu setzen (wird von der World-Klasse aufgerufen)
+  /**
+   * Sets the audio manager instance for sound management
+   * @param {Object} audioManager - The audio manager instance
+   */
   setAudioManager(audioManager) {
     this.audioManager = audioManager;
   }
