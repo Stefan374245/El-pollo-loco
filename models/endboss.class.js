@@ -142,45 +142,14 @@ class Endboss extends Enemy {
 }
 
   handleAnimation() {
-    if (
-      !this.world ||
-      this.x + this.width / 2 >= -this.world.camera_x + this.world.canvas.width
-    ) return;
+    if (!this.isVisible()) return;
 
-    if (!this.alertTriggered && this.world.character.x >= this.x - 600) {
-      this.alertTriggered = true;
-      this.changePhase("alert");
-      this.initializeStatusBar();
-      this.world.character.audioManager?.play("endboss");
-      this.world.character.audioManager?.stopAndReset("level1");
-      this.world.character.audioManager?.stopAndReset("level2");
-    }
-
-    if (this.animationPhase === "walk") {
-      this.moveLeft();
-    }
-
-    if (this.animationPhase === "alert" && !this.alertFinished) {
-      this.alertFinished = true;
-      setTimeout(
-        () => this.changePhase("attack"),
-        this.getCurrentAggressionSettings().alertDuration
-      );
-    }
-
+    this.handleAlertTrigger();
+    this.handleWalkMovement();
+    this.handleAlertPhase();
+    
     if (this.isDead()) {
-      this.playAnimation(this.animations.dead);
-      this.frameCount++;
-
-      if (this.frameCount >= this.animations.dead.length && !this.deadAnimationComplete) {
-        this.deadAnimationComplete = true;
-        
-        setTimeout(() => {
-          if (typeof this.onDeathComplete === 'function') {
-            this.onDeathComplete();
-          }
-        }, 2500);
-      }
+      this.handleDeathAnimation();
       return;
     }
 
@@ -188,6 +157,56 @@ class Endboss extends Enemy {
     this.frameCount++;
     if (this.frameCount >= this.animations[this.animationPhase].length) {
       this.handlePhaseTransition();
+    }
+  }
+
+  isVisible() {
+    return this.world && 
+           this.x + this.width / 2 < -this.world.camera_x + this.world.canvas.width;
+  }
+
+  handleAlertTrigger() {
+    if (!this.alertTriggered && this.world.character.x >= this.x - 600) {
+      this.alertTriggered = true;
+      this.changePhase("alert");
+      this.initializeStatusBar();
+      this.playEndbossAudio();
+    }
+  }
+
+  playEndbossAudio() {
+    this.world.character.audioManager?.play("endboss");
+    this.world.character.audioManager?.stopAndReset("level1");
+    this.world.character.audioManager?.stopAndReset("level2");
+  }
+
+  handleWalkMovement() {
+    if (this.animationPhase === "walk") {
+      this.moveLeft();
+    }
+  }
+
+  handleAlertPhase() {
+    if (this.animationPhase === "alert" && !this.alertFinished) {
+      this.alertFinished = true;
+      setTimeout(
+        () => this.changePhase("attack"),
+        this.getCurrentAggressionSettings().alertDuration
+      );
+    }
+  }
+
+  handleDeathAnimation() {
+    this.playAnimation(this.animations.dead);
+    this.frameCount++;
+
+    if (this.frameCount >= this.animations.dead.length && !this.deadAnimationComplete) {
+      this.deadAnimationComplete = true;
+      setTimeout(() => {
+        if (typeof this.onDeathComplete === 'function') {
+          this.onDeathComplete();
+        }
+      }, 2500);
     }
   }
 
@@ -264,7 +283,6 @@ class Endboss extends Enemy {
 hitBoss() {
   if (this.animationPhase === "hurt" || this.isDead()) return;
 
-  // Schaden basierend auf Aggression Level
   const damage = this.getCurrentAggressionSettings().damagePerHit;
   this.hp = Math.max(0, this.hp - damage);
   
