@@ -1,18 +1,37 @@
+/**
+ * Represents the main boss enemy in the game.
+ * Manages complex boss behavior including multiple attack phases and aggression levels.
+ * @class Endboss
+ * @extends Enemy
+ */
 class Endboss extends Enemy {
+  /** @type {number} Height of the endboss */
   height = 400;
+  /** @type {number} Width of the endboss */
   width = 300;
+  /** @type {number} Y-coordinate position */
   y = 72;
 
+  /** @type {string} Current animation phase */
   animationPhase        = "alert";
+  /** @type {number} Current image index for animation */
   currentImage          = 0;
+  /** @type {number} Frame counter for animation timing */
   frameCount            = 0;
+  /** @type {number} Number of attacks performed */
   attackCount           = 0;
+  /** @type {number} Current phase step counter */
   phaseStep             = 0;
 
-   onDeathComplete = null;
-     deadAnimationComplete = false;
+   /** @type {function} Callback function when death animation completes */
+  onDeathComplete = null;
+  /** @type {boolean} Flag indicating if death animation is complete */
+  deadAnimationComplete = false;
 
+  /** @type {number} Current aggression level of the boss */
   aggressionLevel = 1;
+  
+  /** @type {Object} Configuration for aggression level 1 */
   aggressionLevel1 = {
     speed: 16,
     hp: 100,
@@ -21,6 +40,8 @@ class Endboss extends Enemy {
     alertDuration: 3000,
     damagePerHit: 20,
   };
+  
+  /** @type {Object} Configuration for aggression level 2 */
   aggressionLevel2 = {
     speed: 20,
     hp: 140,
@@ -30,6 +51,7 @@ class Endboss extends Enemy {
     damagePerHit: 20,
   };
 
+  /** @type {Object} Collection of animation image arrays */
   animations = {
     walk: [
       "assets/img/4_enemie_boss_chicken/1_walk/G1.png",
@@ -69,6 +91,11 @@ class Endboss extends Enemy {
     ],
   };
 
+  /**
+   * Creates a new endboss instance
+   * @param {number} [aggressionLevel=1] - The aggression level of the boss (1 or 2)
+   * @param {number} [xPosition=2200] - X-coordinate position of the boss
+   */
   constructor(aggressionLevel = 1, xPosition = 2200) {
     super();
     this.loadImage(this.animations.walk[0]);
@@ -80,6 +107,10 @@ class Endboss extends Enemy {
     this.alertTriggered = false;
   }
 
+  /**
+   * Applies the specified aggression level configuration to the boss
+   * @param {number} level - The aggression level to apply (1 or 2)
+   */
   applyAggressionLevel(level) {
     const cfg = level === 2 ? this.aggressionLevel2 : this.aggressionLevel1;
     this.aggressionLevel = level;
@@ -238,7 +269,9 @@ hitBoss() {
   this.hp = Math.max(0, this.hp - damage);
   
   console.log(`Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`);
-  
+  if (this.world?.character?.audioManager) {
+    this.world.character.audioManager.play('endbossHit', false, 0.8);
+  }
   this.changePhase("hurt");
   
   if (this.world?.statusBarEndboss) {

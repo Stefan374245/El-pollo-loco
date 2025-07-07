@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: collision-handler.class.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: collision-handler.class.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Handles all collision detection and interactions between game objects.
+ * Manages character-enemy collisions, item collection, and damage calculations.
+ * @class CollisionHandler
+ */
+class CollisionHandler {
+  /**
+   * Creates a new collision handler instance
+   * @param {World} world - The game world instance
+   */
+  constructor(world) {
+    this.world = world;
+    this.offsets = CollisionConfig.getOffsets();
+    this.barIsScaling = false;
+  }
+
+  /**
+   * Performs all collision checks in the correct order
+   * Called every frame to detect and handle collisions
+   */
+  checkAll() {
+    this.checkEnemiesCollision();
+    this.checkBottles();
+    this.checkCoins();
+    this.checkBottleHitEnemy();
+    this.checkCharacterHP(this.world.character);
+    this.checkEndBossHP(this.world.level.endboss);
+    this.checkMiniEndbossHP();
+  }
+
+  /**
+   * Checks collisions between character and enemies
+   * Handles both jump attacks and normal collisions
+   */
+  checkEnemiesCollision() {
+    const jumpAttackHappened = this.checkJumpAttacks();
+    if (!jumpAttackHappened) {
+      this.checkNormalCollisions();
+    }
+    this.checkCharacterHP(this.world.character);
+  }
+
+  /**
+   * Checks for jump attacks from the character on enemies and mini-bosses
+   * @returns {boolean} True if a jump attack happened, false otherwise
+   */
+  checkJumpAttacks() {
+    const now = Date.now();
+    let jumpAttackHappened = false;
+
+    this.world.level.enemies.forEach((enemy) => {
+      const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
+      const jumpOffsets = this.offsets[enemyType].precise;
+
+      const hasCollision = CollisionConfig.isPreciseCollision(
+        this.world.character,
+        enemy,
+        this.offsets.character.jump,
+        jumpOffsets
+      );
+
+      if (hasCollision &amp;&amp; !enemy.isDead()) {
+        const isAbove = CollisionConfig.isReallyAboveEnemy(
+          this.world.character,
+          enemy,
+          jumpOffsets
+        );
+        const isImmuneToThisEnemy =
+          enemy.immuneUntil &amp;&amp; now &lt; enemy.immuneUntil;
+
+        if (isAbove &amp;&amp; !isImmuneToThisEnemy) {
+          enemy.immuneUntil = Date.now() + 200;
+          jumpAttackHappened = true;
+
+          enemy.hit();
+
+          const landY = CollisionConfig.getJumpLandingPosition(
+            this.world.character,
+            enemy,
+            jumpOffsets
+          );
+          this.world.character.snapToGround(280);
+          this.world.character.jump();
+
+          if (audioManager &amp;&amp; audioManager.play) {
+            audioManager.play("jumpOnEnemy");
+          }
+        }
+      }
+    });
+
+    if (this.world.level.miniEndbosses) {
+      this.world.level.miniEndbosses.forEach((miniEndboss) => {
+        const jumpOffsets = this.offsets.miniEndboss.jump;
+
+        if (
+          CollisionConfig.isPreciseCollision(
+            this.world.character,
+            miniEndboss,
+            this.offsets.character.jump,
+            jumpOffsets
+          ) &amp;&amp;
+          !miniEndboss.isDead()
+        ) {
+          const isAbove = CollisionConfig.isReallyAboveEnemy(
+            this.world.character,
+            miniEndboss,
+            jumpOffsets
+          );
+          const isImmuneToThisEnemy =
+            miniEndboss.immuneUntil &amp;&amp; now &lt; miniEndboss.immuneUntil;
+
+          if (isAbove &amp;&amp; !isImmuneToThisEnemy) {
+            miniEndboss.immuneUntil = Date.now() + 200;
+            jumpAttackHappened = true;
+
+            miniEndboss.hitMiniEndboss();
+
+            const miniEndbossTopWithOffset = miniEndboss.y + jumpOffsets.y;
+            this.world.character.y =
+              miniEndbossTopWithOffset - this.world.character.height;
+            this.world.character.speedY = -25;
+
+            const landingCheck = setInterval(() => {
+              if (this.world.character.y >= 280) {
+                this.world.character.snapToGround(280);
+                clearInterval(landingCheck);
+              }
+            }, 1000 / 60);
+
+            if (audioManager &amp;&amp; audioManager.play) {
+              audioManager.play("jumpOnEnemy");
+            }
+          }
+        }
+      });
+    }
+
+    return jumpAttackHappened;
+  }
+
+  /**
+   * Checks normal collisions between the character and enemies/mini-bosses
+   */
+  checkNormalCollisions() {
+    const now = Date.now();
+
+    this.world.level.enemies.forEach((enemy) => {
+      const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
+      const enemyOffsets = this.offsets[enemyType].normal;
+
+      if (
+        CollisionConfig.isPreciseCollision(
+          this.world.character,
+          enemy,
+          this.offsets.character.normal,
+          enemyOffsets
+        ) &amp;&amp;
+        !enemy.isDead()
+      ) {
+        const isAbove = CollisionConfig.isReallyAboveEnemy(
+          this.world.character,
+          enemy,
+          enemyOffsets
+        );
+        const isImmuneToThisEnemy =
+          enemy.immuneUntil &amp;&amp; now &lt; enemy.immuneUntil;
+
+        if (!isAbove &amp;&amp; !isImmuneToThisEnemy) {
+          this.world.character.hitWithCooldown(enemy);
+          this.world.statusBar.setPercentage(this.world.character.hp);
+        }
+      }
+    });
+
+    if (this.world.level.miniEndbosses) {
+      this.world.level.miniEndbosses.forEach((miniEndboss) => {
+        if (
+          CollisionConfig.isPreciseCollision(
+            this.world.character,
+            miniEndboss,
+            this.offsets.character.normal,
+            this.offsets.miniEndboss.normal
+          ) &amp;&amp;
+          !miniEndboss.isDead()
+        ) {
+          const isAbove = CollisionConfig.isReallyAboveEnemy(
+            this.world.character,
+            miniEndboss,
+            this.offsets.miniEndboss.normal
+          );
+          const isImmuneToThisEnemy =
+            miniEndboss.immuneUntil &amp;&amp; now &lt; miniEndboss.immuneUntil;
+          this.world.character.snapToGround(280);
+          if (!isAbove &amp;&amp; !isImmuneToThisEnemy) {
+            this.world.character.hitWithCooldown(miniEndboss);
+            this.world.statusBar.setPercentage(this.world.character.hp);
+          }
+        }
+      });
+    }
+
+    const boss = this.world.level.endboss;
+    if (
+      CollisionConfig.isPreciseCollision(
+        this.world.character,
+        boss,
+        this.offsets.character.normal,
+        this.offsets.endboss.normal
+      ) &amp;&amp;
+      !boss.isDead()
+    ) {
+      const isAbove = CollisionConfig.isReallyAboveEnemy(
+        this.world.character,
+        boss,
+        this.offsets.endboss.normal
+      );
+      const isImmuneToThisEnemy = boss.immuneUntil &amp;&amp; now &lt; boss.immuneUntil;
+
+      if (!isAbove &amp;&amp; !isImmuneToThisEnemy) {
+        this.world.character.hitWithCooldown(boss);
+        this.world.statusBar.setPercentage(this.world.character.hp);
+      }
+    }
+  }
+
+  /**
+   * Checks and updates the HP of the character
+   * @param {Character} character - The character instance
+   */
+  checkCharacterHP(character) {
+    if (character.hp &lt;= 0 &amp;&amp; !character.dead) {
+      character.dead = true;
+    }
+  }
+
+  /**
+   * Checks and updates the HP of the end boss
+   * @param {Endboss} endboss - The end boss instance
+   */
+  checkEndBossHP(endboss) {
+    if (endboss.hp &lt;= 0 &amp;&amp; !endboss.dead) {
+      endboss.dead = true;
+    }
+  }
+
+  /**
+   * Checks and updates the HP of mini end bosses
+   */
+  checkMiniEndbossHP() {
+    if (this.world.level.miniEndbosses) {
+      const miniEndbossesToCheck = [...this.world.level.miniEndbosses];
+
+      for (let i = 0; i &lt; miniEndbossesToCheck.length; i++) {
+        const miniEndboss = miniEndbossesToCheck[i];
+
+        if (
+          this.world.level.miniEndbosses.includes(miniEndboss) &amp;&amp;
+          miniEndboss.hp &lt;= 0 &amp;&amp;
+          !miniEndboss.dead
+        ) {
+          miniEndboss.die();
+        }
+      }
+    }
+  }
+
+  /**
+   * Checks if thrown bottles hit enemies or mini-bosses
+   */
+  checkBottleHitEnemy() {
+    this.world.throwableObjects.forEach((bottle) => {
+      if (this.world.level.miniEndbosses) {
+        this.world.level.miniEndbosses.forEach((miniEndboss) => {
+          if (!miniEndboss.isDead()) {
+            miniEndboss.checkBottleHit(bottle);
+          }
+        });
+      }
+
+      this.world.level.enemies.forEach((enemy) => {
+        if (!enemy.isDead() &amp;&amp; !bottle.hasHitGround) {
+          const hasCollision = bottle.isColliding(enemy, 5, 5);
+
+          if (hasCollision) {
+            enemy.hit();
+            bottle.hasHitGround = true;
+            bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
+
+            if (audioManager &amp;&amp; audioManager.play) {
+              audioManager.play("smashBottle");
+            }
+          }
+        }
+      });
+
+      if (!this.world.level.endboss.isDead()) {
+        this.world.level.endboss.checkBottleHit(bottle);
+      }
+    });
+  }
+
+  /**
+   * Checks and handles bottle pickups by the character
+   */
+  checkBottles() {
+    const maxBottles = 5;
+
+    this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
+      const canPickUp = this.world.bottleCount &lt; maxBottles;
+      const isColliding = this.world.character.isColliding(bottle, 10, 10);
+
+      if (isColliding &amp;&amp; canPickUp) {
+        this.world.bottleCount++;
+        this.increaseBar(this.world.statusBarBottles, 100 / maxBottles);
+
+        if (audioManager &amp;&amp; audioManager.play) {
+          audioManager.play("takeBottle");
+          if (this.world.bottleCount === maxBottles) {
+            audioManager.play("fullbar");
+          }
+        }
+
+        this.animateBarScale(this.world.statusBarBottles);
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  /**
+   * Checks and handles coin pickups by the character
+   */
+  checkCoins() {
+    this.world.level.coins = this.world.level.coins.filter((coin) => {
+      const hasCollision = CollisionConfig.isPreciseCollision(
+        this.world.character,
+        coin,
+        this.offsets.character.coin,
+        this.offsets.coins.collect
+      );
+
+      if (hasCollision) {
+        this.increaseBar(this.world.statusBarCoins, 10);
+        if (audioManager &amp;&amp; audioManager.play) {
+          audioManager.play("coins", false, 1);
+        }
+        this.animateBarScale(this.world.statusBarCoins);
+        return false;
+      }
+      return true;
+    });
+  }
+
+  /**
+   * Increases the fill bar of status bars (bottles, coins, etc.)
+   * @param {Object} bar - The bar object to increase
+   * @param {number} [amount=0] - The amount to increase the bar by
+   */
+  increaseBar(bar, amount = 0) {
+    bar.percentage = Math.min(bar.percentage + amount, 100);
+    bar.setPercentage(bar.percentage);
+  }
+
+  /**
+   * Animates the scaling effect of the bar when an item is picked up
+   * @param {Object} bar - The bar object to animate
+   */
+  animateBarScale(bar) {
+    if (this.barIsScaling) return;
+
+    this.barIsScaling = true;
+
+    const originalWidth = bar.width;
+    const originalHeight = bar.height;
+    const scaleUp = 1.15;
+
+    bar.width = originalWidth * scaleUp;
+    bar.height = originalHeight * scaleUp;
+
+    setTimeout(() => {
+      bar.width = originalWidth;
+      bar.height = originalHeight;
+      this.barIsScaling = false;
+    }, 150);
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CollisionHandler.html">CollisionHandler</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jul 07 2025 14:13:02 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
