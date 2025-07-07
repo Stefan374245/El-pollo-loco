@@ -6,15 +6,15 @@
  */
 class MiniEndboss extends Endboss {
   /** @type {number} Width of the mini endboss */
-  width = 80; // Deutlich kleiner als vorher (100)
+  width = 80;
   /** @type {number} Height of the mini endboss */
-  height = 120; // Deutlich kleiner als vorher (150)
+  height = 120;
   /** @type {number} Health points of the mini endboss */
-  hp = 60; // Angepasst für 3 Hits bei 20 Schaden
+  hp = 60;
   /** @type {number} Maximum health points */
   maxHp = 60;
   /** @type {number} Movement speed */
-  speed = 4.0; // Erhöht von 2.5 auf 4.0 für mehr Geschwindigkeit
+  speed = 4.0;
   /** @type {number} Damage dealt per hit */
   damagePerHit = 20;
 
@@ -23,17 +23,16 @@ class MiniEndboss extends Endboss {
    * @param {number} [x=1200] - X-coordinate position
    */
   constructor(x = 1200) {
-    super(1); // Mini-Endboss hat immer Aggressionslevel 1
+    super(1);
     this.x = x;
     this.y = 320;
     this.animationPhase = "walk";
-    this.otherDirection = false; // Für das flipImage System
+    this.otherDirection = false;
     this.deadAnimationComplete = false;
     this.frameCount = 0;
-    this.id = null; // Wird in setWorld() gesetzt
+    this.id = null;
 
-    // Mini-Endboss überschreibt HP-Werte
-    this.hp = 60; // 60 HP für 3 Hits bei 20 Schaden
+    this.hp = 60;
     this.maxHp = 60;
   }
 
@@ -42,7 +41,6 @@ class MiniEndboss extends Endboss {
    * Moves towards the character
    */
   updateDirection() {
-    // Keine Bewegung während Hurt-Animation oder wenn tot
     if (
       this.world &&
       this.world.character &&
@@ -52,14 +50,12 @@ class MiniEndboss extends Endboss {
       const characterX = this.world.character.x;
       const bossX = this.x;
 
-      // Flippe nur wenn Character rechts vom Boss steht (character.x > miniendboss.x)
       this.otherDirection = characterX > bossX;
 
-      // Bewege sich zum Character hin
       if (characterX > bossX) {
-        this.moveRight(); // Character ist rechts - bewege nach rechts
+        this.moveRight();
       } else if (characterX < bossX) {
-        this.moveLeft(); // Character ist links - bewege nach links
+        this.moveLeft();
       }
     }
   }
@@ -79,7 +75,6 @@ class MiniEndboss extends Endboss {
     }, 200);
 
     this.directionInterval = setInterval(() => {
-      // Keine Bewegung während Hurt-Animation oder wenn tot
       if (!this.isDead() && this.animationPhase !== "hurt") {
         this.updateDirection();
       }
@@ -94,14 +89,12 @@ class MiniEndboss extends Endboss {
     if (this.isDead() || this.animationPhase === "dead") {
       this.playAnimation(this.animations.dead);
 
-      // Prüfe ob Dead-Animation komplett abgespielt wurde (1000ms anhalten)
       if (
         this.frameCount >= this.animations.dead.length - 1 &&
         !this.deadAnimationComplete
       ) {
         this.deadAnimationComplete = true;
         console.log(`Mini-Endboss ${this.id} Dead-Animation abgeschlossen`);
-        // Warte 1000ms bevor entfernt wird
         setTimeout(() => {
           this.removeSelfFromWorld();
         }, 1000);
@@ -123,7 +116,7 @@ class MiniEndboss extends Endboss {
    * Defines the behavior and timing of each phase
    */
   handlePhaseTransition() {
-    this.frameCount = 0; // Reset frameCount bei jedem Phasenwechsel
+    this.frameCount = 0;
 
     switch (this.animationPhase) {
       case "alert":
@@ -131,13 +124,12 @@ class MiniEndboss extends Endboss {
 
       case "attack":
         this.attackCount++;
-        // Mini-Endboss spawnt KEINE Enemies
         this.phaseStep++;
         this.changePhase("walk");
         break;
 
       case "walk":
-        const walkDuration = 1500; // Kurze Walk-Phase für Mini-Endboss
+        const walkDuration = 1500;
         setTimeout(() => {
           this.phaseStep++;
           this.changePhase("attack");
@@ -145,12 +137,11 @@ class MiniEndboss extends Endboss {
         break;
 
       case "hurt":
-        // Längere Pause nach hurt-Animation (1000ms wie gewünscht)
         setTimeout(() => {
           if (this.animationPhase === "hurt") {
             this.changePhase(this.previousPhase || "attack");
           }
-        }, 1000); // 1000ms Hurt-Animation wie gewünscht
+        }, 1000);
         break;
     }
   }
@@ -174,7 +165,7 @@ class MiniEndboss extends Endboss {
       !bottle.hasHitGround
     ) {
       console.log("Mini-Endboss hit! HP before:", this.hp);
-      this.hitMiniEndboss(); // Eigene Methode für Mini-Endboss
+      this.hitMiniEndboss();
       bottle.hasHitGround = true;
       bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
       console.log("Mini-Endboss HP after hit:", this.hp);
@@ -188,7 +179,7 @@ class MiniEndboss extends Endboss {
   hitMiniEndboss() {
     if (this.animationPhase === "hurt" || this.isDead()) return;
 
-    const damage = 20; // Mini-Endboss hat 60 HP und soll in 3 Treffern sterben (60÷20=3)
+    const damage = 20;
     this.hp -= damage;
     if (this.hp < 0) this.hp = 0;
 
@@ -198,8 +189,6 @@ class MiniEndboss extends Endboss {
     console.log(
       `Mini-Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`
     );
-
-    // Mini-Endbosse beeinflussen NICHT die Endboss-Statusbar
 
     if (this.hp === 0) {
       this.changePhase("dead");
@@ -215,7 +204,7 @@ class MiniEndboss extends Endboss {
     console.log(`Mini-Endboss ${this.id} stirbt`);
     this.dead = true;
     this.changePhase("dead");
-    this.frameCount = 0; // Reset für Dead-Animation
+    this.frameCount = 0;
 
     if (this.directionInterval) {
       clearInterval(this.directionInterval);
@@ -227,7 +216,6 @@ class MiniEndboss extends Endboss {
    * Overrides the spawnEnemyBehind method from Endboss
    */
   spawnEnemyBehind() {
-    // Mini-Endboss spawnt keine zusätzlichen Enemies
   }
 
   /**
