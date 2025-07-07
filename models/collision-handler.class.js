@@ -49,94 +49,144 @@ class CollisionHandler {
     let jumpAttackHappened = false;
 
     this.world.level.enemies.forEach((enemy) => {
-      const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
-      const jumpOffsets = this.offsets[enemyType].precise;
-
-      const hasCollision = CollisionConfig.isPreciseCollision(
-        this.world.character,
-        enemy,
-        this.offsets.character.jump,
-        jumpOffsets
-      );
-
-      if (hasCollision && !enemy.isDead()) {
-        const isAbove = CollisionConfig.isReallyAboveEnemy(
-          this.world.character,
-          enemy,
-          jumpOffsets
-        );
-        const isImmuneToThisEnemy =
-          enemy.immuneUntil && now < enemy.immuneUntil;
-
-        if (isAbove && !isImmuneToThisEnemy) {
-          enemy.immuneUntil = Date.now() + 200;
-          jumpAttackHappened = true;
-
-          enemy.hit();
-
-          const landY = CollisionConfig.getJumpLandingPosition(
-            this.world.character,
-            enemy,
-            jumpOffsets
-          );
-          this.world.character.snapToGround(280);
-          this.world.character.jump();
-
-          if (audioManager && audioManager.play) {
-            audioManager.play("jumpOnEnemy");
-          }
-        }
+      if (this.handleEnemyJumpAttack(enemy, now)) {
+        jumpAttackHappened = true;
       }
     });
 
     if (this.world.level.miniEndbosses) {
       this.world.level.miniEndbosses.forEach((miniEndboss) => {
-        const jumpOffsets = this.offsets.miniEndboss.jump;
-
-        if (
-          CollisionConfig.isPreciseCollision(
-            this.world.character,
-            miniEndboss,
-            this.offsets.character.jump,
-            jumpOffsets
-          ) &&
-          !miniEndboss.isDead()
-        ) {
-          const isAbove = CollisionConfig.isReallyAboveEnemy(
-            this.world.character,
-            miniEndboss,
-            jumpOffsets
-          );
-          const isImmuneToThisEnemy =
-            miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
-
-          if (isAbove && !isImmuneToThisEnemy) {
-            miniEndboss.immuneUntil = Date.now() + 200;
-            jumpAttackHappened = true;
-
-            miniEndboss.hitMiniEndboss();
-
-            const miniEndbossTopWithOffset = miniEndboss.y + jumpOffsets.y;
-            this.world.character.y =
-              miniEndbossTopWithOffset - this.world.character.height;
-            this.world.character.speedY = -25;
-
-            const landingCheck = setInterval(() => {
-              if (this.world.character.y >= 280) {
-                this.world.character.snapToGround(280);
-                clearInterval(landingCheck);
-              }
-            }, 1000 / 60);
-
-            if (audioManager && audioManager.play) {
-              audioManager.play("jumpOnEnemy");
-            }
-          }
+        if (this.handleMiniEndbossJumpAttack(miniEndboss, now)) {
+          jumpAttackHappened = true;
         }
       });
     }
 
     return jumpAttackHappened;
+  }
+
+  /**
+   * Handles jump attack on a regular enemy
+   * @param {Enemy} enemy - The enemy to check for jump attack
+   * @param {number} now - Current timestamp
+   * @returns {boolean} True if a jump attack happened
+   */
+  handleEnemyJumpAttack(enemy, now) {
+    const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
+    const jumpOffsets = this.offsets[enemyType].precise;
+
+    if (!this.hasValidJumpCollision(enemy, jumpOffsets)) {
+      return false;
+    }
+
+    const isAbove = CollisionConfig.isReallyAboveEnemy(
+      this.world.character,
+      enemy,
+      jumpOffsets
+    );
+    const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+
+    if (isAbove && !isImmuneToThisEnemy) {
+      this.executeEnemyJumpAttack(enemy);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Handles jump attack on a mini endboss
+   * @param {MiniEndboss} miniEndboss - The mini endboss to check for jump attack
+   * @param {number} now - Current timestamp
+   * @returns {boolean} True if a jump attack happened
+   */
+  handleMiniEndbossJumpAttack(miniEndboss, now) {
+    const jumpOffsets = this.offsets.miniEndboss.jump;
+
+    if (!this.hasValidJumpCollision(miniEndboss, jumpOffsets)) {
+      return false;
+    }
+
+    const isAbove = CollisionConfig.isReallyAboveEnemy(
+      this.world.character,
+      miniEndboss,
+      jumpOffsets
+    );
+    const isImmuneToThisEnemy = miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
+
+    if (isAbove && !isImmuneToThisEnemy) {
+      this.executeMiniEndbossJumpAttack(miniEndboss, jumpOffsets);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks if there's a valid jump collision with an enemy
+   * @param {Enemy|MiniEndboss} enemy - The enemy to check collision with
+   * @param {Object} jumpOffsets - Jump collision offsets
+   * @returns {boolean} True if there's a valid collision
+   */
+  hasValidJumpCollision(enemy, jumpOffsets) {
+    return CollisionConfig.isPreciseCollision(
+      this.world.character,
+      enemy,
+      this.offsets.character.jump,
+      jumpOffsets
+    ) && !enemy.isDead();
+  }
+
+  /**
+   * Executes the jump attack on a regular enemy
+   * @param {Enemy} enemy - The enemy being attacked
+   */
+  executeEnemyJumpAttack(enemy) {
+    enemy.immuneUntil = Date.now() + 200;
+    enemy.hit();
+    
+    this.world.character.snapToGround(280);
+    this.world.character.jump();
+    
+    this.playJumpAttackSound();
+  }
+
+  /**
+   * Executes the jump attack on a mini endboss
+   * @param {MiniEndboss} miniEndboss - The mini endboss being attacked
+   * @param {Object} jumpOffsets - Jump collision offsets
+   */
+  executeMiniEndbossJumpAttack(miniEndboss, jumpOffsets) {
+    miniEndboss.immuneUntil = Date.now() + 200;
+    miniEndboss.hitMiniEndboss();
+
+    const miniEndbossTopWithOffset = miniEndboss.y + jumpOffsets.y;
+    this.world.character.y = miniEndbossTopWithOffset - this.world.character.height;
+    this.world.character.speedY = -25;
+
+    this.setupMiniEndbossLandingCheck();
+    this.playJumpAttackSound();
+  }
+
+  /**
+   * Sets up the landing check for mini endboss jump attacks
+   */
+  setupMiniEndbossLandingCheck() {
+    const landingCheck = setInterval(() => {
+      if (this.world.character.y >= 280) {
+        this.world.character.snapToGround(280);
+        clearInterval(landingCheck);
+      }
+    }, 1000 / 60);
+  }
+
+  /**
+   * Plays the jump attack sound effect
+   */
+  playJumpAttackSound() {
+    if (audioManager && audioManager.play) {
+      audioManager.play("jumpOnEnemy");
+    }
   }
 
   /**
@@ -146,82 +196,111 @@ class CollisionHandler {
     const now = Date.now();
 
     this.world.level.enemies.forEach((enemy) => {
-      const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
-      const enemyOffsets = this.offsets[enemyType].normal;
-
-      if (
-        CollisionConfig.isPreciseCollision(
-          this.world.character,
-          enemy,
-          this.offsets.character.normal,
-          enemyOffsets
-        ) &&
-        !enemy.isDead()
-      ) {
-        const isAbove = CollisionConfig.isReallyAboveEnemy(
-          this.world.character,
-          enemy,
-          enemyOffsets
-        );
-        const isImmuneToThisEnemy =
-          enemy.immuneUntil && now < enemy.immuneUntil;
-
-        if (!isAbove && !isImmuneToThisEnemy) {
-          this.world.character.hitWithCooldown(enemy);
-          this.world.statusBar.setPercentage(this.world.character.hp);
-        }
-      }
+      this.handleEnemyNormalCollision(enemy, now);
     });
 
     if (this.world.level.miniEndbosses) {
       this.world.level.miniEndbosses.forEach((miniEndboss) => {
-        if (
-          CollisionConfig.isPreciseCollision(
-            this.world.character,
-            miniEndboss,
-            this.offsets.character.normal,
-            this.offsets.miniEndboss.normal
-          ) &&
-          !miniEndboss.isDead()
-        ) {
-          const isAbove = CollisionConfig.isReallyAboveEnemy(
-            this.world.character,
-            miniEndboss,
-            this.offsets.miniEndboss.normal
-          );
-          const isImmuneToThisEnemy =
-            miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
-          this.world.character.snapToGround(280);
-          if (!isAbove && !isImmuneToThisEnemy) {
-            this.world.character.hitWithCooldown(miniEndboss);
-            this.world.statusBar.setPercentage(this.world.character.hp);
-          }
-        }
+        this.handleMiniEndbossNormalCollision(miniEndboss, now);
       });
     }
 
-    const boss = this.world.level.endboss;
-    if (
-      CollisionConfig.isPreciseCollision(
-        this.world.character,
-        boss,
-        this.offsets.character.normal,
-        this.offsets.endboss.normal
-      ) &&
-      !boss.isDead()
-    ) {
-      const isAbove = CollisionConfig.isReallyAboveEnemy(
-        this.world.character,
-        boss,
-        this.offsets.endboss.normal
-      );
-      const isImmuneToThisEnemy = boss.immuneUntil && now < boss.immuneUntil;
+    this.handleEndbossNormalCollision(this.world.level.endboss, now);
+  }
 
-      if (!isAbove && !isImmuneToThisEnemy) {
-        this.world.character.hitWithCooldown(boss);
-        this.world.statusBar.setPercentage(this.world.character.hp);
-      }
+  /**
+   * Handles normal collision with a regular enemy
+   * @param {Enemy} enemy - The enemy to check for collision
+   * @param {number} now - Current timestamp
+   */
+  handleEnemyNormalCollision(enemy, now) {
+    const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
+    const enemyOffsets = this.offsets[enemyType].normal;
+
+    if (!this.hasValidNormalCollision(enemy, enemyOffsets)) {
+      return;
     }
+
+    const isAbove = CollisionConfig.isReallyAboveEnemy(
+      this.world.character,
+      enemy,
+      enemyOffsets
+    );
+    const isImmuneToThisEnemy = enemy.immuneUntil && now < enemy.immuneUntil;
+
+    if (!isAbove && !isImmuneToThisEnemy) {
+      this.executeCharacterHit(enemy);
+    }
+  }
+
+  /**
+   * Handles normal collision with a mini endboss
+   * @param {MiniEndboss} miniEndboss - The mini endboss to check for collision
+   * @param {number} now - Current timestamp
+   */
+  handleMiniEndbossNormalCollision(miniEndboss, now) {
+    if (!this.hasValidNormalCollision(miniEndboss, this.offsets.miniEndboss.normal)) {
+      return;
+    }
+
+    const isAbove = CollisionConfig.isReallyAboveEnemy(
+      this.world.character,
+      miniEndboss,
+      this.offsets.miniEndboss.normal
+    );
+    const isImmuneToThisEnemy = miniEndboss.immuneUntil && now < miniEndboss.immuneUntil;
+    
+    this.world.character.snapToGround(280);
+    
+    if (!isAbove && !isImmuneToThisEnemy) {
+      this.executeCharacterHit(miniEndboss);
+    }
+  }
+
+  /**
+   * Handles normal collision with the endboss
+   * @param {Endboss} boss - The endboss to check for collision
+   * @param {number} now - Current timestamp
+   */
+  handleEndbossNormalCollision(boss, now) {
+    if (!this.hasValidNormalCollision(boss, this.offsets.endboss.normal)) {
+      return;
+    }
+
+    const isAbove = CollisionConfig.isReallyAboveEnemy(
+      this.world.character,
+      boss,
+      this.offsets.endboss.normal
+    );
+    const isImmuneToThisEnemy = boss.immuneUntil && now < boss.immuneUntil;
+
+    if (!isAbove && !isImmuneToThisEnemy) {
+      this.executeCharacterHit(boss);
+    }
+  }
+
+  /**
+   * Checks if there's a valid normal collision with an enemy
+   * @param {Enemy|MiniEndboss|Endboss} enemy - The enemy to check collision with
+   * @param {Object} enemyOffsets - Normal collision offsets
+   * @returns {boolean} True if there's a valid collision
+   */
+  hasValidNormalCollision(enemy, enemyOffsets) {
+    return CollisionConfig.isPreciseCollision(
+      this.world.character,
+      enemy,
+      this.offsets.character.normal,
+      enemyOffsets
+    ) && !enemy.isDead();
+  }
+
+  /**
+   * Executes character hit by enemy and updates health bar
+   * @param {Enemy|MiniEndboss|Endboss} enemy - The enemy that hit the character
+   */
+  executeCharacterHit(enemy) {
+    this.world.character.hitWithCooldown(enemy);
+    this.world.statusBar.setPercentage(this.world.character.hp);
   }
 
   /**

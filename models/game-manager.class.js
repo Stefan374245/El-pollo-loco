@@ -5,7 +5,6 @@
  * @version 1.0.0
  */
 
-// === game-manager.class.js ===
 const audioManager = new AudioManager();
 let gameManager;
 
@@ -89,9 +88,18 @@ class GameManager {
   startGame(levelNumber = 1) {
     this.gameRunning = true;
     this.currentLevel = levelNumber;
-
+    
     audioManager.playLevelMusic(levelNumber);
+    this.setupGameUI();
+    this.setupMobileControls();
+    this.initializeGameWorld(levelNumber);
+    this.setupBossDeathHandler();
+  }
 
+  /**
+   * Sets up the game UI elements when starting a game
+   */
+  setupGameUI() {
     const startScreen = document.getElementById("startScreen");
     startScreen.classList.remove("active");
     startScreen.innerHTML = "";
@@ -106,31 +114,40 @@ class GameManager {
         updateMuteButton();
       }
     }
+  }
 
-      if (this.isMobile()) {
+  /**
+   * Sets up mobile controls if on a mobile device
+   */
+  setupMobileControls() {
+    if (this.isMobile()) {
       document.getElementById("mobileControls").classList.add("active");
       setupMobileTouchControls(this.keyboard);
     } else {
       document.getElementById("mobileControls").classList.remove("active");
     }
+  }
+
+  /**
+   * Initializes the game world based on device type
+   * @param {number} levelNumber - The level number to initialize
+   */
+  initializeGameWorld(levelNumber) {
     this.prepareCanvas(true);
     this.clearWorld();
 
     if (this.isMobile()) {
-      this.currentWorld = new MobileWorld(
-        this.canvas,
-        this.keyboard,
-        levelNumber
-      );
+      this.currentWorld = new MobileWorld(this.canvas, this.keyboard, levelNumber);
       window.mobileWorld = this.currentWorld;
     } else {
-      this.currentWorld = new World(
-        this.canvas,
-        this.keyboard,
-        levelNumber
-      );
+      this.currentWorld = new World(this.canvas, this.keyboard, levelNumber);
     }
+  }
 
+  /**
+   * Sets up the boss death handler for level completion
+   */
+  setupBossDeathHandler() {
     const boss = this.currentWorld.level?.endboss;
     if (boss) {
       boss.onDeathComplete = () => {

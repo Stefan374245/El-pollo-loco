@@ -17,7 +17,7 @@ class Level {
   /** @type {BackgroundObject[]} Array of background objects */
   backgroundObjects;
   /** @type {MiniEndboss[]|null} Array of mini bosses for level 2 */
-  miniEndbosses; // Für Level 2 Mini-Endbosse
+  miniEndbosses;
   /** @type {number} X-coordinate where the level ends */
   level_end_point = 2200;
   

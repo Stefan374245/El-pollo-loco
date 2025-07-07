@@ -65,14 +65,11 @@ class MiniEndboss extends Endboss {
    * and handling the animation timing
    */
   animate() {
-    setInterval(() => {
-      if (
-        this.world &&
-        this.x + this.width / 2 < -this.world.camera_x + this.world.canvas.width
-      ) {
+    if (!this.animationInterval) {
+      this.animationInterval = setInterval(() => {
         this.handleAnimation();
-      }
-    }, 200);
+      }, 200);
+    }
 
     this.directionInterval = setInterval(() => {
       if (!this.isDead() && this.animationPhase !== "hurt") {
@@ -86,20 +83,10 @@ class MiniEndboss extends Endboss {
    * Plays the corresponding animation based on the current phase
    */
   handleAnimation() {
-    if (this.isDead() || this.animationPhase === "dead") {
-      this.playAnimation(this.animations.dead);
+    if (!this.isVisible()) return;
 
-      if (
-        this.frameCount >= this.animations.dead.length - 1 &&
-        !this.deadAnimationComplete
-      ) {
-        this.deadAnimationComplete = true;
-        console.log(`Mini-Endboss ${this.id} Dead-Animation abgeschlossen`);
-        setTimeout(() => {
-          this.removeSelfFromWorld();
-        }, 1000);
-      }
-      this.frameCount++;
+    if (this.isDead() || this.animationPhase === "dead") {
+      this.handleDeathAnimation();
       return;
     }
 
@@ -108,6 +95,34 @@ class MiniEndboss extends Endboss {
 
     if (this.frameCount >= this.animations[this.animationPhase].length) {
       this.handlePhaseTransition();
+    }
+  }
+
+  /**
+   * Checks if the mini endboss is visible on screen
+   * @returns {boolean} True if visible, false otherwise
+   */
+  isVisible() {
+    return this.world && 
+           this.x + this.width / 2 < -this.world.camera_x + this.world.canvas.width;
+  }
+
+  /**
+   * Handles the death animation of the mini endboss
+   */
+  handleDeathAnimation() {
+    this.playAnimation(this.animations.dead);
+    this.frameCount++;
+
+    if (
+      this.frameCount >= this.animations.dead.length - 1 &&
+      !this.deadAnimationComplete
+    ) {
+      this.deadAnimationComplete = true;
+      console.log(`Mini-Endboss ${this.id} Dead-Animation abgeschlossen`);
+      setTimeout(() => {
+        this.removeSelfFromWorld();
+      }, 1000);
     }
   }
 
@@ -139,11 +154,22 @@ class MiniEndboss extends Endboss {
       case "hurt":
         setTimeout(() => {
           if (this.animationPhase === "hurt") {
-            this.changePhase(this.previousPhase || "attack");
+            this.changePhase(this.previousPhase || "walk");
           }
-        }, 1000);
+        }, 500);
         break;
     }
+  }
+
+  /**
+   * Changes the animation phase of the mini endboss
+   * @param {string} newPhase - The new animation phase to set
+   */
+  changePhase(newPhase) {
+    this.previousPhase = this.animationPhase;
+    this.animationPhase = newPhase;
+    this.frameCount = 0;
+    this.currentImage = 0;
   }
 
   /**
