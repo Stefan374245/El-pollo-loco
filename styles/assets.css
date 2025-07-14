@@ -175,7 +175,7 @@ button:not(.mute-btn, .back-btn):hover {
   flex-direction: row;
   align-items: center;
   gap: 16px;
-  margin: 0 8px;
+  margin: 0 32px;
 }
 
 .mobile-btn {
