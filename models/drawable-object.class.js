@@ -55,7 +55,6 @@ class DrawableObject {
    * @param {number} [offsetY=0] - Y offset for the frame
    */
   drawFrame(ctx, offsetX = 0, offsetY = 0) {
-    // Frames are now invisible - all drawing operations commented out
     /*
     if (this instanceof Character) {
       ctx.beginPath();
@@ -87,5 +86,106 @@ class DrawableObject {
       }
     }
     */
+  }
+}
+
+/**
+ * Represents a text overlay for displaying messages on screen
+ * @class TextOverlay
+ * @extends DrawableObject
+ */
+class TextOverlay extends DrawableObject {
+  /** @type {string} The text to display */
+  text = "";
+  /** @type {string} Font style for the text */
+  font = "bold 64px 'Fredericka the Great'";
+  /** @type {string} Text color */
+  color = "#FFD700";
+  /** @type {string} Stroke color */
+  strokeColor = "#000000";
+  /** @type {number} Stroke width */
+  strokeWidth = 4;
+  /** @type {boolean} Whether the overlay is visible */
+  visible = false;
+  /** @type {number} Opacity for fade effects */
+  opacity = 1;
+
+  /**
+   * Creates a new text overlay
+   * @param {string} text - The text to display
+   * @param {number} x - X position (default: center)
+   * @param {number} y - Y position (default: center)
+   */
+  constructor(text, x = 360, y = 240) {
+    super();
+    this.text = text;
+    this.x = x;
+    this.y = y;
+    this.width = 0;
+    this.height = 0;
+  }
+
+  /**
+   * Draws the text overlay on the canvas
+   * @param {CanvasRenderingContext2D} ctx - The canvas rendering context
+   */
+  draw(ctx) {
+    if (!this.visible) return;
+
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.font = this.font;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.strokeStyle = this.strokeColor;
+    ctx.lineWidth = this.strokeWidth;
+    ctx.strokeText(this.text, this.x, this.y);
+
+    ctx.fillStyle = this.color;
+    ctx.fillText(this.text, this.x, this.y);
+
+    ctx.restore();
+  }
+
+  /**
+   * Shows the text overlay
+   */
+  show() {
+    this.visible = true;
+    this.opacity = 1;
+  }
+
+  /**
+   * Hides the text overlay
+   */
+  hide() {
+    this.visible = false;
+  }
+
+  /**
+   * Sets the text content
+   * @param {string} text - The new text to display
+   */
+  setText(text) {
+    this.text = text;
+  }
+
+  /**
+   * Sets the position of the text
+   * @param {number} x - X position
+   * @param {number} y - Y position
+   */
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  /**
+   * Sets the opacity of the text
+   * @param {number} opacity - Opacity value (0-1)
+   */
+  setOpacity(opacity) {
+    this.opacity = Math.max(0, Math.min(1, opacity));
   }
 }

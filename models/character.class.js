@@ -139,6 +139,12 @@ class Character extends MovableObject {
       return;
     }
 
+    // Block movement during boss fight alert
+    if (this.world.isBossFightActive) {
+      this.world.camera_x = -this.x + 100;
+      return;
+    }
+
     const now = Date.now();
     const isInKnockback = this.knockbackUntil && now < this.knockbackUntil;
     
@@ -200,6 +206,12 @@ class Character extends MovableObject {
         }, 2000);
       }
       
+      return;
+    }
+
+    // Block all animations during boss fight alert
+    if (this.world.isBossFightActive) {
+      this.playAnimation(this.IMAGES_IDLE);
       return;
     }
 

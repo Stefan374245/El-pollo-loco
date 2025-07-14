@@ -31,6 +31,94 @@ function startScreenOverlayTemplate() {
   `;
 }
 
+/**
+ * Generates the HTML for the impressum overlay
+ * @returns {string} HTML string for the impressum overlay
+ */
+function impressumOverlayTemplate() {
+  return `
+    <div class="start-screen-card setting-overlay">
+      <div class="setting-header">
+        <h1>Impressum</h1>
+        <img onclick="backToStartScreen()" class="icon back-icon back-btn" src="./assets/icons/back1.svg" alt="back" />
+      </div>
+      <div class="setting-content">
+        <h2>Angaben gemäß § 5 TMG</h2>
+        <ul class="key-list">
+          <li>
+            <span class="label"><b>Name:</b></span>
+            <span class="key">Stefan Helldobler</span>
+          </li>
+          <li>
+            <span class="label"><b>Adresse:</b></span>
+            <span class="key">Musterstraße 123<br>12345 Musterstadt</span>
+          </li>
+        </ul>
+        
+        <hr>
+        
+        <h2>Kontakt</h2>
+        <ul class="key-list">
+          <li>
+            <span class="label"><b>Telefon:</b></span>
+            <span class="key">+49 123 456789</span>
+          </li>
+          <li>
+            <span class="label"><b>E-Mail:</b></span>
+            <span class="key">info@stefan-helldobler.de</span>
+          </li>
+        </ul>
+        
+        <hr>
+        
+        <h2>Urheberrecht</h2>
+        <ul class="key-list">
+          <li>
+            <span class="label"><b>Bilder:</b></span>
+            <span class="key">Developer Akademie</span>
+          </li>
+          <li>
+            <span class="label"><b>Sounds:</b></span>
+            <span class="key">freesound.org</span>
+          </li>
+          <li>
+            <span class="label"><b>Icons:</b></span>
+            <span class="key">Google Fonts</span>
+          </li>
+        </ul>
+        
+        <hr>
+        
+        <h2>Datenschutz</h2>
+        <ul class="key-list">
+          <li>
+            <span class="label"><b>Cookies:</b></span>
+            <span class="key">Keine verwendet</span>
+          </li>
+          <li>
+            <span class="label"><b>Daten:</b></span>
+            <span class="key">Nur lokale Speicherung</span>
+          </li>
+        </ul>
+        
+        <hr>
+        
+        <h2>Haftung</h2>
+        <ul class="key-list">
+          <li>
+            <span class="label"><b>Inhalte:</b></span>
+            <span class="key">Nach § 7 TMG</span>
+          </li>
+          <li>
+            <span class="label"><b>Links:</b></span>
+            <span class="key">Keine Haftung</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
 function settingsOverlayTemplate() {
   return `
     <div class="start-screen-card setting-overlay">
@@ -43,8 +131,8 @@ function settingsOverlayTemplate() {
       <div class="setting-content">
       <h2>Control-PC</h2>
         <ul class="key-list">
-          <li><span class="label"><b>Move left/right:</b></span><span class="key">Tap ⬅️ / Left <br>Tap ➡️  / Right</span></li>
-          <li><span class="label"><b>Jump:</b></span><span class="key">Tap ⬆️</span></li>
+          <li><span class="label"><b>Move left/right:</b></span><span class="key">Tap A / Left <br>Tap D  / Right</span></li>
+            <li><span class="label"><b>Jump:</b></span><span class="key">Tap space</span></li>
           <li><span class="label"><b>Throw:</b></span><span class="key">Press F</span></li>
           <li><span class="label"><b>Mute/unmute:</b></span>
             <span class="key">
@@ -57,8 +145,9 @@ function settingsOverlayTemplate() {
           <hr>
         <h2>Control-Mobile</h2>
           <ul class="key-list">
-            <li><span class="label"><b>Move left/right:</b></span><span class="key">Tap A / Left <br>Tap F  / Right</span></li>
-            <li><span class="label"><b>Jump:</b></span><span class="key">Tap space</span></li>
+          <li><span class="label"><b>Move left/right:</b></span><span class="key">Tap ⬅️ / Left <br>Tap ➡️  / Right</span></li>
+          <li><span class="label"><b>Jump:</b></span><span class="key">Tap ⬆️</span></li>
+            
             <li><span class="label"><b>Throw:</b></span><span class="key">Press
               <div class="icon bottle-rotate"></div>
           
@@ -158,6 +247,9 @@ function getMobileStartScreenTemplate() {
           </button>
           <button onclick="showSettings()">
             Game-Info
+          </button>
+          <button onclick="showImpressum()">
+            Impressum
           </button>
         </div>
       </div>

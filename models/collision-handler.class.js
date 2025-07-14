@@ -359,7 +359,13 @@ class CollisionHandler {
 
       this.world.level.enemies.forEach((enemy) => {
         if (!enemy.isDead() && !bottle.hasHitGround) {
-          const hasCollision = bottle.isColliding(enemy, 5, 5);
+          const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
+          const hasCollision = CollisionConfig.isPreciseCollision(
+            bottle,
+            enemy,
+            this.offsets.throwableBottle.hit,
+            this.offsets[enemyType].normal
+          );
 
           if (hasCollision) {
             enemy.hit();
@@ -387,7 +393,12 @@ class CollisionHandler {
 
     this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
       const canPickUp = this.world.bottleCount < maxBottles;
-      const isColliding = this.world.character.isColliding(bottle, 10, 10);
+      const isColliding = CollisionConfig.isPreciseCollision(
+        this.world.character,
+        bottle,
+        this.offsets.character.normal,
+        this.offsets.bottles.collect
+      );
 
       if (isColliding && canPickUp) {
         this.world.bottleCount++;

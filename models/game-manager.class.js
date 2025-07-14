@@ -11,6 +11,12 @@ let gameManager;
 window.onload = () => {
   gameManager = new GameManager();
   window.gameManager = gameManager; 
+  
+  // Mute-Icon basierend auf gespeichertem Status setzen
+  setTimeout(() => {
+    updateMuteIcon();
+  }, 100);
+  
   gameManager.showStartScreenOverlay();
 };
 
@@ -47,6 +53,10 @@ class GameManager {
     } else if (footer) {
       footer.style.display = "";
     }
+    
+    // Startscreen-Musik nur abspielen wenn nicht gemutet
+    audioManager.playStartScreenMusic();
+    
     if (this.isMobile()) {
       this.currentWorld = new MobileWorld(this.canvas, this.keyboard);
       window.mobileWorld = this.currentWorld;
@@ -392,20 +402,37 @@ class GameManager {
   }
 
   /**
+   * Determines device type based on screen size and capabilities
+   * @returns {string} - 'mobile', 'tablet', or 'desktop'
+   */
+  getDeviceType() {
+    const screenWidth = window.innerWidth;
+    
+    // Klare Grenze bei 950px
+    if (screenWidth <= 950) {
+      return 'mobile';
+    }
+    
+    // Desktop
+    return 'desktop';
+  }
+
+  /**
    * Checks if the current device is mobile
    * @returns {boolean} - True if the device is mobile, false otherwise
    */
   isMobile() {
-    return (
-      window.innerWidth < 768 ||
-      "ontouchstart" in window ||
-      navigator.userAgent.toLowerCase().includes("mobile")
-    );
+    return this.getDeviceType() === 'mobile';
   }
+
 }
 
 function showSettings() {
   document.getElementById("startScreen").innerHTML = settingsOverlayTemplate();
+}
+
+function showImpressum() {
+  document.getElementById("startScreen").innerHTML = impressumOverlayTemplate();
 }
 
 function backToStartScreen() {

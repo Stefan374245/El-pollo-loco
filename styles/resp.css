@@ -1,4 +1,4 @@
-@media only screen and (max-width: 780px) {
+@media only screen and (max-width: 950px) {
   canvas {
     width: 100%;
   }
@@ -29,6 +29,7 @@
   }
 
   .startscreen-buttons button {
+    font-size: 18px;
     width: 150px;
     height: 88px;
   }
@@ -37,11 +38,38 @@
     width: 150px;
     height: 72px;
   }
-  footer {
-    display: none;
+
+  .mute-btn-desktop {
+    display: none !important;
   }
 
   .desktop-mute-button {
+    display: none !important;
+  }
+
+  #desktopMuteButton {
+    display: none !important;
+  }
+
+  #btn-mute-desktop {
+    display: none !important;
+  }
+
+  footer {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 951px) {
+  .mobile-controls {
+    display: none !important;
+  }
+  
+  .desktop-mute-button {
+    display: block !important;
+  }
+  
+  footer {
     display: block;
   }
 }
@@ -70,4 +98,11 @@
 :-moz-full-screen body {
   overflow: hidden !important;
   touch-action: manipulation !important;
+}
+
+@media screen and (max-width: 375px) and (max-height: 667px) {
+.mobile-mute-icon {
+   display: none;
+}
+
 }

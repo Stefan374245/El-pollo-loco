@@ -42,7 +42,8 @@ class Enemy extends MovableObject {
     this.loadImages(this.IMAGES_DEAD);
 
     if (Enemy.availablePositions.length === 0) {
-      for (let x = 650; x <= 2200 - this.width; x += 70) {
+      const maxSpawnX = 2200 - 600 - this.width;
+      for (let x = 650; x <= maxSpawnX; x += 70) {
         Enemy.availablePositions.push(x);
       }
     }

@@ -91,6 +91,9 @@ class World {
     this.bottleCount = 0;
     this.camera_x = 0;
     this.canThrow = true;
+ 
+    this.bossOverlay = new TextOverlay("BOSS FIGHT!", this.canvas.width / 2, this.canvas.height / 2);
+    this.isBossFightActive = false;
   }
 
   /**
@@ -154,7 +157,11 @@ class World {
 
     this.ctx.translate(-this.camera_x, 0);
 
-    if (this.character.x + this.character.width >= this.level.endboss.x - 500) {
+    if (this.isBossFightActive) {
+      this.addToMap(this.bossOverlay);
+    }
+
+    if (this.character.x + this.character.width >= this.level.endboss.x - 400) {
       this.addToMap(this.statusBarEndboss);
     }
     this.addToMap(this.statusBarBottles);
@@ -231,11 +238,18 @@ class World {
     }, 10);
   }
 
+  
   /**
    * Checks if the player wants to throw a bottle and can do so
    * Creates new ThrowableObject instance on valid input
+   * Only throws once per key press using canThrow flag
    */
   checkThrowableObjects() {
+    // Prevent throwing during boss fight alert
+    if (this.isBossFightActive) {
+      return;
+    }
+
     if (this.keyboard.F && this.bottleCount > 0 && this.canThrow) {
       const direction = this.character.otherDirection;
 
@@ -254,12 +268,15 @@ class World {
       const maxBottles = 5;
       const percentage = (this.bottleCount / maxBottles) * 100;
       this.statusBarBottles.setPercentage(percentage);
+      
       this.canThrow = false;
-      setTimeout(() => {
-        this.canThrow = true;
-      }, 500);
+    }
+    
+    if (!this.keyboard.F) {
+      this.canThrow = true;
     }
   }
+
 
   /**
    * Starts the regular checking for throwable objects

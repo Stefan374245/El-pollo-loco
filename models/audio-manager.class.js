@@ -14,7 +14,7 @@ class AudioManager {
     /** @type {boolean} Whether background music is muted */
     this.musicMuted = false;
     /** @type {boolean} Whether all audio is globally muted */
-    this.globalMuted = false;
+    this.globalMuted = this.loadMuteStateFromStorage();
     /** @type {number} Current track index for music playback */
     this.currentTrackIndex = 0;
     /** @type {number} X position of the mute button */
@@ -33,7 +33,7 @@ class AudioManager {
     this.muteIcon = new Image();
     this.unmuteIcon.src = "assets/icons/unmute.svg";
     this.muteIcon.src = "assets/icons/mute.svg";
-
+    
     /** @type {Object.<string, HTMLAudioElement>} Collection of sound effects and music tracks */
     this.sounds = {
       startscreen: new Audio("assets/audio/start-screen.mp3"),
@@ -74,6 +74,22 @@ class AudioManager {
   }
 
   /**
+   * Lädt den Mute-Status aus dem Local Storage
+   * @returns {boolean} Der gespeicherte Mute-Status oder false als Standard
+   */
+  loadMuteStateFromStorage() {
+    const savedMuteState = localStorage.getItem('audioMuted');
+    return savedMuteState === 'true';
+  }
+
+  /**
+   * Speichert den aktuellen Mute-Status im Local Storage
+   */
+  saveMuteStateToStorage() {
+    localStorage.setItem('audioMuted', this.globalMuted.toString());
+  }
+
+  /**
    * Plays a sound effect or music track
    * @param {string} soundName Name of the sound effect or music track to play
    * @param {boolean} [loop=false] Whether the track should loop
@@ -84,7 +100,6 @@ class AudioManager {
     
     const audio = this.sounds[soundName];
     if (!audio) {
-      console.warn(`Sound "${soundName}" not found`);
       return;
     }
 
@@ -104,7 +119,7 @@ class AudioManager {
         await playPromise;
       }
     } catch (error) {
-      console.warn(`Audio playback error for ${soundName}:`, error);
+      // Audio playback error - silently handled
     }
   }
 
@@ -116,26 +131,16 @@ class AudioManager {
     if (this.globalMuted) return;
     
     this.stopAll();
-
     const levelMusicName = `level${levelNumber}`;
-    if (this.sounds[levelMusicName]) {
-      const audio = this.sounds[levelMusicName];
-      
-      audio.currentTime = 0;
-      audio.volume = 0.6;
-      audio.loop = true;
-      audio.play().catch(error => {
-        console.warn(`Audio playback error for ${levelMusicName}:`, error);
-      });
-    } else {
-      console.warn(`Level music "${levelMusicName}" not found`);
-    }
+    this.play(levelMusicName, true, 0.6);
   }
 
   /**
    * Plays the start screen music
    */
   playStartScreenMusic() {
+    if (this.globalMuted) return;
+    
     this.stopAll();
     this.play("startscreen", true, 0.3);
   }
@@ -164,6 +169,7 @@ class AudioManager {
    */
   muteAll() {
     this.globalMuted = true;
+    this.saveMuteStateToStorage();
     this.stopAll();
   }
 
@@ -172,6 +178,7 @@ class AudioManager {
    */
   unmuteAll() {
      this.globalMuted = false;
+     this.saveMuteStateToStorage();
   }
 
   /**
@@ -353,6 +360,14 @@ class AudioManager {
  */
 function toggleGlobalMute() {
   audioManager.toggleGlobalMute();
+  // Icon wird automatisch vom window.onload und beim Toggle aktualisiert
+  updateMuteIcon();
+}
+
+/**
+ * Updates the mute icon based on the current mute state
+ */
+function updateMuteIcon() {
   const icon = document.getElementById("music-toggle-icon");
   if (icon) {
     icon.src = audioManager.globalMuted

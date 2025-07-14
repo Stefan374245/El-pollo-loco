@@ -15,6 +15,7 @@ class CollisionConfig {
                 precise: { x: 25, y: 30 },
                 jump: { x: 10, y: 15 },
                 coin: { x: 40, y: 80, width: -80, height: -80 },
+                bottle: { x: 30, y: 30 },
             },
             enemy: {
                 normal: { x: 8, y: 10 },
@@ -38,7 +39,7 @@ class CollisionConfig {
                 jump: { x: 25, y: 30 },
             },
             bottles: {
-                collect: { x: 10, y: 10 },
+                collect: { x: 20, y: 20},
             },
             coins: {
                 collect: { x: 5, y: 5, width: -10, height: -10 },
