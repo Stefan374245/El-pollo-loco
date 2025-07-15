@@ -259,8 +259,6 @@ class Character extends MovableObject {
     if (!this.jumpSoundPlayed) {
       if (this.audioManager) {
         this.audioManager.play('jump');
-      } else {
-        console.warn('AudioManager nicht verfügbar für Jump-Sound');
       }
       this.jumpSoundPlayed = true;
     }
@@ -320,8 +318,6 @@ class Character extends MovableObject {
         this.whistlePosition = this.audioManager.pauseAndGetPosition('whistle');
         this.isWhistlePlaying = false;
       }
-    } else {
-      console.warn('AudioManager nicht verfügbar für Whistle-Pause');
     }
   }
   
@@ -334,8 +330,6 @@ class Character extends MovableObject {
         this.audioManager.playWithPosition('whistle', this.whistlePosition);
         this.isWhistlePlaying = true;
       }
-    } else {
-      console.warn('AudioManager nicht verfügbar für Whistle-Resume');
     }
   }
   
@@ -359,8 +353,6 @@ class Character extends MovableObject {
         this.audioManager.play('snoring');
         this.isSnoringPlaying = true;
       }
-    } else {
-      console.warn('AudioManager nicht verfügbar für Snoring');
     }
   }
   

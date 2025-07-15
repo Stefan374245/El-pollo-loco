@@ -281,7 +281,6 @@ hitBoss() {
   const damage = this.getCurrentAggressionSettings().damagePerHit;
   this.hp = Math.max(0, this.hp - damage);
   
-  console.log(`Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`);
   if (this.world?.character?.audioManager) {
     this.world.character.audioManager.play('endbossHit', false, 0.8);
   }
@@ -309,8 +308,6 @@ hitBoss() {
     
     if (window.gameManager && typeof window.gameManager.completeLevel === 'function') {
       window.gameManager.completeLevel();
-    } else {
-      console.error('GameManager ist nicht verfügbar');
     }
   }
 }

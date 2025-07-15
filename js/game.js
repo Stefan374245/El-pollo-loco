@@ -141,7 +141,6 @@ function setupMuteButtonControl(btnMute) {
   
   btnMute.addEventListener("touchstart", e => {
     e.preventDefault();
-    console.log(">>> Mute Button pressed, currentLevel =", gameManager.currentLevel);
     audioManager.toggleGlobalMute();
     updateMuteButton();
   }, { passive: false });
@@ -201,7 +200,6 @@ function setupDesktopMuteButton() {
   if (btn) {
     btn.addEventListener("click", e => {
       e.preventDefault();
-      console.log(">>> Desktop Mute Button pressed, currentLevel =", gameManager.currentLevel);
       audioManager.toggleGlobalMute();
       updateMuteButton();
     });
