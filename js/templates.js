@@ -19,11 +19,14 @@ function startScreenOverlayTemplate() {
         <div class="startscreen-content">
           <h2>2D - Jump & Run - Fun</h2>
           <div class="startscreen-buttons">
-            <button onclick="gameManager.handleStart()">Start game</button>
-            <button onclick="showSettings()">Game-Info</button>
-            <button class="mute-btn" id="muteBtn" onclick="toggleGlobalMute()">
-              <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/mute.svg" alt="Mute/Unmute" />
-            </button>
+              <button onclick="gameManager.handleStart()">Start game</button>
+              <button onclick="showSettings()">Game-Info</button>
+              <button onclick="showImpressum()">
+                Impressum
+              </button>
+              <button class="mute-btn" id="muteBtn" onclick="audioManager.toggleGlobalMute()">
+                <img class="mute-icon" id="music-toggle-icon" src="./assets/icons/mute.svg" alt="Mute/Unmute" />
+              </button>
           </div>
         </div>
       </div>
