@@ -29,7 +29,7 @@
             <pre class="prettyprint source linenums"><code>/**
  * @fileoverview Game Manager for El Pollo Loco game.
  * Handles game state, levels, screen transitions, and overall game flow control.
- * @author Your Name
+ * @author Stefan Helldobler
  * @version 1.0.0
  */
 
@@ -38,7 +38,10 @@ let gameManager;
 
 window.onload = () => {
   gameManager = new GameManager();
-  window.gameManager = gameManager; 
+  window.gameManager = gameManager;
+
+  setTimeout(() => updateMuteIcon(), 100);
+
   gameManager.showStartScreenOverlay();
 };
 
@@ -49,56 +52,61 @@ window.onload = () => {
  */
 class GameManager {
   /**
-   * Creates a new GameManager instance
-   * Initializes game state and input handling
+   * Creates a new GameManager instance.
+   * Initializes game state and input handling.
+   * @param {HTMLCanvasElement} canvas - The canvas element for rendering
+   * @param {Object} keyboard - Keyboard input handler
    */
   constructor() {
-    this.gameRunning = false;
-    this.currentWorld = null;
-    this.keyboard = new KeyBoard();
-    this.canvas = document.getElementById("canvas");
-    this.currentLevel = 1;
+    this.gameRunning   = false;
+    this.currentWorld  = null;
+    this.keyboard      = new KeyBoard();
+    this.canvas        = document.getElementById("canvas");
+    this.currentLevel  = 1;
   }
 
   /**
-   * Shows the start screen overlay based on device type
-   * Handles mobile and desktop start screen display
+   * Checks if the current device supports touch (mobile/tablet).
+   * @returns {boolean} True if touch is supported, false otherwise.
+   */
+  isTouchDevice() {
+    return 'ontouchstart' in window;
+  }
+
+  /**
+   * Shows the start screen overlay based on device type.
+   * Hides footer on touch devices and loads the appropriate template.
    */
   showStartScreenOverlay() {
-
-     this.clearWorld();
-  
+    this.clearWorld();
     this.prepareCanvas(false);
+
     const footer = document.querySelector("footer");
-    if (this.isMobile() &amp;&amp; footer) {
-      footer.style.display = "none";
-    } else if (footer) {
-      footer.style.display = "";
+    if (footer) {
+      footer.style.display = this.isTouchDevice() ? "none" : "";
     }
-    if (this.isMobile()) {
-      this.currentWorld = new MobileWorld(this.canvas, this.keyboard);
-      window.mobileWorld = this.currentWorld;
-    } else {
-      const startScreen = document.getElementById("startScreen");
-      startScreen.innerHTML = startScreenOverlayTemplate();
-      startScreen.classList.add("active");
-    }
+
+    audioManager.playStartScreenMusic();
+
+    const startScreen = document.getElementById("startScreen");
+    startScreen.innerHTML = this.isTouchDevice()
+      ? getMobileStartScreenTemplate()
+      : startScreenOverlayTemplate();
+    startScreen.classList.add("active");
   }
 
   /**
-   * Handles the start button click
-   * Manages audio playback and transitions to the game screen
+   * Handles the start button click.
+   * Pauses start screen music, hides overlay and starts the game.
    */
   handleStart() {
-    const startscreen = audioManager.tracks["startscreen"];
-    const startBtn = audioManager.tracks[`level${this.currentLevel}`];
-     const footer = document.querySelector("footer");
+    const footer = document.querySelector("footer");
     if (footer) footer.style.display = "none";
 
     try {
-      startscreen.pause();
-    } catch (error) {
-      console.log('Audio error:', error);
+      audioManager.tracks["startscreen"].pause();
+    } catch (e) {
+      console.warn('Audio error:', e);
     }
 
     setTimeout(() => {
@@ -109,14 +117,14 @@ class GameManager {
   }
 
   /**
-   * Starts the game at the specified level
-   * Initializes game world, audio, and screen elements
-   * @param {number} levelNumber - The level number to start the game at
+   * Starts the game at the specified level.
+   * Initializes world, UI, mobile controls and boss handler.
+   * @param {number} [levelNumber=1] - The number of the level to start.
    */
   startGame(levelNumber = 1) {
-    this.gameRunning = true;
+    this.gameRunning  = true;
     this.currentLevel = levelNumber;
-    
+
     audioManager.playLevelMusic(levelNumber);
     this.setupGameUI();
     this.setupMobileControls();
@@ -125,7 +133,9 @@ class GameManager {
   }
 
   /**
-   * Sets up the game UI elements when starting a game
+   * Sets up UI elements for game start.
+   * Hides start screen, shows play screen, and updates mute button.
+   * If on mobile, shows mobile controls.
    */
   setupGameUI() {
     const startScreen = document.getElementById("startScreen");
@@ -145,26 +155,30 @@ class GameManager {
   }
 
   /**
-   * Sets up mobile controls if on a mobile device
+   * Shows/hides mobile controls and binds touch handlers.
+   * Sets up touch controls if the device supports touch.
+   * If not, removes mobile controls.
    */
   setupMobileControls() {
-    if (this.isMobile()) {
-      document.getElementById("mobileControls").classList.add("active");
+    const controls = document.getElementById("mobileControls");
+    if (this.isTouchDevice()) {
+      controls.classList.add("active");
       setupMobileTouchControls(this.keyboard);
     } else {
-      document.getElementById("mobileControls").classList.remove("active");
+      controls.classList.remove("active");
     }
   }
 
   /**
-   * Initializes the game world based on device type
-   * @param {number} levelNumber - The level number to initialize
+   * Initializes the game world (MobileWorld or Desktop World).
+   * Sets up the canvas, keyboard, and level based on the level number.
+   * @param {number} levelNumber - The level number to initialize.
    */
   initializeGameWorld(levelNumber) {
     this.prepareCanvas(true);
     this.clearWorld();
 
-    if (this.isMobile()) {
+    if (this.isTouchDevice()) {
       this.currentWorld = new MobileWorld(this.canvas, this.keyboard, levelNumber);
       window.mobileWorld = this.currentWorld;
     } else {
@@ -173,91 +187,69 @@ class GameManager {
   }
 
   /**
-   * Sets up the boss death handler for level completion
+   * Binds the level complete handler to the boss.
    */
   setupBossDeathHandler() {
     const boss = this.currentWorld.level?.endboss;
     if (boss) {
-      boss.onDeathComplete = () => {
-        this.completeLevel();
-      };
+      boss.onDeathComplete = () => this.completeLevel();
     }
   }
 
   /**
-   * Prepares the canvas element for display
-   * Sets visibility, opacity, and z-index styles
-   * @param {boolean} visible - Whether the canvas should be visible
+   * Prepares the canvas for display.
+   * @param {*} visible - Canvas visibility state.
    */
   prepareCanvas(visible) {
-    this.canvas.style.display = visible ? "block" : "none";
-    this.canvas.style.opacity = visible ? "1" : "0";
-    this.canvas.style.visibility = visible ? "visible" : "hidden";
-    this.canvas.style.zIndex = "10";
+    const style = this.canvas.style;
+    style.display    = visible ? "block" : "none";
+    style.opacity    = visible ? "1" : "0";
+    style.visibility = visible ? "visible" : "hidden";
+    style.zIndex     = "10";
   }
 
   /**
-   * Triggers the end screen display
-   * Shows win or lose screen based on game state
-   * @param {boolean} isWin - Whether the player won the game
+   * Shows the end screen overlay (win/lose).
+   * @param {*} isWin - Win/lose state for the end screen.
    */
   triggerEndScreen(isWin) {
     this.stopGame();
-    const canvas = document.getElementById("canvas");
+    this.canvas.style.filter = "blur(5px)";
     const endScreen = document.getElementById("endScreen");
-
-    canvas.style.filter = "blur(5px)";
     endScreen.classList.add("active");
-
-   endScreen.innerHTML = getFinalEndScreenTemplate(isWin);
-  this.addRestartButton();
-}
-
-  /**
-   * Shows the final end screen with restart option
-   * @param {boolean} isWin - Whether the player won the game
-   */
-  showFinalEndScreen(isWin) {
-    const endScreen = document.getElementById("endScreen");
     endScreen.innerHTML = getFinalEndScreenTemplate(isWin);
     this.addRestartButton();
   }
 
   /**
-   * Adds the restart button to the end screen
-   * Includes animation and click handler for restarting the game
+   * Adds restart button and binds handler.
    */
   addRestartButton() {
-    const restart = document.getElementById("restartContainer");
-    restart.innerHTML = getRestartSVG();
-    restart.classList.add("slide-in");
+    const container = document.getElementById("restartContainer");
+    container.innerHTML = backToMenuSVG();
+    container.classList.add("slide-in");
     this.addRestartHandler();
   }
 
   /**
-   * Adds click handler to the restart button SVG element
-   * Restarts the game when the button is clicked
+   * Binds click handler to the restart SVG.
    */
   addRestartHandler() {
-    const svgText = document.querySelector("#gameOverSVG");
-    if (svgText) {
-      svgText.addEventListener("click", () => this.handleRestart());
-    }
+    const svg = document.querySelector("#gameOverSVG");
+    if (svg) svg.addEventListener("click", () => this.handleRestart());
   }
 
   /**
-   * Handles the game restart process
-   * Resets game state and shows the start screen overlay
+   * Procedure for restarting the game.
    */
   handleRestart() {
     this.restartGame();
-    this.showStartScreenOverlay();
-    this.fadeInCanvas();
   }
 
   /**
-   * Restarts the game from level 1
-   * Resets game state and clears the current world
+   * Resets game state and shows start screen.
+   * Clears the current world, stops all sounds, and resets canvas state.
+   * Removes mobile controls if they were active.
    */
   restartGame() {
     this.stopGame();
@@ -265,12 +257,12 @@ class GameManager {
     this.showStartScreenOverlay();
 
     const startScreen = document.getElementById("startScreen");
-    const playScreen = document.getElementById("playScreen");
-    const endScreen = document.getElementById("endScreen");
-    const controls = document.getElementById("mobileControls");
+    const playScreen  = document.getElementById("playScreen");
+    const endScreen   = document.getElementById("endScreen");
+    const controls    = document.getElementById("mobileControls");
 
     startScreen.classList.add("active");
-    startScreen.style.display = "flex";
+    startScreen.style.display    = "flex";
     startScreen.style.visibility = "visible";
 
     playScreen.classList.remove("active");
@@ -281,17 +273,16 @@ class GameManager {
   }
 
   /**
-   * Stops the game and cleans up the game world
-   * Resets game state and hides game elements
+   * Stops the running game and cleans up.
+   * Clears the current world, stops all sounds, and resets canvas state.
+   * Removes mobile controls if they were active.
    */
   stopGame() {
     this.gameRunning = false;
     this.stopAllSounds();
-      if (this.currentWorld) {
-    if (this.currentWorld.runInterval) {
+    if (this.currentWorld?.runInterval) {
       clearInterval(this.currentWorld.runInterval);
     }
-  }
     this.clearWorld();
     this.canvas.style.filter = "";
     document.getElementById("mobileControls").classList.remove("active");
@@ -302,149 +293,128 @@ class GameManager {
   }
 
   /**
-   * Stops all audio playback in the game
-   * Used when transitioning between game states
+   * Stops all audio tracks.
    */
   stopAllSounds() {
     audioManager.stopAll();
   }
 
   /**
-   * Clears the current game world
-   * Stops all intervals and removes event listeners
-   * Resets the current world to null
+   * Cleans up the current world (intervals, event listeners, etc.).
+   * Removes all game objects from the level.
+   * Clears all intervals and event listeners associated with the world.
    */
   clearWorld() {
-  if (!this.currentWorld) return;
+    if (!this.currentWorld) return;
+    clearInterval(this.currentWorld.collisionInterval);
+    clearInterval(this.currentWorld.throwInterval);
+    clearInterval(this.currentWorld.runInterval);
+    
+    const clearEntity = ent => ent &amp;&amp; (clearInterval(ent.animationInterval), clearInterval(ent.moveInterval), clearInterval(ent.directionInterval));
+    const lvl = this.currentWorld.level;
+    lvl?.enemies?.forEach(clearEntity);
+    clearEntity(lvl?.endboss);
+    lvl?.miniEndbosses?.forEach(clearEntity);
+    clearEntity(this.currentWorld.character);
 
-  clearInterval(this.currentWorld.collisionInterval);
-  clearInterval(this.currentWorld.throwInterval);
-  clearInterval(this.currentWorld.runInterval);
+    if (this.currentWorld.handleCanvasClick) {
+      this.canvas.removeEventListener("click", this.currentWorld.handleCanvasClick);
+    }
+    if (this.currentWorld.handleCanvasMouseMove) {
+      this.canvas.removeEventListener("mousemove", this.currentWorld.handleCanvasMouseMove);
+    }
 
-
-  const clearEntityIntervals = (entity) => {
-    if (!entity) return;
-    clearInterval(entity.animationInterval);
-    clearInterval(entity.moveInterval);
-    clearInterval(entity.directionInterval);
-  };
-
-  const level = this.currentWorld.level;
-  if (level) {
-    level.enemies?.forEach(clearEntityIntervals);
-    clearEntityIntervals(level.endboss);
-    level.miniEndbosses?.forEach(clearEntityIntervals);
+    this.currentWorld = null;
   }
-  
-  clearEntityIntervals(this.currentWorld.character);
-
-  if (this.currentWorld.handleCanvasClick) {
-    this.canvas.removeEventListener("click", this.currentWorld.handleCanvasClick);
-  }
-  if (this.currentWorld.handleCanvasMouseMove) {
-    this.canvas.removeEventListener("mousemove", this.currentWorld.handleCanvasMouseMove);
-  }
-
-  this.currentWorld = null;
-}
-
 
   /**
-   * Closes the start screen overlay
-   * Called when starting the game or restarting
+   * Closes the start screen overlay.
    */
   closeOverlay() {
     document.getElementById("startScreen").innerHTML = "";
   }
 
-
   /**
-   * Fades in the canvas element
-   * Used when starting the game or transitioning between screens
+   * Fades in the canvas (after fade-in).
    */
   fadeInCanvas() {
-    this.canvas.style.opacity = 1;
+    this.canvas.style.opacity = "1";
   }
 
   /**
-   * Completes the current level
-   * Triggers level completion actions and transitions
+   * Completes the current level (win/lose).
+   * Triggers level complete prompt or end screen based on level.
+   * @param {number} levelNumber - The level number to complete.
    */
   completeLevel() {
     if (this.currentLevel === 1) {
-      this.showLevelComplete();
+      this.showLevelPrompt();
     } else {
       this.triggerEndScreen(true);
     }
   }
 
   /**
-   * Shows the level complete screen for level 1
-   * Triggers audio and transitions to level 2 after a delay
+   * Shows the level complete prompt (question about next level).
+   * Stops the game and displays the prompt.
    */
-  showLevelComplete() {
+  showLevelPrompt() {
     this.stopGame();
-    const canvas = document.getElementById("canvas");
+    this.canvas.style.filter = "blur(5px)";
     const endScreen = document.getElementById("endScreen");
-
-    canvas.style.filter = "blur(5px)";
     endScreen.classList.add("active");
     audioManager.play("nextLvl", false, 0.5);
+    endScreen.innerHTML = confirmNextlvl();
+  }
+
+  /**
+   * Starts the next level after confirmation.
+   * Sets up the level complete screen and transitions to the next level.
+   * @param {number} levelNumber - The level number to start.
+   */
+  startNextLevel() {
+    const endScreen = document.getElementById("endScreen");
     endScreen.innerHTML = getLevelCompleteTemplate();
 
     setTimeout(() => {
-      this.closeLevelComplete();
-      this.startLevel2();
+      this.canvas.style.filter = "";
+      endScreen.classList.remove("active");
+      this.currentLevel = 2;
+      this.startGame(2);
     }, 3000);
-  }
-
-  /**
-   * Closes the level complete screen
-   * Resets canvas filter and hides the end screen
-   */
-  closeLevelComplete() {
-    const canvas = document.getElementById("canvas");
-    const endScreen = document.getElementById("endScreen");
-
-    canvas.style.filter = "";
-    endScreen.classList.remove("active");
-  }
-
-  /**
-   * Starts the game at level 2
-   * Called when completing level 1
-   */
-  startLevel2() {
-    this.currentLevel = 2;
-    this.startGame(2);
-  }
-
-  /**
-   * Checks if the current device is mobile
-   * @returns {boolean} - True if the device is mobile, false otherwise
-   */
-  isMobile() {
-    return (
-      window.innerWidth &lt; 768 ||
-      "ontouchstart" in window ||
-      navigator.userAgent.toLowerCase().includes("mobile")
-    );
   }
 }
 
+/**
+ * Shows the settings overlay.
+ */
 function showSettings() {
   document.getElementById("startScreen").innerHTML = settingsOverlayTemplate();
 }
 
-function backToStartScreen() {
-  const startScreen = document.getElementById("startScreen");
-  if (gameManager &amp;&amp; gameManager.isMobile()) {
-    startScreen.innerHTML = getMobileStartScreenTemplate();
-  } else {
-    startScreen.innerHTML = startScreenOverlayTemplate();
-  }
+/**
+ * Shows the impressum overlay.
+ */
+function showImpressum() {
+  document.getElementById("startScreen").innerHTML = impressumOverlayTemplate();
 }
 
+/**
+ * Returns to the start screen and selects the appropriate template.
+ * If on mobile, shows the mobile start screen template.
+ * @param {boolean} [isMobile=false] - Whether to show mobile start screen.
+ */
+function backToStartScreen() {
+  const startScreen = document.getElementById("startScreen");
+  startScreen.innerHTML = gameManager.isTouchDevice()
+    ? getMobileStartScreenTemplate()
+    : startScreenOverlayTemplate();
+}
+
+/**
+ * Handler for game over (loss).
+ * Triggers the end screen with loss state.
+ */
 function handleGameOver() {
   gameManager.triggerEndScreen(false);
 }
@@ -458,13 +428,13 @@ function handleGameOver() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GameManager.html">GameManager</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GameManager.html">GameManager</a></li></ul><h3>Global</h3><ul><li><a href="global.html#backToStartScreen">backToStartScreen</a></li><li><a href="global.html#handleGameOver">handleGameOver</a></li><li><a href="global.html#showImpressum">showImpressum</a></li><li><a href="global.html#showSettings">showSettings</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jul 07 2025 14:59:26 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Jul 15 2025 12:08:09 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

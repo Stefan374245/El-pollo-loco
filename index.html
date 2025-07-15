@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html translate="no">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>El pollo loco</title>
 
-
-<link rel="icon" href="./assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png" />
+    <link
+      rel="icon"
+      href="./assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png"
+    />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="styles/colors.css" />
     <link rel="stylesheet" href="./styles/fonts.css" />
@@ -59,35 +61,43 @@
     <div id="startScreen"></div>
 
     <div id="playScreen" class="playScreen active">
-      <div id="desktopMuteButton" class="desktop-mute-button ">
+      <div id="desktopMuteButton" class="desktop-mute-button">
         <button id="btn-mute-desktop" class="mute-btn-desktop">
-          <img src="assets/icons/unmute.svg" alt="Mute">
+          <img src="assets/icons/unmute.svg" alt="Mute" />
         </button>
       </div>
-      <canvas id="canvas" width="720" height="480"> </canvas>
+      <canvas id="canvas" width="768" height="480"> </canvas>
     </div>
 
     <div id="mobileControls" class="mobile-controls">
+
       <div class="btn-left-side">
         <button id="btn-left" class="mobile-btn">⬅️</button>
         <button id="btn-right" class="mobile-btn">➡️</button>
-        
-           <button id="btn-mute" class="mobile-btn mute-btn fullscreen-btn">
-            <img src="assets/icons/unmute.svg" alt="Mute" class="mobile-mute-icon">
-          </button>
       </div>
-    
 
-        <div class="btn-right-side">
-          <button id="btn-fullscreen" class="mobile-btn fullscreen-btn">⛶</button>
-          <button id="btn-throw" class="mobile-btn">
-            <img
-              src="./assets/img/6_salsa_bottle/bottle_rotation/rotation_sequences.gif"
-              alt="rotating-bottle"
-            />
-          </button>
-          <button id="btn-jump" class="mobile-btn">⬆️</button>
+      <div id="mobileBtnCenter" class="mobile-btn-center">
+        <button id="btn-mute" class="mobile-btn mute-btn fullscreen-btn">
+          <img
+            src="assets/icons/unmute.svg"
+            alt="Mute"
+            class="mobile-mute-icon"
+          />
+        </button>
+
+        <button id="btn-fullscreen" class="mobile-btn fullscreen-btn">⛶</button>
       </div>
+
+      <div class="btn-right-side">
+        <button id="btn-throw" class="mobile-btn">
+          <img
+            src="./assets/img/6_salsa_bottle/bottle_rotation/rotation_sequences.gif"
+            alt="rotating-bottle"
+          />
+        </button>
+        <button id="btn-jump" class="mobile-btn">⬆️</button>
+      </div>
+
     </div>
 
     <div id="endScreen" class="endScreen"></div>
@@ -110,7 +120,9 @@
           >Developer Academie</a
         >, Icons von
         <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>,
-        Sounds von <a href="https://freesound.org/" target="_blank">freesound</a
+        Sounds von
+        <a href="https://freesound.org/" target="_blank">freesound</a> -
+        <a href="javascript:void(0)" onclick="showImpressum()">Impressum</a
         ><br /><br />
         <a href="https://github.com/Stefan374245" target="_blank"
           ><img

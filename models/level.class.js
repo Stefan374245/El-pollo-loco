@@ -4,21 +4,13 @@
  * @class Level
  */
 class Level {
-  /** @type {Enemy[]} Array of enemies in the level */
   enemies;
-  /** @type {Endboss} The main boss enemy of the level */
   endboss;
-  /** @type {Clouds[]} Array of cloud objects */
   clouds;
-  /** @type {Bottle[]} Array of collectible bottles */
   bottles;
-  /** @type {Coins[]} Array of collectible coins */
   coins;
-  /** @type {BackgroundObject[]} Array of background objects */
   backgroundObjects;
-  /** @type {MiniEndboss[]|null} Array of mini bosses for level 2 */
   miniEndbosses;
-  /** @type {number} X-coordinate where the level ends */
   level_end_point = 2200;
   
   /**

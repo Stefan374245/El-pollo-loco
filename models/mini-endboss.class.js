@@ -5,17 +5,11 @@
  * @extends Endboss
  */
 class MiniEndboss extends Endboss {
-  /** @type {number} Width of the mini endboss */
   width = 80;
-  /** @type {number} Height of the mini endboss */
   height = 120;
-  /** @type {number} Health points of the mini endboss */
   hp = 60;
-  /** @type {number} Maximum health points */
   maxHp = 60;
-  /** @type {number} Movement speed */
   speed = 4.0;
-  /** @type {number} Damage dealt per hit */
   damagePerHit = 20;
 
   /**

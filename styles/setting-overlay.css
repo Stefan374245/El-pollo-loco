@@ -67,7 +67,6 @@
     text-align: left;
 }
 
-
 .key {
     flex-shrink: 0;
     display: flex;
@@ -87,5 +86,16 @@ hr {
     width: 80%;
     margin: 20px auto;
     border: 1px solid var(--primary-gold);
+}
+
+.footerText a:not([target="_blank"]) {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footerText a:not([target="_blank"]):hover {
+  color: var(--primary-orange);
+  text-decoration: underline;
 }
 

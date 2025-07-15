@@ -61,7 +61,6 @@ class CollisionHandler {
         }
       });
     }
-
     return jumpAttackHappened;
   }
 
@@ -346,6 +345,9 @@ class CollisionHandler {
 
   /**
    * Checks if thrown bottles hit enemies or mini-bosses
+   * Handles bottle collisions with enemies and mini-bosses
+   * Plays sound effects and updates bottle state on hit
+   * 
    */
   checkBottleHitEnemy() {
     this.world.throwableObjects.forEach((bottle) => {
@@ -359,7 +361,13 @@ class CollisionHandler {
 
       this.world.level.enemies.forEach((enemy) => {
         if (!enemy.isDead() && !bottle.hasHitGround) {
-          const hasCollision = bottle.isColliding(enemy, 5, 5);
+          const enemyType = enemy instanceof Enemy2 ? "enemy2" : "enemy";
+          const hasCollision = CollisionConfig.isPreciseCollision(
+            bottle,
+            enemy,
+            this.offsets.throwableBottle.hit,
+            this.offsets[enemyType].normal
+          );
 
           if (hasCollision) {
             enemy.hit();
@@ -381,13 +389,21 @@ class CollisionHandler {
 
   /**
    * Checks and handles bottle pickups by the character
+   * Limits the number of bottles that can be collected
+   * Plays sound effects and updates the status bar on pickup
+   * @param {number} [maxBottles=5] - The maximum number of bottles that can be collected
    */
   checkBottles() {
     const maxBottles = 5;
 
     this.world.level.bottles = this.world.level.bottles.filter((bottle) => {
       const canPickUp = this.world.bottleCount < maxBottles;
-      const isColliding = this.world.character.isColliding(bottle, 10, 10);
+      const isColliding = CollisionConfig.isPreciseCollision(
+        this.world.character,
+        bottle,
+        this.offsets.character.normal,
+        this.offsets.bottles.collect
+      );
 
       if (isColliding && canPickUp) {
         this.world.bottleCount++;
@@ -410,6 +426,9 @@ class CollisionHandler {
 
   /**
    * Checks and handles coin pickups by the character
+   * Limits the number of coins that can be collected
+   * Plays sound effects and updates the status bar on pickup
+   * @param {number} [amount=10] - The amount of coins to increase the bar by
    */
   checkCoins() {
     this.world.level.coins = this.world.level.coins.filter((coin) => {

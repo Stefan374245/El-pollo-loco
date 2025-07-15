@@ -11,13 +11,9 @@ class Bottle extends MovableObject {
     'assets/img/6_salsa_bottle/2_salsa_bottle_on_ground.png',
   ];
 
-  /** @type {number} Y-coordinate position of the bottle */
   y = 396;
-  /** @type {number} Width of the bottle */
   width = 40;
-  /** @type {number} Height of the bottle */
   height = 40;
-  /** @type {number} Current image index for animation */
   currentImage = 0;
 
   /**

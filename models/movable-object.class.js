@@ -5,17 +5,11 @@
  * @extends DrawableObject
  */
 class MovableObject extends DrawableObject {
-  /** @type {number} Movement speed of the object */
   speed = 0.15;
-  /** @type {boolean} Whether the object is facing the opposite direction */
   otherDirection = false;
-  /** @type {number} Vertical speed for jumping and falling */
   speedY = 0;
-  /** @type {number} Horizontal speed for knockback effects */
   speedX = 0;
-  /** @type {number} Gravity acceleration value */
   accelaration = 2.5;
-  /** @type {number} Health points of the object */
   hp = 100;
 
   /**

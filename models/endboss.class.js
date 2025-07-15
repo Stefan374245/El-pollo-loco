@@ -5,45 +5,29 @@
  * @extends Enemy
  */
 class Endboss extends Enemy {
-  /** @type {number} Height of the endboss */
   height = 400;
-  /** @type {number} Width of the endboss */
   width = 300;
-  /** @type {number} Y-coordinate position */
   y = 72;
-
-  /** @type {string} Current animation phase */
   animationPhase        = "alert";
-  /** @type {number} Current image index for animation */
   currentImage          = 0;
-  /** @type {number} Frame counter for animation timing */
   frameCount            = 0;
-  /** @type {number} Number of attacks performed */
-  attackCount           = 0;
-  /** @type {number} Current phase step counter */
   phaseStep             = 0;
-
-   /** @type {function} Callback function when death animation completes */
   onDeathComplete = null;
-  /** @type {boolean} Flag indicating if death animation is complete */
   deadAnimationComplete = false;
 
-  /** @type {number} Current aggression level of the boss */
   aggressionLevel = 1;
   
-  /** @type {Object} Configuration for aggression level 1 */
   aggressionLevel1 = {
-    speed: 16,
+    speed: 20,
     hp: 100,
     maxHp: 100,
-    spawnEnemiesOnAttack: false,
-    alertDuration: 3000,
+    spawnEnemiesOnAttack: true,
+    alertDuration: 2500,
     damagePerHit: 20,
   };
   
-  /** @type {Object} Configuration for aggression level 2 */
   aggressionLevel2 = {
-    speed: 20,
+    speed: 24,
     hp: 140,
     maxHp: 140,
     spawnEnemiesOnAttack: true,
@@ -124,7 +108,7 @@ class Endboss extends Enemy {
     if (!this.animationInterval) {
       this.animationInterval = setInterval(() => {
         this.handleAnimation();
-      }, 200);
+      }, 150);
     }
   }
 
@@ -171,7 +155,21 @@ class Endboss extends Enemy {
       this.changePhase("alert");
       this.initializeStatusBar();
       this.playEndbossAudio();
+      this.startBossFightOverlay();
     }
+  }
+
+  /**
+   * Starts the boss fight overlay and disables character movement
+   */
+  startBossFightOverlay() {
+    this.world.isBossFightActive = true;
+    this.world.bossOverlay.show();
+    
+    setTimeout(() => {
+      this.world.isBossFightActive = false;
+      this.world.bossOverlay.hide();
+    }, this.getCurrentAggressionSettings().alertDuration);
   }
 
   playEndbossAudio() {
@@ -216,10 +214,7 @@ class Endboss extends Enemy {
         break;
       case "attack":
         this.attackCount++;
-        if (
-          this.getCurrentAggressionSettings().spawnEnemiesOnAttack &&
-          this.attackCount % 2 === 0
-        ) {
+        if (this.getCurrentAggressionSettings().spawnEnemiesOnAttack) {
           this.spawnEnemyBehind();
         }
         this.phaseStep++;
@@ -229,7 +224,7 @@ class Endboss extends Enemy {
         setTimeout(() => {
           this.phaseStep++;
           this.changePhase("attack");
-        }, 2000);
+        }, 1000);
         break;
       case "hurt":
         this.changePhase(this.previousPhase || "attack");

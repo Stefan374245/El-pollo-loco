@@ -5,13 +5,9 @@
  * @extends MovableObject
  */
 class Clouds extends MovableObject {
-  /** @type {number} Y-coordinate position of the cloud */
   y = 20;
-  /** @type {number} Width of the cloud */
   width = 500;
-  /** @type {number} Height of the cloud */
   height = 250;
-  /** @type {number} Movement speed of the cloud */
   speed = 0.4;
 
   /**

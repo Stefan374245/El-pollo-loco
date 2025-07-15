@@ -23,7 +23,6 @@ class ThrowableObject extends MovableObject {
     'assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png',
   ];
 
-  /** @type {boolean} Whether the bottle has hit the ground */
   hasHitGround = false;
 
   /**

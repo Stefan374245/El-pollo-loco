@@ -1,6 +1,3 @@
-/* Icon Animations */
-
-/* Preload images to prevent flickering */
 .bottle-rotate::before,
 .coin-animate::before,
 .chicken-walk::before,
@@ -21,7 +18,6 @@
     url('../assets/img/4_enemie_boss_chicken/1_walk/G4.png');
 }
 
-/* Bottle rotation animation */
 .bottle-rotate {
   animation: rotate 2s linear infinite;
   background-image: url('../assets/img/6_salsa_bottle/1_salsa_bottle_on_ground.png');
@@ -40,7 +36,6 @@
   }
 }
 
-/* Coin background animation (similar to game background) */
 .coin-animate {
   animation: coinFloat 3s ease-in-out infinite;
   background-image: url('../assets/img/8_coin/coin_1.png');
@@ -61,7 +56,6 @@
   }
 }
 
-/* Chicken walk animation */
 .chicken-walk {
   animation: chickenWalk 1.2s infinite;
   animation-timing-function: steps(3, end);
@@ -87,7 +81,6 @@
   }
 }
 
-/* Endboss walk animation */
 .endboss-walk {
   animation: endbossWalk 1.6s infinite;
   animation-timing-function: steps(4, end);
@@ -116,7 +109,6 @@
   }
 }
 
-/* Additional hover effects */
 .icon:hover {
   transition: transform 0.3s ease;
 }
@@ -129,7 +121,6 @@
   animation-duration: 1s;
 }
 
-/* Rotate content animation for device icon */
 .rotate-content img {
   animation: rotate 2s linear infinite;
   display: block;
