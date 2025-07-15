@@ -113,7 +113,6 @@ class MiniEndboss extends Endboss {
       !this.deadAnimationComplete
     ) {
       this.deadAnimationComplete = true;
-      console.log(`Mini-Endboss ${this.id} Dead-Animation abgeschlossen`);
       setTimeout(() => {
         this.removeSelfFromWorld();
       }, 1000);
@@ -184,11 +183,9 @@ class MiniEndboss extends Endboss {
       ) &&
       !bottle.hasHitGround
     ) {
-      console.log("Mini-Endboss hit! HP before:", this.hp);
       this.hitMiniEndboss();
       bottle.hasHitGround = true;
       bottle.playAnimation(bottle.IMAGE_BOTTLE_SPLASH);
-      console.log("Mini-Endboss HP after hit:", this.hp);
     }
   }
 
@@ -206,10 +203,6 @@ class MiniEndboss extends Endboss {
     this.lastHit = new Date().getTime();
     this.changePhase("hurt");
 
-    console.log(
-      `Mini-Endboss Hit! HP: ${this.hp}/${this.maxHp} (Schaden: ${damage})`
-    );
-
     if (this.hp === 0) {
       this.changePhase("dead");
       this.deathProcessed = false;
@@ -221,7 +214,6 @@ class MiniEndboss extends Endboss {
    * Stops movement and plays the death animation
    */
   die() {
-    console.log(`Mini-Endboss ${this.id} stirbt`);
     this.dead = true;
     this.changePhase("dead");
     this.frameCount = 0;
@@ -247,9 +239,6 @@ class MiniEndboss extends Endboss {
       const index = this.world.level.miniEndbosses.indexOf(this);
       if (index > -1) {
         this.world.level.miniEndbosses.splice(index, 1);
-        console.log(
-          `Mini-Endboss ${this.id} erfolgreich aus Array entfernt. Verbleibende: ${this.world.level.miniEndbosses.length}`
-        );
       }
     }
   }

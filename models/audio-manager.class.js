@@ -340,24 +340,24 @@ class AudioManager {
     this.toggleGlobalMute();
     return this.globalMuted;
   }
-}
 
-/**
- * Toggles the global mute state and updates the mute icon
- */
-function toggleGlobalMute() {
-  audioManager.toggleGlobalMute();
-  updateMuteIcon();
-}
+    /**
+   * Toggles the global mute state and updates the mute icon
+   */
+  toggleGlobalMuteWithIcon() {
+    this.toggleGlobalMute();
+    this.updateMuteIcon();
+  }
 
-/**
- * Updates the mute icon based on the current mute state
- */
-function updateMuteIcon() {
-  const icon = document.getElementById("music-toggle-icon");
-  if (icon) {
-    icon.src = audioManager.globalMuted
-      ? "assets/icons/mute.svg"
-      : "assets/icons/unmute.svg";
+  /**
+   * Updates the mute icon based on the current mute state
+   */
+  updateMuteIcon() {
+    const icon = document.getElementById("music-toggle-icon");
+    if (icon) {
+      icon.src = this.globalMuted
+        ? "assets/icons/mute.svg"
+        : "assets/icons/unmute.svg";
+    }
   }
 }

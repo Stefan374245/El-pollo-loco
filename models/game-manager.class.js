@@ -12,7 +12,7 @@ window.onload = () => {
   gameManager = new GameManager();
   window.gameManager = gameManager;
 
-  setTimeout(() => updateMuteIcon(), 100);
+  setTimeout(() => audioManager.updateMuteIcon(), 100);
 
   gameManager.showStartScreenOverlay();
 };
@@ -30,11 +30,11 @@ class GameManager {
    * @param {Object} keyboard - Keyboard input handler
    */
   constructor() {
-    this.gameRunning   = false;
-    this.currentWorld  = null;
-    this.keyboard      = new KeyBoard();
-    this.canvas        = document.getElementById("canvas");
-    this.currentLevel  = 1;
+    this.gameRunning = false;
+    this.currentWorld = null;
+    this.keyboard = new KeyBoard();
+    this.canvas = document.getElementById("canvas");
+    this.currentLevel = 1;
   }
 
   /**
@@ -42,7 +42,7 @@ class GameManager {
    * @returns {boolean} True if touch is supported, false otherwise.
    */
   isTouchDevice() {
-    return 'ontouchstart' in window;
+    return "ontouchstart" in window;
   }
 
   /**
@@ -58,7 +58,11 @@ class GameManager {
       footer.style.display = this.isTouchDevice() ? "none" : "";
     }
 
-    audioManager.playStartScreenMusic();
+    const unlockAudio = () => {
+      audioManager.playStartScreenMusic();
+      document.removeEventListener("pointerdown", unlockAudio);
+    };
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
 
     const startScreen = document.getElementById("startScreen");
     startScreen.innerHTML = this.isTouchDevice()
@@ -71,15 +75,15 @@ class GameManager {
    * Handles the start button click.
    * Pauses start screen music, hides overlay and starts the game.
    */
+  /**
+   * Handles the start button click.
+   * Pauses start screen music, hides overlay and starts the game.
+   */
   handleStart() {
     const footer = document.querySelector("footer");
     if (footer) footer.style.display = "none";
 
-    try {
-      audioManager.tracks["startscreen"].pause();
-    } catch (e) {
-      console.warn('Audio error:', e);
-    }
+    audioManager.tracks["startscreen"].pause();
 
     setTimeout(() => {
       this.closeOverlay();
@@ -94,7 +98,7 @@ class GameManager {
    * @param {number} [levelNumber=1] - The number of the level to start.
    */
   startGame(levelNumber = 1) {
-    this.gameRunning  = true;
+    this.gameRunning = true;
     this.currentLevel = levelNumber;
 
     audioManager.playLevelMusic(levelNumber);
@@ -118,9 +122,9 @@ class GameManager {
     document.getElementById("endScreen").classList.remove("active");
     document.getElementById("playScreen").classList.add("active");
 
-    if (typeof showDesktopMuteButton === 'function') {
+    if (typeof showDesktopMuteButton === "function") {
       showDesktopMuteButton();
-      if (typeof updateMuteButton === 'function') {
+      if (typeof updateMuteButton === "function") {
         updateMuteButton();
       }
     }
@@ -151,7 +155,11 @@ class GameManager {
     this.clearWorld();
 
     if (this.isTouchDevice()) {
-      this.currentWorld = new MobileWorld(this.canvas, this.keyboard, levelNumber);
+      this.currentWorld = new MobileWorld(
+        this.canvas,
+        this.keyboard,
+        levelNumber
+      );
       window.mobileWorld = this.currentWorld;
     } else {
       this.currentWorld = new World(this.canvas, this.keyboard, levelNumber);
@@ -174,10 +182,10 @@ class GameManager {
    */
   prepareCanvas(visible) {
     const style = this.canvas.style;
-    style.display    = visible ? "block" : "none";
-    style.opacity    = visible ? "1" : "0";
+    style.display = visible ? "block" : "none";
+    style.opacity = visible ? "1" : "0";
     style.visibility = visible ? "visible" : "hidden";
-    style.zIndex     = "10";
+    style.zIndex = "10";
   }
 
   /**
@@ -194,47 +202,70 @@ class GameManager {
   }
 
   /**
-   * Adds restart button and binds handler.
+   * Adds restart buttons and binds handlers.
    */
   addRestartButton() {
-    const container = document.getElementById("restartContainer");
+    const container = document.getElementById("backToMenu");
     container.innerHTML = backToMenuSVG();
     container.classList.add("slide-in");
-    this.addRestartHandler();
+    
+    const gameRestartContainer = document.getElementById("gameRestartContainer");
+    gameRestartContainer.innerHTML = restartLevelSVG();
+    gameRestartContainer.classList.add("slide-in");
+    
+    setTimeout(() => {
+      this.addBackToMenuHandler();
+      this.addRestartHandler();
+    }, 100);
   }
 
   /**
-   * Binds click handler to the restart SVG.
+   * Binds click handler to the back to menu SVG.
+   */
+  addBackToMenuHandler() {
+    const svg = document.querySelector("#gameOverSVG");
+    if (svg) svg.addEventListener("click", () => this.handleBackToMenu());
+  }
+
+  /**
+   * Binds click handler to the restart game SVG.
    */
   addRestartHandler() {
-    const svg = document.querySelector("#gameOverSVG");
+    const svg = document.querySelector("#restartGameSVG");
     if (svg) svg.addEventListener("click", () => this.handleRestart());
   }
 
   /**
-   * Procedure for restarting the game.
+   * Handler for back to menu button.
+   */
+  handleBackToMenu() {
+    this.backToMenu();
+  }
+
+  /**
+   * Handler for restart game button.
    */
   handleRestart() {
     this.restartGame();
   }
 
   /**
-   * Resets game state and shows start screen.
+   * Goes back to start screen and resets to level 1.
    * Clears the current world, stops all sounds, and resets canvas state.
    * Removes mobile controls if they were active.
    */
-  restartGame() {
+  backToMenu() {
     this.stopGame();
     this.currentLevel = 1;
     this.showStartScreenOverlay();
 
     const startScreen = document.getElementById("startScreen");
-    const playScreen  = document.getElementById("playScreen");
-    const endScreen   = document.getElementById("endScreen");
-    const controls    = document.getElementById("mobileControls");
+    const playScreen = document.getElementById("playScreen");
+    const endScreen = document.getElementById("endScreen");
+    const controls = document.getElementById("mobileControls");
 
     startScreen.classList.add("active");
-    startScreen.style.display    = "flex";
+    startScreen.style.display = "flex";
     startScreen.style.visibility = "visible";
 
     playScreen.classList.remove("active");
@@ -242,6 +273,22 @@ class GameManager {
     this.prepareCanvas(false);
     controls.classList.remove("active");
     document.getElementById("background").classList.add("blur");
+  }
+
+  /**
+   * Restarts the current level directly without going to start screen.
+   */
+  restartGame() {
+    this.stopGame();
+    
+    this.canvas.style.filter = "";
+    
+    const endScreen = document.getElementById("endScreen");
+    endScreen.classList.remove("active");
+    
+    setTimeout(() => {
+      this.startGame(this.currentLevel);
+    }, 200);
   }
 
   /**
@@ -259,7 +306,7 @@ class GameManager {
     this.canvas.style.filter = "";
     document.getElementById("mobileControls").classList.remove("active");
 
-    if (typeof hideDesktopMuteButton === 'function') {
+    if (typeof hideDesktopMuteButton === "function") {
       hideDesktopMuteButton();
     }
   }
@@ -281,8 +328,12 @@ class GameManager {
     clearInterval(this.currentWorld.collisionInterval);
     clearInterval(this.currentWorld.throwInterval);
     clearInterval(this.currentWorld.runInterval);
-    
-    const clearEntity = ent => ent && (clearInterval(ent.animationInterval), clearInterval(ent.moveInterval), clearInterval(ent.directionInterval));
+
+    const clearEntity = (ent) =>
+      ent &&
+      (clearInterval(ent.animationInterval),
+      clearInterval(ent.moveInterval),
+      clearInterval(ent.directionInterval));
     const lvl = this.currentWorld.level;
     lvl?.enemies?.forEach(clearEntity);
     clearEntity(lvl?.endboss);
@@ -290,10 +341,16 @@ class GameManager {
     clearEntity(this.currentWorld.character);
 
     if (this.currentWorld.handleCanvasClick) {
-      this.canvas.removeEventListener("click", this.currentWorld.handleCanvasClick);
+      this.canvas.removeEventListener(
+        "click",
+        this.currentWorld.handleCanvasClick
+      );
     }
     if (this.currentWorld.handleCanvasMouseMove) {
-      this.canvas.removeEventListener("mousemove", this.currentWorld.handleCanvasMouseMove);
+      this.canvas.removeEventListener(
+        "mousemove",
+        this.currentWorld.handleCanvasMouseMove
+      );
     }
 
     this.currentWorld = null;

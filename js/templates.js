@@ -196,10 +196,21 @@ function backToMenuSVG() {
   `;
 }
 
+function restartLevelSVG() {
+  return `
+    <svg id="restartGameSVG" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="400" y="100" class="btn">🔄 Restart Level</text>
+    </svg>
+  `;
+}
+
 function getFinalEndScreenTemplate(isWin) {
   return `
     <div class="game-over-container">
-      <div id="restartContainer" class="restart-container"></div>
+      <div class="game-over-content">
+        <div id="backToMenu" class="restart-container"></div>
+        <div id="gameRestartContainer" class="restart-container"></div>
+      </div>
       <img class="${isWin ? "win-img" : "lose-img"} stay-visible" src="${
     isWin
       ? "assets/img/You won, you lost/You Won B.png"
@@ -241,7 +252,6 @@ function getLevelCompleteTemplate() {
   return `
     <div class="level-complete-container">
       <div class="level-complete-content">
-        <h1 class="level-complete-title">LEVEL 1 COMPLETE!</h1>
         <h2 class="level-complete-subtitle">Preparing Level 2...</h2>
         <div class="level-complete-progress">
           <div class="progress-bar">

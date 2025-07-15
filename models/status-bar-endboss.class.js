@@ -59,25 +59,6 @@ class StatusBarEndboss extends DrawableObject {
     this.img = this.availableImages[path];
 
     const currentHp = Math.round((this.percentage / 100) * this.maxHp);
-    const hitsToKill = Math.ceil(currentHp / 20);
-    const imageIndex = this.resolveImageIndex();
-    console.log(
-      `StatusBar Update: ${currentHp}/${this.maxHp} (${Math.round(
-        this.percentage
-      )}%) - Noch ${hitsToKill} Hits - Image: orange${
-        imageIndex === 0
-          ? "0"
-          : imageIndex === 1
-          ? "20"
-          : imageIndex === 2
-          ? "40"
-          : imageIndex === 3
-          ? "60"
-          : imageIndex === 4
-          ? "80"
-          : "100"
-      }.png`
-    );
   }
 
   /**
