@@ -5,21 +5,13 @@
  * @extends MovableObject
  */
 class Enemy extends MovableObject {
-  /** @type {number} Width of the enemy */
   width = 48;
-  /** @type {number} Height of the enemy */
   height = 48;
-  /** @type {number} Current image index for animation */
   currentImage = 0;
-  /** @type {boolean} Whether the enemy is currently dying */
   isDying = false;
-  /** @type {number} Health points of the enemy */
   hp = 1;
-  /** @type {boolean} Whether the enemy can jump */
   canJump = true;
-  /** @type {boolean} Whether the enemy has started moving */
   hasStartedMoving = false;
-  /** @type {number[]} Array of available spawn positions */
   static availablePositions = [];
 
   /** @type {string[]} Walking animation images */

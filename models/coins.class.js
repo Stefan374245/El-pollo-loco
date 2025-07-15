@@ -5,12 +5,8 @@
  * @extends MovableObject
  */
 class Coins extends MovableObject {
-  /** @type {string[]} Animation images for coin rotation */
   IMAGES_ROTATING = ['assets/img/8_coin/coin_1.png', 'assets/img/8_coin/coin_2.png'];
-
-  /** @type {number} Width of the coin */
   width = 72;
-  /** @type {number} Height of the coin */
   height = 72;
 
   /**

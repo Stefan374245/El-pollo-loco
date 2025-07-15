@@ -61,7 +61,6 @@ class CollisionHandler {
         }
       });
     }
-
     return jumpAttackHappened;
   }
 
@@ -346,6 +345,9 @@ class CollisionHandler {
 
   /**
    * Checks if thrown bottles hit enemies or mini-bosses
+   * Handles bottle collisions with enemies and mini-bosses
+   * Plays sound effects and updates bottle state on hit
+   * 
    */
   checkBottleHitEnemy() {
     this.world.throwableObjects.forEach((bottle) => {
@@ -387,6 +389,9 @@ class CollisionHandler {
 
   /**
    * Checks and handles bottle pickups by the character
+   * Limits the number of bottles that can be collected
+   * Plays sound effects and updates the status bar on pickup
+   * @param {number} [maxBottles=5] - The maximum number of bottles that can be collected
    */
   checkBottles() {
     const maxBottles = 5;
@@ -421,6 +426,9 @@ class CollisionHandler {
 
   /**
    * Checks and handles coin pickups by the character
+   * Limits the number of coins that can be collected
+   * Plays sound effects and updates the status bar on pickup
+   * @param {number} [amount=10] - The amount of coins to increase the bar by
    */
   checkCoins() {
     this.world.level.coins = this.world.level.coins.filter((coin) => {

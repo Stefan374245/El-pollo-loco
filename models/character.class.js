@@ -5,15 +5,10 @@
  * @extends MovableObject
  */
 class Character extends MovableObject {
-  /** @type {number} Height of the character */
   height = 160;
-  /** @type {number} Movement speed of the character */
   speed = 6;
-  /** @type {number} Current image index for animation */
   currentImage = 0;
-  /** @type {number} Health points of the character */
   hp = 100;
-  /** @type {number} Timestamp of last hit taken */
   lastHit = 0;
   
   /** @type {string[]} Animation images for idle state */
@@ -139,7 +134,6 @@ class Character extends MovableObject {
       return;
     }
 
-    // Block movement during boss fight alert
     if (this.world.isBossFightActive) {
       this.world.camera_x = -this.x + 100;
       return;
@@ -209,7 +203,6 @@ class Character extends MovableObject {
       return;
     }
 
-    // Block all animations during boss fight alert
     if (this.world.isBossFightActive) {
       this.playAnimation(this.IMAGES_IDLE);
       return;

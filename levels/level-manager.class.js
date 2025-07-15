@@ -1,7 +1,7 @@
 /**
  * @fileoverview Level Manager for El Pollo Loco game.
  * Handles creation and configuration of game levels with enemies, items, and backgrounds.
- * @author Your Name
+ * @author Stefan Helldobler
  * @version 1.0.0
  */
 

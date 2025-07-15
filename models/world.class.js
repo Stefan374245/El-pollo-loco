@@ -4,46 +4,19 @@
  * @class World
  */
 class World {
-  /** @type {Character} The main character of the game */
   character;
-  
-  /** @type {Level} The current level with all objects */
   level;
-  
-  /** @type {HTMLCanvasElement} The canvas element for rendering */
   canvas;
-  
-  /** @type {CanvasRenderingContext2D} The 2D rendering context of the canvas */
   ctx;
-  
-  /** @type {Object} Keyboard input handler for controls */
   keyboard;
-  
-  /** @type {number} Number of available bottles for throwing */
   bottleCount;
-  
-  /** @type {number} X-position of the camera for scrolling */
   camera_x;
-
-  /** @type {StatusBar} Status bar for character HP */
   statusBar;
-  
-  /** @type {StatusBarCoins} Status bar for collected coins */
   statusBarCoins;
-  
-  /** @type {StatusBarBottles} Status bar for available bottles */
   statusBarBottles;
-  
-  /** @type {StatusBarEndboss} Status bar for endboss HP */
   statusBarEndboss;
-  
-  /** @type {ThrowableObject[]} Array of all thrown objects */
   throwableObjects;
-  
-  /** @type {CollisionHandler} Handler for collision detection */
   collisionHandler;
-  
-  /** @type {boolean} Flag whether character can throw (cooldown) */
   canThrow;
 
   /**
@@ -91,8 +64,12 @@ class World {
     this.bottleCount = 0;
     this.camera_x = 0;
     this.canThrow = true;
- 
-    this.bossOverlay = new TextOverlay("BOSS FIGHT!", this.canvas.width / 2, this.canvas.height / 2);
+
+    this.bossOverlay = new TextOverlay(
+      "BOSS FIGHT!",
+      this.canvas.width / 2,
+      this.canvas.height / 2
+    );
     this.isBossFightActive = false;
   }
 
@@ -238,14 +215,12 @@ class World {
     }, 10);
   }
 
-  
   /**
    * Checks if the player wants to throw a bottle and can do so
    * Creates new ThrowableObject instance on valid input
    * Only throws once per key press using canThrow flag
    */
   checkThrowableObjects() {
-    // Prevent throwing during boss fight alert
     if (this.isBossFightActive) {
       return;
     }
@@ -268,15 +243,14 @@ class World {
       const maxBottles = 5;
       const percentage = (this.bottleCount / maxBottles) * 100;
       this.statusBarBottles.setPercentage(percentage);
-      
+
       this.canThrow = false;
     }
-    
+
     if (!this.keyboard.F) {
       this.canThrow = true;
     }
   }
-
 
   /**
    * Starts the regular checking for throwable objects
@@ -313,9 +287,13 @@ class World {
    */
   initializeStatusBars() {
     if (this.statusBarEndboss.updateFromHpValues) {
-      this.statusBarEndboss.updateFromHpValues(this.level.endboss.hp, this.level.endboss.maxHp);
+      this.statusBarEndboss.updateFromHpValues(
+        this.level.endboss.hp,
+        this.level.endboss.maxHp
+      );
     } else {
-      const initialPercentage = (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
+      const initialPercentage =
+        (this.level.endboss.hp / this.level.endboss.maxHp) * 100;
       this.statusBarEndboss.setPercentage(initialPercentage);
     }
   }

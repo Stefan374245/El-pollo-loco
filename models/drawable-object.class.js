@@ -4,19 +4,12 @@
  * @class DrawableObject
  */
 class DrawableObject {
-  /** @type {number} X-coordinate position */
   x = 40;
-  /** @type {number} Y-coordinate position */
   y = 280;
-  /** @type {number} Height of the object */
   height = 100;
-  /** @type {number} Width of the object */
   width = 100;
-  /** @type {Image} Current image to display */
   img;
-  /** @type {Object} Collection of loaded images */
   availableImages = {};
-  /** @type {number} Current animation frame index */
   currentImage = 0;
 
   /**
@@ -95,19 +88,12 @@ class DrawableObject {
  * @extends DrawableObject
  */
 class TextOverlay extends DrawableObject {
-  /** @type {string} The text to display */
   text = "";
-  /** @type {string} Font style for the text */
   font = "bold 64px 'Fredericka the Great'";
-  /** @type {string} Text color */
   color = "#FFD700";
-  /** @type {string} Stroke color */
   strokeColor = "#000000";
-  /** @type {number} Stroke width */
   strokeWidth = 4;
-  /** @type {boolean} Whether the overlay is visible */
   visible = false;
-  /** @type {number} Opacity for fade effects */
   opacity = 1;
 
   /**

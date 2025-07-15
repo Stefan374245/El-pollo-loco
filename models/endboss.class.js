@@ -5,31 +5,18 @@
  * @extends Enemy
  */
 class Endboss extends Enemy {
-  /** @type {number} Height of the endboss */
   height = 400;
-  /** @type {number} Width of the endboss */
   width = 300;
-  /** @type {number} Y-coordinate position */
   y = 72;
-
-  /** @type {string} Current animation phase */
   animationPhase        = "alert";
-  /** @type {number} Current image index for animation */
   currentImage          = 0;
-  /** @type {number} Frame counter for animation timing */
   frameCount            = 0;
-  /** @type {number} Current phase step counter */
   phaseStep             = 0;
-
-   /** @type {function} Callback function when death animation completes */
   onDeathComplete = null;
-  /** @type {boolean} Flag indicating if death animation is complete */
   deadAnimationComplete = false;
 
-  /** @type {number} Current aggression level of the boss */
   aggressionLevel = 1;
   
-  /** @type {Object} Configuration for aggression level 1 */
   aggressionLevel1 = {
     speed: 20,
     hp: 100,
@@ -39,7 +26,6 @@ class Endboss extends Enemy {
     damagePerHit: 20,
   };
   
-  /** @type {Object} Configuration for aggression level 2 */
   aggressionLevel2 = {
     speed: 24,
     hp: 140,

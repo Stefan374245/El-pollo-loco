@@ -15,11 +15,8 @@ class StatusBarEndboss extends DrawableObject {
     "assets/img/7_statusbars/2_statusbar_endboss/orange/orange100.png",
   ];
 
-  /** @type {number} Current percentage of health */
   percentage = 100;
-  /** @type {number} Maximum health points */
   maxHp = 100;
-  /** @type {number} Current health points */
   currentHp = 100;
 
   /**

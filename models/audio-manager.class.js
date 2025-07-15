@@ -9,27 +9,16 @@ class AudioManager {
    * Initializes all audio files and sets up default audio settings
    */
   constructor() {
-    /** @type {boolean} Whether sound effects are muted */
     this.soundMuted = false;
-    /** @type {boolean} Whether background music is muted */
     this.musicMuted = false;
-    /** @type {boolean} Whether all audio is globally muted */
     this.globalMuted = this.loadMuteStateFromStorage();
-    /** @type {number} Current track index for music playback */
     this.currentTrackIndex = 0;
-    /** @type {number} X position of the mute button */
     this.buttonX = 0;
-    /** @type {number} Y position of the mute button */
     this.buttonY = 0;
-    /** @type {number} Width of the mute button */
     this.buttonWidth = 40;
-    /** @type {number} Height of the mute button */
     this.buttonHeight = 40;
-    /** @type {boolean} Whether the mute button is currently hovered */
     this.isButtonHovered = false;
-    /** @type {Image} Icon for unmuted state */
     this.unmuteIcon = new Image();
-    /** @type {Image} Icon for muted state */
     this.muteIcon = new Image();
     this.unmuteIcon.src = "assets/icons/unmute.svg";
     this.muteIcon.src = "assets/icons/mute.svg";
@@ -56,7 +45,6 @@ class AudioManager {
       endbossHit: new Audio("assets/audio/endboss-hit.mp3"),
     };
 
-    /** @type {Object.<string, HTMLAudioElement>} Alias for tracks, same as sounds */
     this.tracks = this.sounds;
 
     this.sounds.startscreen.loop = true;
@@ -67,23 +55,26 @@ class AudioManager {
     this.sounds.level2.loop = true;
     this.sounds.level2.volume = 0.2;
 
-    /** @type {Object} Audio settings */
     this.settings = {
       soundEnabled: true
     };
   }
 
   /**
-   * Lädt den Mute-Status aus dem Local Storage
-   * @returns {boolean} Der gespeicherte Mute-Status oder false als Standard
+   * Load music-specific settings from localStorage.
+   * This method retrieves the mute state from localStorage and sets the globalMuted property.
+   * @returns {boolean} The global mute state loaded from localStorage.
+   * If no state is found, it defaults to false (unmuted).
    */
   loadMuteStateFromStorage() {
     const savedMuteState = localStorage.getItem('audioMuted');
     return savedMuteState === 'true';
   }
 
+ 
   /**
-   * Speichert den aktuellen Mute-Status im Local Storage
+   * Saves the current global mute state to localStorage.
+   * The mute state is stored as a string under the key 'audioMuted'.
    */
   saveMuteStateToStorage() {
     localStorage.setItem('audioMuted', this.globalMuted.toString());
@@ -103,23 +94,19 @@ class AudioManager {
       return;
     }
 
-    try {
-      if (!audio.paused) {
-        audio.pause();
-      }
+    if (!audio.paused) {
+      audio.pause();
+    }
 
-      audio.currentTime = 0;
-      audio.volume = volume;
-      audio.loop = loop;
+    audio.currentTime = 0;
+    audio.volume = volume;
+    audio.loop = loop;
 
-      await new Promise(resolve => setTimeout(resolve, 10));
-      
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        await playPromise;
-      }
-    } catch (error) {
-      // Audio playback error - silently handled
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      await playPromise;
     }
   }
 
@@ -360,7 +347,6 @@ class AudioManager {
  */
 function toggleGlobalMute() {
   audioManager.toggleGlobalMute();
-  // Icon wird automatisch vom window.onload und beim Toggle aktualisiert
   updateMuteIcon();
 }
 
