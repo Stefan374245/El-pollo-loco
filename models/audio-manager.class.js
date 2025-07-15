@@ -191,6 +191,7 @@ class AudioManager {
     } else {
       this.muteAll();
     }
+    this.updateMuteIcon();
     return this.globalMuted;
   }
 
